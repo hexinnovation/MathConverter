@@ -1,0 +1,63 @@
+﻿<UserControl x:Class="MathConverterDemo.LineExample"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:math="http://hexinnovation.com/math"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             mc:Ignorable="d" d:DesignHeight="300" d:DesignWidth="300" Background="White">
+    <UserControl.Resources>
+        <math:MathConverter x:Key="math"/>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="20"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="20"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition Width="20"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <StackPanel>
+            <TextBlock Text="StartPoint X"/>
+            <TextBox x:Name="x1" Text="40"/>
+        </StackPanel>
+        <StackPanel Grid.Column="2">
+            <TextBlock Text="StartPoint Y"/>
+            <TextBox x:Name="y1" Text="10"/>
+        </StackPanel>
+        <StackPanel Grid.Row="2">
+            <TextBlock Text="EndPoint X"/>
+            <TextBox x:Name="x2" Text="180"/>
+        </StackPanel>
+        <StackPanel Grid.Row="2" Grid.Column="2">
+            <TextBlock Text="EndPoint Y"/>
+            <TextBox x:Name="y2" Text="120"/>
+        </StackPanel>
+        <Path StrokeThickness="1" Stroke="Black" Grid.Row="4" Grid.ColumnSpan="3">
+            <Path.Data>
+                <PathGeometry>
+                    <PathFigure>
+                        <PathFigure.StartPoint>
+                            <MultiBinding Converter="{StaticResource math}">
+                                <Binding Path="Text" ElementName="x1" Mode="OneWay"/>
+                                <Binding Path="Text" ElementName="y1" Mode="OneWay"/>
+                            </MultiBinding>
+                        </PathFigure.StartPoint>
+                        <LineSegment>
+                            <LineSegment.Point>
+                                <MultiBinding Converter="{StaticResource math}">
+                                    <Binding Path="Text" ElementName="x2" Mode="OneWay"/>
+                                    <Binding Path="Text" ElementName="y2" Mode="OneWay"/>
+                                </MultiBinding>
+                            </LineSegment.Point>
+                        </LineSegment>
+                    </PathFigure>
+                </PathGeometry>
+            </Path.Data>
+        </Path>
+    </Grid>
+</UserControl>

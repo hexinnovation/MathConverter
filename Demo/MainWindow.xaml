@@ -1,0 +1,140 @@
+﻿<!--<Window x:Class="MathConverterDemo.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:local="clr-namespace:MathConverterDemo"
+        xmlns:math="http://hexinnovation.com/math"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="MathConverter Demo" SizeToContent="Height" Width="324">
+    <local:LineExample Margin="20"/>
+</Window>-->
+
+<!--<Window x:Class="MathConverterDemo.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:math="http://hexinnovation.com/math"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="MathConverter Demo" Height="150" Width="324">
+    <Border Margin="20" DataContext="{Binding RelativeSource={RelativeSource Self}}" BorderThickness="1" BorderBrush="Black" CornerRadius="{Binding ActualHeight}"/>
+</Window>-->
+
+<!--<Window x:Class="MathConverterDemo.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:math="http://hexinnovation.com/math"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="MathConverter Demo" Height="350" Width="324">
+    <Window.Resources>
+        <math:MathConverter x:Key="math"/>
+    </Window.Resources>
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition Height="20"/>
+            <RowDefinition Height="2*"/>
+        </Grid.RowDefinitions>
+        <Border DataContext="{Binding RelativeSource={RelativeSource Self}}" BorderThickness="1" BorderBrush="Black" CornerRadius="{Binding ActualHeight, Converter={StaticResource math}, ConverterParameter=x/2;x/2;x/2;x/2}"/>
+        <Border Grid.Row="2" DataContext="{Binding RelativeSource={RelativeSource Self}}" BorderThickness="1" BorderBrush="Black" CornerRadius="{Binding ActualHeight, Converter={StaticResource math}, ConverterParameter=x/2}"/>
+    </Grid>
+</Window>-->
+
+<!--<Window x:Class="MathConverterDemo.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:math="http://hexinnovation.com/math"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="MathConverter Demo" Height="350" Width="324">
+    <Window.Resources>
+        <math:MathConverter x:Key="math"/>
+        <sys:Double x:Key="Padding">40</sys:Double>
+    </Window.Resources>
+    <Grid Margin="20">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="3*"/>
+            <RowDefinition Height="20"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Border Grid.Column="1" DataContext="{Binding RelativeSource={RelativeSource Self}}" BorderThickness="1" BorderBrush="Black">
+            <Border.CornerRadius>
+                <MultiBinding Converter="{StaticResource math}" ConverterParameter="min(x,y)/2">
+                    <Binding Path="ActualHeight"/>
+                    <Binding Path="ActualWidth"/>
+                </MultiBinding>
+            </Border.CornerRadius>
+        </Border>
+        <Border Grid.ColumnSpan="3" Grid.Row="2" DataContext="{Binding RelativeSource={RelativeSource Self}}" BorderThickness="1" BorderBrush="Black">
+            <Border.CornerRadius>
+                <MultiBinding Converter="{StaticResource math}" ConverterParameter="min(x,y)/2">
+                    <Binding Path="ActualHeight"/>
+                    <Binding Path="ActualWidth"/>
+                </MultiBinding>
+            </Border.CornerRadius>
+        </Border>
+    </Grid>
+</Window>-->
+
+<!--<Window x:Class="MathConverterDemo.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:math="http://hexinnovation.com/math"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="MathConverter Demo" SizeToContent="Height" Width="324">
+    <Window.Resources>
+        <math:MathConverter x:Key="math"/>
+    </Window.Resources>
+    <ComboBox x:Name="cb" Margin="20">
+        <ComboBox.ItemTemplate>
+            <DataTemplate>
+                <TextBlock>
+                    <Run Text="{Binding Index, Converter={StaticResource math}, ConverterParameter='Language {0:0}: ,x+1'}"/>
+                    <Run Text="{Binding Value}"/>
+                </TextBlock>
+            </DataTemplate>
+        </ComboBox.ItemTemplate>
+    </ComboBox>
+</Window>-->
+
+
+<Window x:Class="MathConverterDemo.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:math="http://hexinnovation.com/math"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="MathConverter Demo" SizeToContent="Height" Width="324">
+    <Window.Resources>
+        <math:MathConverter x:Key="math" UseCache="False"/>
+    </Window.Resources>
+    <StackPanel Margin="20">
+        <TextBlock Text="How many apples do you want?"/>
+        <ComboBox x:Name="cb">
+            <ComboBox.Items>
+                <sys:Int32>0</sys:Int32>
+                <sys:Int32>1</sys:Int32>
+                <sys:Int32>2</sys:Int32>
+                <sys:Int32>3</sys:Int32>
+                <sys:Int32>4</sys:Int32>
+                <sys:Int32>5</sys:Int32>
+            </ComboBox.Items>
+            <ComboBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock x:Name="tb" Tag="{}{0} apples;x">
+                        <TextBlock.Text>
+                            <MultiBinding Converter="{StaticResource math}">
+                                <Binding Path="Tag" RelativeSource="{RelativeSource Self}" Mode="OneWay"/>
+                                <Binding Mode="OneWay"/>
+                            </MultiBinding>
+                        </TextBlock.Text>
+                    </TextBlock>
+                    <DataTemplate.Triggers>
+                        <DataTrigger Binding="{Binding Mode=OneWay}" Value="1">
+                            <Setter TargetName="tb" Property="Tag" Value="{}{0} apple;x"/>
+                        </DataTrigger>
+                    </DataTemplate.Triggers>
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+        </ComboBox>
+    </StackPanel>
+</Window>
