@@ -91,7 +91,6 @@ namespace HexInnovation
                 switch (targetType.FullName)
                 {
                     case "System.Object":
-                    case "System.Double":
                         switch (x.Length)
                         {
                             case 1:
@@ -99,13 +98,21 @@ namespace HexInnovation
                             default:
                                 throw new NotSupportedException(string.Format("The parameter specifies {0} values; Double supports only one", x.Length));
                         }
+                    case "System.Double":
+                        switch (x.Length)
+                        {
+                            case 1:
+                                return MathConverter.ConvertToDouble(x[0].Evaluate(values));
+                            default:
+                                throw new NotSupportedException(string.Format("The parameter specifies {0} values; Double supports only one", x.Length));
+                        }
                     case "System.Windows.CornerRadius":
                         switch (x.Length)
                         {
                             case 1:
-                                return new CornerRadius(x[0].Evaluate(values));
+                                return new CornerRadius(MathConverter.ConvertToDouble(x[0].Evaluate(values)).Value);
                             case 4:
-                                return new CornerRadius(x[0].Evaluate(values), x[1].Evaluate(values), x[2].Evaluate(values), x[3].Evaluate(values));
+                                return new CornerRadius(MathConverter.ConvertToDouble(x[0].Evaluate(values)).Value, MathConverter.ConvertToDouble(x[1].Evaluate(values)).Value, MathConverter.ConvertToDouble(x[2].Evaluate(values)).Value, MathConverter.ConvertToDouble(x[3].Evaluate(values)).Value);
                             default:
                                 throw new NotSupportedException(string.Format("The parameter specifies {0} values; CornerRadius supports only one or four", x.Length));
                         }
@@ -113,7 +120,7 @@ namespace HexInnovation
                         switch (x.Length)
                         {
                             case 1:
-                                return new GridLength(x[0].Evaluate(values));
+                                return new GridLength(MathConverter.ConvertToDouble(x[0].Evaluate(values)).Value);
                             default:
                                 throw new NotSupportedException(string.Format("The parameter specifies {0} values; GridLength supports only one", x.Length));
                         }
@@ -121,11 +128,11 @@ namespace HexInnovation
                         switch (x.Length)
                         {
                             case 1:
-                                return new Thickness(x[0].Evaluate(values));
+                                return new Thickness(MathConverter.ConvertToDouble(x[0].Evaluate(values)).Value);
                             case 2:
-                                return new Thickness(x[0].Evaluate(values), x[1].Evaluate(values), x[0].Evaluate(values), x[1].Evaluate(values));
+                                return new Thickness(MathConverter.ConvertToDouble(x[0].Evaluate(values)).Value, MathConverter.ConvertToDouble(x[1].Evaluate(values)).Value, MathConverter.ConvertToDouble(x[0].Evaluate(values)).Value, MathConverter.ConvertToDouble(x[1].Evaluate(values)).Value);
                             case 4:
-                                return new Thickness(x[0].Evaluate(values), x[1].Evaluate(values), x[2].Evaluate(values), x[3].Evaluate(values));
+                                return new Thickness(MathConverter.ConvertToDouble(x[0].Evaluate(values)).Value, MathConverter.ConvertToDouble(x[1].Evaluate(values)).Value, MathConverter.ConvertToDouble(x[2].Evaluate(values)).Value, MathConverter.ConvertToDouble(x[3].Evaluate(values)).Value);
                             default:
                                 throw new NotSupportedException(string.Format("The parameter specifies {0} values; Thickness supports only one, two, or four", x.Length));
                         }
@@ -133,7 +140,7 @@ namespace HexInnovation
                         switch (x.Length)
                         {
                             case 4:
-                                return new Rect(x[0].Evaluate(values), x[1].Evaluate(values), x[2].Evaluate(values), x[3].Evaluate(values));
+                                return new Rect(MathConverter.ConvertToDouble(x[0].Evaluate(values)).Value, MathConverter.ConvertToDouble(x[1].Evaluate(values)).Value, MathConverter.ConvertToDouble(x[2].Evaluate(values)).Value, MathConverter.ConvertToDouble(x[3].Evaluate(values)).Value);
                             default:
                                 throw new NotSupportedException(string.Format("The parameter specifies {0} values; Rect supports only four", x.Length));
                         }
@@ -141,7 +148,7 @@ namespace HexInnovation
                         switch (x.Length)
                         {
                             case 2:
-                                return new Size(x[0].Evaluate(values), x[1].Evaluate(values));
+                                return new Size(MathConverter.ConvertToDouble(x[0].Evaluate(values)).Value, MathConverter.ConvertToDouble(x[1].Evaluate(values)).Value);
                             default:
                                 throw new NotSupportedException(string.Format("You supplied {0} values; Size supports only two", x.Length));
                         }
@@ -150,7 +157,7 @@ namespace HexInnovation
                         switch (x.Length)
                         {
                             case 2:
-                                return new Point(x[0].Evaluate(values), x[1].Evaluate(values));
+                                return new Point(MathConverter.ConvertToDouble(x[0].Evaluate(values)).Value, MathConverter.ConvertToDouble(x[1].Evaluate(values)).Value);
                             default:
                                 throw new NotSupportedException(string.Format("You supplied {0} values; Point supports only two", x.Length));
                         }
@@ -163,21 +170,28 @@ namespace HexInnovation
                 switch (targetType.FullName)
                 {
                     case "System.Object":
+                        switch (values.Length)
+                        {
+                            case 1:
+                                return ConvertToObject(values[0]);
+                            default:
+                                throw new NotSupportedException(string.Format("The parameter specifies {0} values; Object supports only one", values.Length));
+                        }
                     case "System.Double":
                         switch (values.Length)
                         {
                             case 1:
                                 return ConvertToDouble(values[0]);
                             default:
-                                throw new NotSupportedException(string.Format("You supplied {0} values; Double supports only one", values.Length));
+                                throw new NotSupportedException(string.Format("The parameter specifies {0} values; Double supports only one", values.Length));
                         }
                     case "System.Windows.CornerRadius":
                         switch (values.Length)
                         {
                             case 1:
-                                return new CornerRadius(ConvertToDouble(values[0]));
+                                return new CornerRadius(ConvertToDouble(values[0]).Value);
                             case 4:
-                                return new CornerRadius(ConvertToDouble(values[0]), ConvertToDouble(values[1]), ConvertToDouble(values[2]), ConvertToDouble(values[3]));
+                                return new CornerRadius(ConvertToDouble(values[0]).Value, ConvertToDouble(values[1]).Value, ConvertToDouble(values[2]).Value, ConvertToDouble(values[3]).Value);
                             default:
                                 throw new NotSupportedException(string.Format("You supplied {0} values; CornerRadius supports only one or four", values.Length));
                         }
@@ -185,7 +199,7 @@ namespace HexInnovation
                         switch (values.Length)
                         {
                             case 1:
-                                return new GridLength(ConvertToDouble(values[0]));
+                                return new GridLength(ConvertToDouble(values[0]).Value);
                             default:
                                 throw new NotSupportedException(string.Format("You supplied {0} values; GridLength supports only one", values.Length));
                         }
@@ -193,11 +207,11 @@ namespace HexInnovation
                         switch (values.Length)
                         {
                             case 1:
-                                return new Thickness(ConvertToDouble(values[0]));
+                                return new Thickness(ConvertToDouble(values[0]).Value);
                             case 2:
-                                return new Thickness(ConvertToDouble(values[0]), ConvertToDouble(values[1]), ConvertToDouble(values[0]), ConvertToDouble(values[1]));
+                                return new Thickness(ConvertToDouble(values[0]).Value, ConvertToDouble(values[1]).Value, ConvertToDouble(values[0]).Value, ConvertToDouble(values[1]).Value);
                             case 4:
-                                return new Thickness(ConvertToDouble(values[0]), ConvertToDouble(values[1]), ConvertToDouble(values[2]), ConvertToDouble(values[3]));
+                                return new Thickness(ConvertToDouble(values[0]).Value, ConvertToDouble(values[1]).Value, ConvertToDouble(values[2]).Value, ConvertToDouble(values[3]).Value);
                             default:
                                 throw new NotSupportedException(string.Format("You supplied {0} values; Thickness supports only one, two, or four", values.Length));
                         }
@@ -205,7 +219,7 @@ namespace HexInnovation
                         switch (values.Length)
                         {
                             case 4:
-                                return new Rect(ConvertToDouble(values[0]), ConvertToDouble(values[1]), ConvertToDouble(values[2]), ConvertToDouble(values[3]));
+                                return new Rect(ConvertToDouble(values[0]).Value, ConvertToDouble(values[1]).Value, ConvertToDouble(values[2]).Value, ConvertToDouble(values[3]).Value);
                             default:
                                 throw new NotSupportedException(string.Format("You supplied {0} values; Rect supports only four", values.Length));
                         }
@@ -213,7 +227,7 @@ namespace HexInnovation
                         switch (values.Length)
                         {
                             case 2:
-                                return new Size(ConvertToDouble(values[0]), ConvertToDouble(values[1]));
+                                return new Size(ConvertToDouble(values[0]).Value, ConvertToDouble(values[1]).Value);
                             default:
                                 throw new NotSupportedException(string.Format("You supplied {0} values; Size supports only two", values.Length));
                         }
@@ -221,7 +235,7 @@ namespace HexInnovation
                         switch (values.Length)
                         {
                             case 2:
-                                return new Point(ConvertToDouble(values[0]), ConvertToDouble(values[1]));
+                                return new Point(ConvertToDouble(values[0]).Value, ConvertToDouble(values[1]).Value);
                             default:
                                 throw new NotSupportedException(string.Format("You supplied {0} values; Point supports only two", values.Length));
                         }
@@ -272,12 +286,17 @@ namespace HexInnovation
         /// </summary>
         /// <param name="parameter">The value we're converting to a double.</param>
         /// <returns>The number, converted to a double.</returns>
-        public static double ConvertToDouble(object parameter)
+        public static object ConvertToObject(object parameter)
         {
-            switch (parameter.GetType().FullName)
+            if (parameter == null)
+                return null;
+            var paramType = parameter.GetType().FullName;
+            switch (paramType)
             {
+                case "System.TimeSpan":
+                case "System.DateTime":
                 case "System.String":
-                    return double.Parse((string)parameter);
+                    return parameter;
                 case "System.Char":
                     return System.Convert.ToDouble((int)(char)parameter);
                 case "System.Byte":
@@ -307,12 +326,27 @@ namespace HexInnovation
                 default:
                     if (parameter == DependencyProperty.UnsetValue)
                     {
-                        return double.NaN;
+                        return null;
                     }
 
-                    var paramType = parameter.GetType().FullName;
-                    throw new NotSupportedException(paramType + " cannot be converted to double.");
+                    throw new NotSupportedException(paramType + " cannot be converted to singleton.");
             }
+        }
+        public static double? ConvertToDouble(object parameter)
+        {
+            if (parameter is double)
+                return (double)parameter;
+
+            if (parameter == null)
+                return null;
+
+            double v;
+            if (parameter is string && double.TryParse(parameter as string, out v))
+            {
+                return v;
+            }
+
+            throw new Exception("Could not convert the value to a double. The value was: \r\n" + parameter);
         }
         
         /// <summary>

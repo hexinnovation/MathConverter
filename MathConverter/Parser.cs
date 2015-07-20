@@ -55,7 +55,7 @@ namespace HexInnovation
                 case TokenType.Plus:
                     return Expression(new AddNode(e, Term()));
                 case TokenType.Minus:
-                    return Expression(new SubNode(e, Term()));
+                    return Expression(new SubtractNode(e, Term()));
                 default:
                     scanner.PutBackToken();
                     return e;
@@ -72,7 +72,7 @@ namespace HexInnovation
             switch (t.TokenType)
             {
                 case TokenType.Times:
-                    return Term(new TimesNode(e, Secondary()));
+                    return Term(new MultiplyNode(e, Secondary()));
                 case TokenType.Divide:
                     return Term(new DivideNode(e, Secondary()));
                 case TokenType.X:
@@ -83,7 +83,7 @@ namespace HexInnovation
                 case TokenType.LBracket:
                 case TokenType.LParen:
                     scanner.PutBackToken();
-                    return Term(new TimesNode(e, Secondary()));
+                    return Term(new MultiplyNode(e, Secondary()));
                 default:
                     scanner.PutBackToken();
                     return e;
@@ -102,9 +102,9 @@ namespace HexInnovation
                 case TokenType.Caret:
                     return RestSecondary(new ExponentNode(e, Primary()));
                 case TokenType.Number:
-                    if (e is VariableNode || e is ConstantNode)
+                    if (e is VariableNode || e is ConstantNumberNode)
                     {
-                        return RestSecondary(new ExponentNode(e, new NumNode(double.Parse((t as LexicalToken).Lex))));
+                        return RestSecondary(new ExponentNode(e, new ValueNode((t as LexicalToken).Lex)));
                     }
                     else
                     {
@@ -124,7 +124,7 @@ namespace HexInnovation
             switch (t.TokenType)
             {
                 case TokenType.Number:
-                    return new NumNode(double.Parse((t as LexicalToken).Lex));
+                    return new ValueNode((t as LexicalToken).Lex);
                 case TokenType.Minus:
                     return new NegativeNode(Primary());
                 case TokenType.X:
@@ -137,7 +137,7 @@ namespace HexInnovation
                     var lex = (t as LexicalToken).Lex;
                     Func<double, double> formula1 = null;
                     Func<double, double, double> formula2 = null;
-                    Func<IEnumerable<double>, double> formulaN = null;
+                    Func<IEnumerable<object>, object> formulaN = null;
                     switch (lex)
                     {
                         case "cos":
@@ -196,9 +196,9 @@ namespace HexInnovation
                             formulaN = FormulaNodeN.Average;
                             break;
                         case "pi":
-                            return new ConstantNode(Math.PI);
+                            return new ConstantNumberNode(Math.PI);
                         case "e":
-                            return new ConstantNode(Math.E);
+                            return new ConstantNumberNode(Math.E);
                         default:
                             var err = lex + " is an invalid formula name";
                             throw new ParsingException(scanner.Position, err, new NotSupportedException(err));

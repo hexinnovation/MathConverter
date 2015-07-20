@@ -11,27 +11,29 @@ namespace HexInnovation
     class Scanner : IDisposable
     {
         public Scanner(string Expression)
+            : this(new StringReader(Expression)) { }
+        public Scanner(StringReader reader)
         {
-            reader = new StringReader(Expression);
-            needsToken = true;
+            this._reader = reader;
+            _needsToken = true;
             Position = -1;
         }
 
-        private TextReader reader;
-        private Token lastToken;
-        private bool needsToken;
+        private TextReader _reader;
+        private Token _lastToken;
+        private bool _needsToken;
         public int Position { get; private set; }
 
         public Token GetToken()
         {
-            if (needsToken)
+            if (_needsToken)
             {
-                return lastToken = NextToken();
+                return _lastToken = NextToken();
             }
             else
             {
-                needsToken = true;
-                return lastToken;
+                _needsToken = true;
+                return _lastToken;
             }
         }
         private Token NextToken()
@@ -40,7 +42,7 @@ namespace HexInnovation
             var sb = new StringBuilder();
 
             // Get the next character.
-            var ch = reader.Read();
+            var ch = _reader.Read();
             Position++;
 
             while (true)
@@ -110,11 +112,11 @@ namespace HexInnovation
 
                         while (true)
                         {
-                            ch = reader.Peek();
+                            ch = _reader.Peek();
                             if ((ch == '.' && acceptDot) || char.IsDigit((char)ch))
                             {
                                 sb.Append((char)ch);
-                                reader.Read();
+                                _reader.Read();
                                 Position++;
 
                                 acceptDot = acceptDot && ch != '.';
@@ -132,12 +134,12 @@ namespace HexInnovation
                     case ScannerState.Lexical:
                         while (true)
                         {
-                            ch = reader.Peek();
+                            ch = _reader.Peek();
 
                             if (ch != '(')
                             {
                                 sb.Append((char)ch);
-                                reader.Read();
+                                _reader.Read();
                             }
                             else
                             {
@@ -150,7 +152,7 @@ namespace HexInnovation
 
         public void PutBackToken()
         {
-            needsToken = false;
+            _needsToken = false;
         }
 
         enum ScannerState
@@ -167,7 +169,7 @@ namespace HexInnovation
         }
         public void Dispose()
         {
-            reader.Dispose();
+            _reader.Dispose();
         }
     }
 
