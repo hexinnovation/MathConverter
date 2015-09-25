@@ -13,6 +13,11 @@ namespace HexInnovation
             this.TokenType = TokenType;
         }
         public TokenType TokenType { get; set; }
+
+        public override string ToString()
+        {
+            return TokenType.ToString() + " token";
+        }
     }
     class LexicalToken : Token
     {
@@ -22,6 +27,11 @@ namespace HexInnovation
             this.Lex = Lex;
         }
         public string Lex { get; set; }
+
+        public override string ToString()
+        {
+            return "Lexical Token (\"" + Lex + "\")";
+        }
     }
     enum TokenType
     {
@@ -41,5 +51,8 @@ namespace HexInnovation
         Semicolon,
         Caret,
         Lexical,
+        Not,
+        DoubleEqual,
+        NotEqual,
     }
 }

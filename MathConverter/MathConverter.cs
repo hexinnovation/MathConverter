@@ -56,7 +56,7 @@ namespace HexInnovation
                     }
                     else if (param.Contains(',') || param.Contains(';'))
                     {
-                        var end = param.LastIndexOfAny(new char[] { ',', ';' });
+                        var end = param.IndexOfAny(new char[] { ',', ';' });
                         format = param.Substring(0, end);
                         args = param.Substring(end + 1);
                     }
@@ -161,6 +161,14 @@ namespace HexInnovation
                             default:
                                 throw new NotSupportedException(string.Format("You supplied {0} values; Point supports only two", x.Length));
                         }
+                    case "System.Boolean":
+                        switch (x.Length)
+                        {
+                            case 1:
+                                return (bool?)x[0].Evaluate(values);
+                            default:
+                                throw new NotSupportedException(string.Format("You supplied {0} values; Boolean supports only one", x.Length));
+                        }
                     default:
                         throw new NotSupportedException(string.Format("You cannot convert to a {0}", targetType.Name));
                 }
@@ -239,6 +247,14 @@ namespace HexInnovation
                             default:
                                 throw new NotSupportedException(string.Format("You supplied {0} values; Point supports only two", values.Length));
                         }
+                    case "System.Boolean":
+                        switch (values.Length)
+                        {
+                            case 1:
+                                return (bool?)values[0];
+                            default:
+                                throw new NotSupportedException(string.Format("You supplied {0} values; Boolean supports only one", values.Length));
+                        }
                     default:
                         throw new NotSupportedException(string.Format("You cannot convert to a {0}", targetType.Name));
                 }
@@ -296,6 +312,7 @@ namespace HexInnovation
                 case "System.TimeSpan":
                 case "System.DateTime":
                 case "System.String":
+                case "System.Boolean":
                     return parameter;
                 case "System.Char":
                     return System.Convert.ToDouble((int)(char)parameter);

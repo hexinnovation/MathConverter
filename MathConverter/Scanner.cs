@@ -88,6 +88,24 @@ namespace HexInnovation
                                 state = ScannerState.NumberAfterDecimal;
                                 sb.Append('.');
                                 break;
+                            case '!':
+                                switch (_reader.Peek())
+                                {
+                                    case '=':
+                                        _reader.Read();
+                                        return new Token(TokenType.NotEqual);
+                                    default:
+                                        return new Token(TokenType.Not);
+                                }
+                            case '=':
+                                switch (_reader.Peek())
+                                {
+                                    case '=':
+                                        _reader.Read();
+                                        return new Token(TokenType.DoubleEqual);
+                                    default:
+                                        throw new ParsingException(Position, "'=' signs are only valid in pairs of two.");
+                                }
                             default:
                                 if (char.IsDigit((char)ch))
                                 {

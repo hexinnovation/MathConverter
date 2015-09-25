@@ -26,7 +26,7 @@ namespace HexInnovation
         {
             while (true)
             {
-                var result = Expression();
+                var result = Equality();
                 var t = scanner.GetToken();
 
                 switch (t.TokenType)
@@ -42,6 +42,27 @@ namespace HexInnovation
                 }
             }
         }
+
+        private AbstractSyntaxTree Equality()
+        {
+            return Equality(Expression());
+        }
+        private AbstractSyntaxTree Equality(AbstractSyntaxTree e)
+        {
+            var t = scanner.GetToken();
+
+            switch (t.TokenType)
+            {
+                case TokenType.DoubleEqual:
+                    return Equality(new EqualNode(e, Expression()));
+                case TokenType.NotEqual:
+                    return Equality(new NotEqualNode(e, Expression()));
+                default:
+                    scanner.PutBackToken();
+                    return e;
+            }
+        }
+
         private AbstractSyntaxTree Expression()
         {
             return Expression(Term());
@@ -124,9 +145,11 @@ namespace HexInnovation
             switch (t.TokenType)
             {
                 case TokenType.Number:
-                    return new ValueNode((t as LexicalToken).Lex);
+                    return new ConstantNumberNode(double.Parse((t as LexicalToken).Lex));
                 case TokenType.Minus:
                     return new NegativeNode(Primary());
+                case TokenType.Not:
+                    return new NotNode(Primary());
                 case TokenType.X:
                     return new VariableNode(0);
                 case TokenType.Y:
@@ -135,11 +158,15 @@ namespace HexInnovation
                     return new VariableNode(2);
                 case TokenType.Lexical:
                     var lex = (t as LexicalToken).Lex;
+                    Func<object> formula0 = null;
                     Func<double, double> formula1 = null;
-                    Func<double, double, double> formula2 = null;
+                    Func<object, object, object> formula2 = null;
                     Func<IEnumerable<object>, object> formulaN = null;
                     switch (lex)
                     {
+                        case "now":
+                            formula0 = () => DateTime.Now;
+                            break;
                         case "cos":
                             formula1 = Math.Cos;
                             break;
@@ -180,10 +207,39 @@ namespace HexInnovation
                             formula1 = x => x / 180 * Math.PI;
                             break;
                         case "atan2":
-                            formula2 = Math.Atan2;
+                            formula2 = (x, y) =>
+                            {
+                                var a = MathConverter.ConvertToDouble(x);
+                                var b = MathConverter.ConvertToDouble(y);
+                                if (a.HasValue && b.HasValue)
+                                    return Math.Atan2(a.Value, b.Value);
+                                else
+                                    return null;
+                            };
                             break;
                         case "log":
-                            formula2 = Math.Log;
+                            formula2 = (x, y) =>
+                            {
+                                var a = MathConverter.ConvertToDouble(x);
+                                var b = MathConverter.ConvertToDouble(y);
+                                if (a.HasValue && b.HasValue)
+                                    return Math.Log(a.Value, b.Value);
+                                else
+                                    return null;
+                            };
+
+                            break;
+                        case "isnull":
+                            formula2 = (x, y) => ReferenceEquals(x, null) ? y : x;
+                            break;
+                        case "and":
+                            formulaN = FormulaNodeN.And;
+                            break;
+                        case "nor":
+                            formulaN = FormulaNodeN.Nor;
+                            break;
+                        case "or":
+                            formulaN = FormulaNodeN.Or;
                             break;
                         case "max":
                             formulaN = FormulaNodeN.Max;
@@ -204,7 +260,18 @@ namespace HexInnovation
                             throw new ParsingException(scanner.Position, err, new NotSupportedException(err));
                     }
 
-                    if (formula1 != null)
+                    if (formula0 != null)
+                    {
+                        var ex = lex + " is a formula that takes zero arguments. You must call it like this: \"" + lex + "()\"";
+
+                        if (scanner.GetToken().TokenType != TokenType.LParen)
+                            throw new ParsingException(scanner.Position, ex);
+                        if (scanner.GetToken().TokenType != TokenType.RParen)
+                            throw new ParsingException(scanner.Position, ex);
+
+                        return new FormulaNode0(lex, formula0);
+                    }
+                    else if (formula1 != null)
                     {
                         // Create a formula1.
                         var ex = lex + " is a formula that takes one argument.  You must specify the arguments like this: \"" + lex + "(3)\"";
@@ -216,7 +283,7 @@ namespace HexInnovation
 
                         try
                         {
-                            arg = Expression();
+                            arg = Equality();
                         }
                         catch (Exception e)
                         {
@@ -226,7 +293,7 @@ namespace HexInnovation
                         if (scanner.GetToken().TokenType != TokenType.RParen)
                             throw new ParsingException(scanner.Position, ex);
 
-                        return new FormulaNode1(formula1, arg);
+                        return new FormulaNode1(lex, formula1, arg);
                     }
                     else if (formula2 != null)
                     {
@@ -240,7 +307,7 @@ namespace HexInnovation
 
                         try
                         {
-                            arg1 = Expression();
+                            arg1 = Equality();
                         }
                         catch (Exception)
                         {
@@ -252,7 +319,7 @@ namespace HexInnovation
 
                         try
                         {
-                            arg2 = Expression();
+                            arg2 = Equality();
                         }
                         catch (Exception)
                         {
@@ -262,7 +329,7 @@ namespace HexInnovation
                         if (scanner.GetToken().TokenType != TokenType.RParen)
                             throw new ParsingException(scanner.Position, ex);
 
-                        return new FormulaNode2(formula2, arg1, arg2);
+                        return new FormulaNode2(lex, formula2, arg1, arg2);
                     }
                     else
                     {
@@ -285,7 +352,7 @@ namespace HexInnovation
                         {
                             try
                             {
-                                trees.Add(Expression());
+                                trees.Add(Equality());
                             }
                             catch (Exception e)
                             {
@@ -305,7 +372,7 @@ namespace HexInnovation
                             }
                         }
                     end:
-                        return new FormulaNodeN(formulaN, trees);
+                        return new FormulaNodeN(lex, formulaN, trees);
                     }
                 case TokenType.LBracket:
                     t = scanner.GetToken();
@@ -330,7 +397,7 @@ namespace HexInnovation
                 case TokenType.LParen:
                     try
                     {
-                        return Expression();
+                        return Equality();
                     }
                     finally
                     {
