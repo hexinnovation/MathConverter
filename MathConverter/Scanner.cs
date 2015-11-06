@@ -60,6 +60,8 @@ namespace HexInnovation
                                 return new Token(TokenType.Minus);
                             case '*':
                                 return new Token(TokenType.Times);
+                            case '%':
+                                return new Token(TokenType.Modulo);
                             case '/':
                                 return new Token(TokenType.Divide);
                             case '(':
@@ -84,28 +86,62 @@ namespace HexInnovation
                             case 'Z':
                             case 'z':
                                 return new Token(TokenType.Z);
+                            case '?':
+                                return new Token(TokenType.QuestionMark);
+                            case ':':
+                                return new Token(TokenType.Colon);
                             case '.':
                                 state = ScannerState.NumberAfterDecimal;
                                 sb.Append('.');
+                                break;
+                            case '"':
+                                state = ScannerState.String;
                                 break;
                             case '!':
                                 switch (_reader.Peek())
                                 {
                                     case '=':
                                         _reader.Read();
+                                        Position++;
                                         return new Token(TokenType.NotEqual);
                                     default:
                                         return new Token(TokenType.Not);
                                 }
                             case '=':
+                                Position++;
+                                if (_reader.Read() != '=')
+                                    throw new ParsingException(Position, "'=' signs are only valid after as part of one of the following two operators: '!=', '==', '<=', and '>='");
+                                return new Token(TokenType.DoubleEqual);
+                            case '<':
                                 switch (_reader.Peek())
                                 {
                                     case '=':
                                         _reader.Read();
-                                        return new Token(TokenType.DoubleEqual);
+                                        Position++;
+                                        return new Token(TokenType.LessThanEqual);
                                     default:
-                                        throw new ParsingException(Position, "'=' signs are only valid in pairs of two.");
+                                        return new Token(TokenType.LessThan);
                                 }
+                            case '>':
+                                switch (_reader.Peek())
+                                {
+                                    case '=':
+                                        _reader.Read();
+                                        Position++;
+                                        return new Token(TokenType.GreaterThanEqual);
+                                    default:
+                                        return new Token(TokenType.GreaterThan);
+                                }
+                            case '|':
+                                Position++;
+                                if (_reader.Read() != '|')
+                                    throw new ParsingException(Position, "'|' signs are only valid in pairs of two.");
+                                return new Token(TokenType.Or);
+                            case '&':
+                                Position++;
+                                if (_reader.Read() != '&')
+                                    throw new ParsingException(Position, "'&' signs are only valid in pairs of two.");
+                                return new Token(TokenType.And);
                             default:
                                 if (char.IsDigit((char)ch))
                                 {
@@ -116,6 +152,12 @@ namespace HexInnovation
                                 {
                                     state = ScannerState.Lexical;
                                     sb.Append((char)ch);
+                                }
+                                else if (char.IsWhiteSpace((char)ch))
+                                {
+                                    // We simply ignore whitespace; skip this character.
+                                    ch = _reader.Read();
+                                    Position++;
                                 }
                                 else
                                 {
@@ -154,14 +196,72 @@ namespace HexInnovation
                         {
                             ch = _reader.Peek();
 
-                            if (ch != '(')
+                            switch (ch)
                             {
-                                sb.Append((char)ch);
-                                _reader.Read();
+                                case -1:
+                                    return new LexicalToken(TokenType.Lexical, sb.ToString());
+                                default:
+                                    if (char.IsLetterOrDigit((char)ch))
+                                    {
+                                        sb.Append((char)ch);
+                                        _reader.Read();
+                                        Position++;
+                                        break;
+                                    }
+
+                                    return new LexicalToken(TokenType.Lexical, sb.ToString());
                             }
-                            else
+                        }
+                    case ScannerState.String:
+                        while (true)
+                        {
+                            ch = _reader.Read();
+                            Position++;
+
+                            switch (ch)
                             {
-                                return new LexicalToken(TokenType.Lexical, sb.ToString().ToLower());
+                                default:
+                                    sb.Append((char)ch);
+                                    break;
+                                case '\\':
+                                    Position++;
+                                    switch (ch = _reader.Read())
+                                    {
+                                        case 'a':
+                                            sb.Append('\a');
+                                            break;
+                                        case 'b':
+                                            sb.Append('\b');
+                                            break;
+                                        case 'f':
+                                            sb.Append('\f');
+                                            break;
+                                        case 'n':
+                                            sb.Append('\n');
+                                            break;
+                                        case 'r':
+                                            sb.Append('\r');
+                                            break;
+                                        case 't':
+                                            sb.Append('\t');
+                                            break;
+                                        case 'v':
+                                            sb.Append('\v');
+                                            break;
+                                        case '\\':
+                                            sb.Append('\\');
+                                            break;
+                                        case '"':
+                                            sb.Append('"');
+                                            break;
+                                        default:
+                                            throw new ParsingException(Position, "The character \\" + (char)ch + " is not a valid backslash-escaped character.");
+                                    }
+                                    break;
+                                case '"':
+                                    return new LexicalToken(TokenType.String, sb.ToString());
+                                case -1:
+                                    throw new ParsingException(Position, "Could not find the end of the string.");
                             }
                         }
                 }
@@ -179,6 +279,7 @@ namespace HexInnovation
             Number,
             NumberAfterDecimal,
             Lexical,
+            String,
         }
 
         ~Scanner()

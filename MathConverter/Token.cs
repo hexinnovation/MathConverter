@@ -54,5 +54,15 @@ namespace HexInnovation
         Not,
         DoubleEqual,
         NotEqual,
+        LessThan,
+        GreaterThan,
+        LessThanEqual,
+        GreaterThanEqual,
+        QuestionMark,
+        Colon,
+        String,
+        Or,
+        And,
+        Modulo,
     }
 }

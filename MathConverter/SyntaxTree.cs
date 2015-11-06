@@ -50,7 +50,13 @@ namespace HexInnovation
         }
         public override object Evaluate(object[] Parameters)
         {
-            return (dynamic)left.Evaluate(Parameters) + right.Evaluate(Parameters);
+            var l = (dynamic)left.Evaluate(Parameters);
+            var r = (dynamic)right.Evaluate(Parameters);
+
+            if (l == null && r == null)
+                return null;
+
+            return l + r;
         }
         public override string ToString()
         {
@@ -95,6 +101,54 @@ namespace HexInnovation
             return "(" + left + " * " + right + ")";
         }
     }
+    class ModuloNode : BinaryNode
+    {
+        public ModuloNode(AbstractSyntaxTree left, AbstractSyntaxTree right)
+            : base(left, right)
+        {
+
+        }
+        public override object Evaluate(object[] Parameters)
+        {
+            return (dynamic)left.Evaluate(Parameters) % (dynamic)right.Evaluate(Parameters);
+        }
+        public override string ToString()
+        {
+            return "(" + left + " % " + right + ")";
+        }
+    }
+    class AndNode : BinaryNode
+    {
+        public AndNode(AbstractSyntaxTree left, AbstractSyntaxTree right)
+            : base(left, right)
+        {
+
+        }
+        public override object Evaluate(object[] Parameters)
+        {
+            return (dynamic)left.Evaluate(Parameters) && (dynamic)right.Evaluate(Parameters);
+        }
+        public override string ToString()
+        {
+            return "(" + left + " && " + right + ")";
+        }
+    }
+    class OrNode : BinaryNode
+    {
+        public OrNode(AbstractSyntaxTree left, AbstractSyntaxTree right)
+            : base(left, right)
+        {
+
+        }
+        public override object Evaluate(object[] Parameters)
+        {
+            return (dynamic)left.Evaluate(Parameters) || (dynamic)right.Evaluate(Parameters);
+        }
+        public override string ToString()
+        {
+            return "(" + left + " || " + right + ")";
+        }
+    }
     class DivideNode : BinaryNode
     {
         public DivideNode(AbstractSyntaxTree left, AbstractSyntaxTree right)
@@ -109,6 +163,34 @@ namespace HexInnovation
         public override string ToString()
         {
             return "(" + left + " / " + right + ")";
+        }
+    }
+    class TernaryNode : AbstractSyntaxTree
+    {
+        public TernaryNode(AbstractSyntaxTree Condition, AbstractSyntaxTree Positive, AbstractSyntaxTree Negative)
+        {
+            this.Condition = Condition;
+            this.Positive = Positive;
+            this.Negative = Negative;
+        }
+        private AbstractSyntaxTree Condition;
+        private AbstractSyntaxTree Positive;
+        private AbstractSyntaxTree Negative;
+
+        public override object Evaluate(object[] Parameters)
+        {
+            if ((dynamic)Condition.Evaluate(Parameters) == true)
+            {
+                return Positive.Evaluate(Parameters);
+            }
+            else
+            {
+                return Negative.Evaluate(Parameters);
+            }
+        }
+        public override string ToString()
+        {
+            return Condition + " ? " + Positive + " : " + Negative;
         }
     }
     class NotEqualNode : BinaryNode
@@ -141,6 +223,81 @@ namespace HexInnovation
         public override string ToString()
         {
             return "(" + left + " == " + right + ")";
+        }
+    }
+    class LessThanNode : BinaryNode
+    {
+        public LessThanNode(AbstractSyntaxTree left, AbstractSyntaxTree right)
+            : base(left, right)
+        {
+
+        }
+        public override object Evaluate(object[] Parameters)
+        {
+            return (dynamic)left.Evaluate(Parameters) < (dynamic)right.Evaluate(Parameters);
+        }
+        public override string ToString()
+        {
+            return "(" + left + " < " + right + ")";
+        }
+    }
+    class LessThanEqualNode : BinaryNode
+    {
+        public LessThanEqualNode(AbstractSyntaxTree left, AbstractSyntaxTree right)
+            : base(left, right)
+        {
+
+        }
+        public override object Evaluate(object[] Parameters)
+        {
+            return (dynamic)left.Evaluate(Parameters) <= (dynamic)right.Evaluate(Parameters);
+        }
+        public override string ToString()
+        {
+            return "(" + left + " <= " + right + ")";
+        }
+    }
+    class GreaterThanNode : BinaryNode
+    {
+        public GreaterThanNode(AbstractSyntaxTree left, AbstractSyntaxTree right)
+            : base(left, right)
+        {
+
+        }
+        public override object Evaluate(object[] Parameters)
+        {
+            return (dynamic)left.Evaluate(Parameters) > (dynamic)right.Evaluate(Parameters);
+        }
+        public override string ToString()
+        {
+            return "(" + left + " > " + right + ")";
+        }
+    }
+    class GreaterThanEqualNode : BinaryNode
+    {
+        public GreaterThanEqualNode(AbstractSyntaxTree left, AbstractSyntaxTree right)
+            : base(left, right)
+        {
+
+        }
+        public override object Evaluate(object[] Parameters)
+        {
+            return (dynamic)left.Evaluate(Parameters) >= (dynamic)right.Evaluate(Parameters);
+        }
+        public override string ToString()
+        {
+            return "(" + left + " >= " + right + ")";
+        }
+    }
+    class NullNode : AbstractSyntaxTree
+    {
+        public override object Evaluate(object[] Parameters)
+        {
+            return null;
+        }
+        public override string ToString()
+        {
+            return "null";
         }
     }
     class NotNode : AbstractSyntaxTree
@@ -198,6 +355,22 @@ namespace HexInnovation
     {
         public ConstantNumberNode(double Value)
             : base(Value) { }
+    }
+    class StringNode : AbstractSyntaxTree
+    {
+        public StringNode(string Value)
+        {
+            this.Value = Value;
+        }
+        private string Value;
+        public override string ToString()
+        {
+            return '"' + Value + '"';
+        }
+        public override object Evaluate(object[] Parameters)
+        {
+            return Value;
+        }
     }
     class VariableNode : AbstractSyntaxTree
     {
@@ -367,9 +540,9 @@ namespace HexInnovation
         public static object Max(IEnumerable<object> args)
         {
             dynamic max = null;
-            foreach (var arg in args)
+            foreach (dynamic arg in args)
             {
-                if (arg < max)
+                if (max == null || arg < max)
                 {
                     max = arg;
                 }
@@ -379,14 +552,20 @@ namespace HexInnovation
         public static object Min(IEnumerable<object> args)
         {
             dynamic min = null;
-            foreach (var arg in args)
+            foreach (dynamic arg in args)
             {
-                if (arg < min)
+                if (min == null || arg < min)
                 {
                     min = arg;
                 }
             }
             return min;
+        }
+        public static object Format(IEnumerable<object> args)
+        {
+            dynamic format = args.First();
+
+            return string.Format(format, args.Skip(1).ToArray());
         }
         public static object Average(IEnumerable<object> args)
         {

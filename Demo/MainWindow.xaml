@@ -89,7 +89,7 @@
         <ComboBox.ItemTemplate>
             <DataTemplate>
                 <TextBlock>
-                    <Run Text="{Binding Index, Converter={StaticResource math}, ConverterParameter='Language {0:0}: ,x+1'}"/>
+                    <Run Text="{Binding Index, Converter={StaticResource math}, ConverterParameter='format(&quot;Language {0:0}: &quot;,x+1)'}"/>
                     <Run Text="{Binding Value}"/>
                 </TextBlock>
             </DataTemplate>
@@ -120,7 +120,7 @@
             </ComboBox.Items>
             <ComboBox.ItemTemplate>
                 <DataTemplate>
-                    <TextBlock x:Name="tb" Tag="{}{0} apples;x">
+                    <TextBlock x:Name="tb" Tag="format(&quot;{0} apples&quot;;x)">
                         <TextBlock.Text>
                             <MultiBinding Converter="{StaticResource math}">
                                 <Binding Path="Tag" RelativeSource="{RelativeSource Self}" Mode="OneWay"/>
@@ -130,7 +130,7 @@
                     </TextBlock>
                     <DataTemplate.Triggers>
                         <DataTrigger Binding="{Binding Mode=OneWay}" Value="1">
-                            <Setter TargetName="tb" Property="Tag" Value="{}{0} apple;x"/>
+                            <Setter TargetName="tb" Property="Tag" Value="format(&quot;{0} apple&quot;;x)"/>
                         </DataTrigger>
                     </DataTemplate.Triggers>
                 </DataTemplate>

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Data;
 
@@ -11,6 +12,7 @@ namespace HexInnovation
     public class MathConverter : IValueConverter, IMultiValueConverter
     {
         private Dictionary<string, AbstractSyntaxTree[]> CachedResults = new Dictionary<string, AbstractSyntaxTree[]>();
+        private static readonly Regex NullableRegex = new Regex(@"^System.Nullable`1\[\[(\S*), mscorlib, Version=.*, Culture=neutral, PublicKeyToken=[a-f0-9]{16}\]\]$", RegexOptions.Compiled | RegexOptions.Singleline);
 
         /// <summary>
         /// The conversion for a single value.
@@ -24,61 +26,6 @@ namespace HexInnovation
         /// </summary>
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            double d;
-
-            if (parameter == null && values[0] is string && !double.TryParse(values[0] as string, out d))
-            {
-                return Convert(values.Skip(1).ToArray(), targetType, values[0], culture);
-            }
-
-            // We handle string conversion entirely differently.
-            if (targetType == typeof(string))
-            {
-                if (parameter is string)
-                {
-                    // Get the parameter
-                    var param = parameter as string;
-
-                    var ex = new Exception("Parameter must be in one of the following formats:\r\n\"format with special characters '\"' ; , {0}\";x\r\n - or - \r\nformat without the semicolon or comma (which can still contain quote (\") characters) {0};x");
-
-                    string format, args;
-
-                    if (param[0] == '"')
-                    {
-                        var endquote = param.LastIndexOf('\"');
-                        if (endquote == 0 || (param[endquote + 1] != ';' && param[endquote + 1] != ','))
-                        {
-                            throw ex;
-                        }
-
-                        format = param.Substring(1, endquote - 1);
-                        args = param.Substring(endquote + 2);
-                    }
-                    else if (param.Contains(',') || param.Contains(';'))
-                    {
-                        var end = param.IndexOfAny(new char[] { ',', ';' });
-                        format = param.Substring(0, end);
-                        args = param.Substring(end + 1);
-                    }
-                    else
-                    {
-                        // They don't have any arguments
-                        return string.Format(param);
-                    }
-
-                    var argVals = ParseParameter(args);
-                    return string.Format(format, argVals.Select(p => (object)p.Evaluate(values)).ToArray());
-                }
-                else if (parameter == null)
-                {
-                    throw new Exception("If you are converting to a string, you must either use a ConverterParameter or have the first binding be a string.");
-                }
-                else
-                {
-                    throw new NotSupportedException("The parameter must be a string.");
-                }
-            }
-
             if (parameter is string)
             {
                 // Get the parameter
@@ -169,7 +116,26 @@ namespace HexInnovation
                             default:
                                 throw new NotSupportedException(string.Format("You supplied {0} values; Boolean supports only one", x.Length));
                         }
+                    case "System.String":
+                        switch (x.Length)
+                        {
+                            case 1:
+                                var val = x[0].Evaluate(values);
+                                if (val is string)
+                                    return val;
+                                else if (val == null)
+                                    return null;
+                                else
+                                    return val.ToString();
+                            default:
+                                throw new NotSupportedException(string.Format("You supplied {0} values; string supports only one", x.Length));
+                        }
                     default:
+                        if (targetType == typeof(double?))
+                        {
+                            return MathConverter.ConvertToDouble(x[0].Evaluate(values));
+                        }
+
                         throw new NotSupportedException(string.Format("You cannot convert to a {0}", targetType.Name));
                 }
             }
@@ -255,7 +221,33 @@ namespace HexInnovation
                             default:
                                 throw new NotSupportedException(string.Format("You supplied {0} values; Boolean supports only one", values.Length));
                         }
+                    case "System.String":
+                        switch (values.Length)
+                        {
+                            case 1:
+                                if (values[0] is string)
+                                    return values[0];
+                                else if (values[0] == null)
+                                    return null;
+                                else
+                                    return values[0].ToString();
+                            default:
+                                throw new NotSupportedException(string.Format("You supplied {0} values; string supports only one", values.Length));
+                        }
                     default:
+                        var matches = NullableRegex.Matches(targetType.FullName);
+
+                        if (matches.Count == 1)
+                        {
+                            switch (matches[0].Groups[1].Value)
+                            {
+                                case "System.Double":
+                                    return ConvertToDouble(values[0]);
+                                default:
+                                    throw new NotSupportedException(string.Format("You cannot convert to a System.Nullable<{0}>", matches[0].Groups[1].Value));
+                            }
+                        }
+
                         throw new NotSupportedException(string.Format("You cannot convert to a {0}", targetType.Name));
                 }
             }
@@ -363,7 +355,7 @@ namespace HexInnovation
                 return v;
             }
 
-            throw new Exception("Could not convert the value to a double. The value was: \r\n" + parameter);
+            throw new Exception("Could not convert the value to a double. The value was: " + parameter);
         }
         
         /// <summary>
