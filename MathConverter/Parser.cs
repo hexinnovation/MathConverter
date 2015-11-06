@@ -372,6 +372,9 @@ namespace HexInnovation
                         case "ISNULL":
                         case "Isnull":
                         case "isnull":
+                        case "IFNULL":
+                        case "Ifnull":
+                        case "ifnull":
                             formula2 = (x, y) => ReferenceEquals(x, null) ? y : x;
                             break;
                         case "AND":
@@ -567,15 +570,11 @@ namespace HexInnovation
                     }
                     throw exc;
                 case TokenType.LParen:
-                    try
-                    {
-                        return Conditional();
-                    }
-                    finally
-                    {
-                        if (scanner.GetToken().TokenType != TokenType.RParen)
-                            throw new ParsingException(scanner.Position, "Mismatching parentheses");
-                    }
+                    var cond = Conditional();
+                    if (scanner.GetToken().TokenType != TokenType.RParen)
+                        throw new ParsingException(scanner.Position, "Mismatching parentheses");
+
+                    return cond;
                 default:
                     throw new ParsingException(scanner.Position, "Invalid conversion string.");
             }
