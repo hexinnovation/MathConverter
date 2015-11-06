@@ -152,7 +152,7 @@ We can easily fix it by making a `MultiBinding`.
 
 ![A tall rectangle with rounded corners](ReadmeAssets/3.png)
 
-The fact that we used x and y for variable names is somewhat misleading. `MathConverter` actually supports an unlimited number of variables. "x" is simply shorthand for "[0]", "y" is shorthand for "[1]", and "z" is shorthand for "[2]". All other variables must be referenced by index.
+The fact that we used x and y for variable names may seem to suggest that you can only bind to 3 or less values. `MathConverter` actually supports an unlimited number of variables. `x` is simply shorthand for `[0]`, `y` is shorthand for `[1]`, and `z` is shorthand for `[2]`. All other variables must be referenced by index.
 
 
 
@@ -165,6 +165,8 @@ The `min` function is also interesting. It can take any number of arguments, exc
 
 There are also several *1-value* and *2-value functions* available. Those functions are: `cos`, `sin`, `tan`, `abs`, `acos`, `asin`, `atan`, `ceil`/`ceiling`, `floor`, `round`, `sqrt`, `deg`/`degrees`, `rad`/`radians`, `atan2`, and `log`. Again, there are more functions that we will come back to.
 
+All functions should be called in all lower-case, all upper-case, or title case.
+
 `deg` uses the function:
 ```c#
 x => x / Math.PI * 180
@@ -175,11 +177,11 @@ and `rad` uses the function:
 x => x / 180 * Math.PI
 ```
 
-`round` accepts either one or two values. If the second value is ommitted, it defaults to zero. It works similarly to the `System.Math.Round` function. All other functions behave similarly to their corresponding functions in the `System.Math` class.
+`round` accepts either one or two values. If the second value is ommitted, it defaults to zero. It works similarly to the [`System.Math.Round`](https://msdn.microsoft.com/en-us/library/system.math.round(v=vs.110).aspx) function. All other functions behave similarly to their corresponding functions in the [`System.Math`](https://msdn.microsoft.com/en-us/library/System.Math(v=vs.110).aspx) class.
 
-`MathConverter` also replaces `e` and `pi` in Conversion strings with their corresponding values, as defined in the `System.Math` class.
+`MathConverter` also replaces `e` and `pi` in Conversion strings with their corresponding numeric values, as defined in the [`System.Math`](https://msdn.microsoft.com/en-us/library/System.Math(v=vs.110).aspx) class.
 
-`MathConverter` allows for inputs of several numeric types: `String`, `char`, `int`, `byte`, `sbyte`, `decimal`, `short`, `uint`, `long`, `ulong`, and `float`. The appropriate `System.Convert.ToDouble` overload is used to convert these objects to doubles. `char` values are casted to ints before being converted.
+`MathConverter` allows for inputs of several numeric types: `String`, `char`, `int`, `byte`, `sbyte`, `decimal`, `short`, `uint`, `long`, `ulong`, and `float`. The appropriate [`System.Convert.ToDouble`](https://msdn.microsoft.com/en-us/library/system.convert.todouble(v=vs.110).aspx) overload is used to convert these objects to doubles. `char` values are casted to ints before being converted.
 
 `MathConverter` allows for conversions to the following types:
 
@@ -251,7 +253,7 @@ So far, we've only really talked about converting numeric types. `MathConverter`
 
 For this example, we create an `IndexedCollection` class. If you want to see the full source for `IndexedCollection`, it is available [here](Demo/IndexedCollection.cs).
 ```c#
-public class IndexedCollection<T> : ObservableCollection<IndexedElement<T>> { … }
+public class IndexedCollection<T> : ObservableCollection<IndexedElement<T>> { ... }
 public class IndexedElement<T> : INotifyPropertyChanged
 {
     public int Index { get; set; }
@@ -299,9 +301,9 @@ public MainWindow()
 
 The Converter `format("Language {0}: {1}",x+1,y)` will essentially `return string.Format("Language {0}: {1}", Index+1, Value);`
 
-The real magic being done here is in the `System.String.Format` method. If you unfamiliar with this method, you can see a lot of examples [here](http://msdn.microsoft.com/en-us/library/txafckwd).
+The real magic being done here is in the [`System.String.Format`](https://msdn.microsoft.com/en-us/library/b1csw23d(v=vs.110).aspx) method. If you unfamiliar with this method, you can see a lot of examples [here](http://msdn.microsoft.com/en-us/library/txafckwd).
 
-`format` is another example of an N-value function. The only difference is that this particular function does not return a numeric value. Other non-numeric N-value functions are: `and`, `or`, `nor`. These functions take boolean values. The zero-value function function `now()` returns `System.DateTime.Now`
+`format` is another example of an N-value function. The only difference is that this particular function does not return a numeric value, but rather returns a string. Other non-numeric N-value functions are: `and`, `or`, `nor`. These functions take and return boolean values. The zero-value function function `now()` returns [`System.DateTime.Now`](https://msdn.microsoft.com/en-us/library/system.datetime.now(v=vs.110).aspx)
 
 Let's look again at the `ConverterParameter` in the previous example: `ConverterParameter="format(&quot;Language {0}: {1}&quot;,x+1,y)"`. Because this is xaml, the `&quot;` characters are converted to `"` characters. Thus, at runtime, the `ConverterParameter` is `format("Language {0}: {1}",x+1,y)`. When `MathConverter` parses the `ConverterParameter`, it sees that "Language {0}: {1}" is a string. In order to include special characters in the string, you can simply backslash-escape them, just like you're used to. So `\r`, `\n`, `\"`, and `\t` (among others) are valid special characters that can be added to strings.
 
@@ -329,18 +331,25 @@ Next, we're going to take a look at an example of how to pluralize an object.
 
 Here, we can see that we change the format string based on whether or not the integer we are binding to is equal to 1. The format string is `"{0} apple" + (x == 1 ? "" : "s")`. We use the ternary conditional (`? =`) operator to change our format string from `{0} apple` to `{0} apples` depending on whether the value is plural or singular.
 
+
+
+
+
+Operators
+---------
+
 The ternary conditional operator is just one of several operators we can use. In general, the operators used in MathConverter will follow [the standard C# rules regarding operator ordering](https://msdn.microsoft.com/en-us/library/aa691323(v=vs.71).aspx), meaning you can usually expect it to behave just like C#. But there are a few notable exceptions:
 
-* Since `MathConverter` is specifically designed to perform math calculations, the caret (`^`) operator does not perform the `XOR` operation. Rather, it is an exponent marker. It uses `System.Math.Pow` to evaluate expressions, and its precedence is just above multiplicative operations (`*`, `/`, and `%`).
-* The multiplication operator can often be safely ommitted. A `ConverterParameter` value of `xyz` will evaluate to `x*y*z`. The parameter `x2y` will evaluate to `x^2*y` (or equivalently, `xxy` or `x*x*y`). Similarly, `2x3` is equivalent to `2*x^3` or `2*x*x*x`.
+* Since `MathConverter` is specifically designed to perform math calculations, the caret (`^`) operator does not perform the `XOR` operation. Rather, it is an exponent symbol. It uses [`System.Math.Pow`](https://msdn.microsoft.com/en-us/library/system.math.pow(v=vs.110).aspx) to evaluate expressions, and its precedence is just above multiplicative operations (`*`, `/`, and `%`).
+* The multiplication operator can often be safely ommitted. A `ConverterParameter` value of `xyz` will evaluate to `x*y*z`. The parameter `x2y` will evaluate to `x^2*y` (or equivalently, `xxy` or `x*x*y`). Similarly, `2x3` is equivalent to `2*x^3` or `2*x*x*x`. Note that `x(2)` is equivalent to `x*(2)`, in the same way that `x(y+z)` is equivalent to `x*(y+z)`.
 * `MathConverter` doesn't support all of the operations that C# does. The following operators are not supported:
     * Assignment operators (`=`, `+=`, `&&=`, etc)
     * Logical operators (`|`, `&`, and `^` as `XOR`)
          - Note that `||` and `&&` are supported operators.
     * `is` and `as` (since Types are not supported)
-    * Binary operations (`<<`, `>>`, `~`) are not supported
+    * Binary operations (`<<`, `>>`, `~`) are not supported.
     * The unary operators `++` and `--` are not supported, since they change the values of the inputs.
-    * Primary operators are not supported (`x.y`, `f(x)`, `a[x]`, `new`, `typeof`, `checked`, `unchecked`)
+    * Primary operators (`x.y`, `f(x)`, `a[x]`, `new`, `typeof`, `checked`, `unchecked`) are not supported.
     * The `??` operator is not listed in [the standard C# rules for operator ordering](https://msdn.microsoft.com/en-us/library/aa691323(v=vs.71).aspx), so `MathConverter` does not support it. See the `isnull` function in the next section.
 
 
@@ -350,7 +359,7 @@ The ternary conditional operator is just one of several operators we can use. In
 null
 ----
 
-`MathConverter` supportes `null` values. You can include `null` in the `ConverterParameter`, and it will evaluate to `null`. Also, any bindings will still work if the binding returns `null`. As previously mentioned, MathConverter does not support the `??` operator. It does, however, include the 2-value function `isnull`/`ifnull`. If I call `isnull(x,y)`, the function will evaluate to the same value as `x == null ? y : x`.
+`MathConverter` fully supportes `null` values. You can include `null` in the `ConverterParameter`, and it will evaluate to `null`. Also, any bindings will still work if the binding returns `null`. As previously mentioned, MathConverter does not support the `??` operator. It does, however, include the 2-value function `isnull`/`ifnull`. `MathConverter` evaluates the expression `isnull(x,y)` in the same way that it would evaluate the expression `x == null ? y : x`.
 
 `MathConverter` evaluates most of its values using the `dynamic` type. So `x+y` will yield `null` if `x = 3` and `y = null`. However, if `x = "Hello World"` and `y = null`, `x+y` will yield `"Hello World"`.
 
@@ -361,7 +370,7 @@ null
 Parser:
 -------
 
-Each time a conversion must be made, `MathConverter` must parse and evaluate an expression. When it parses an expression, it reads through the string one character at a time, and returns a syntax tree. The parsing is done in the `Parser` class. The `Parser` returns an `AbstractSyntaxTree` for each comma-separated (or semicolon-separated) value. In an effort to improve efficiency, `MathConverter` uses a cache. It saves the syntax tree for each string it evaluates. As a result, it is not generally encouraged to use the same `MathConverter` instance across your entire application. It is a better idea to use a different `MathConverter` object for each `UserControl`, `Page`, or `Window`. You can turn off caching on a per-instance basis:
+Each time a conversion must be made, `MathConverter` must parse and evaluate an expression. When it parses an expression, it reads through the string one character at a time, and returns a syntax tree. The parsing is done in the `Parser` class. The `Parser` returns an `AbstractSyntaxTree` for each comma-separated (or semicolon-separated) value. In an effort to improve efficiency, `MathConverter` uses a cache. It saves the syntax tree for each string it evaluates. As a result, it is discouraged to use the same `MathConverter` instance across your entire application. It is a better idea to use a different `MathConverter` object for each `UserControl`, `Page`, or `Window`. You can turn off caching on a per-instance basis:
 
 ```xaml
 <math:MathConverter x:Key="nocache" UseCache="False" />

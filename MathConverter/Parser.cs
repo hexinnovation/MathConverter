@@ -274,18 +274,33 @@ namespace HexInnovation
                             formula1 = Math.Abs;
                             break;
                         case "ACOS":
+                        case "ACos":
                         case "Acos":
                         case "acos":
+                        case "ARCCOS":
+                        case "ArcCos":
+                        case "Arccos":
+                        case "arccos":
                             formula1 = Math.Acos;
                             break;
                         case "ASIN":
+                        case "ASin":
                         case "Asin":
                         case "asin":
+                        case "ARCSIN":
+                        case "ArcSin":
+                        case "Arcsin":
+                        case "arcsin":
                             formula1 = Math.Asin;
                             break;
                         case "ATAN":
+                        case "ATan":
                         case "Atan":
                         case "atan":
+                        case "ARCTAN":
+                        case "ArcTan":
+                        case "Arctan":
+                        case "arctan":
                             formula1 = Math.Atan;
                             break;
                         case "CEIL":
@@ -343,8 +358,13 @@ namespace HexInnovation
                             };
                             break;
                         case "ATAN2":
+                        case "ATan2":
                         case "Atan2":
                         case "atan2":
+                        case "ARCTAN2":
+                        case "ArcTan2":
+                        case "Arctan2":
+                        case "arctan2":
                             formula2 = (x, y) =>
                             {
                                 var a = MathConverter.ConvertToDouble(x);
@@ -370,9 +390,11 @@ namespace HexInnovation
 
                             break;
                         case "ISNULL":
+                        case "IsNull":
                         case "Isnull":
                         case "isnull":
                         case "IFNULL":
+                        case "IfNull":
                         case "Ifnull":
                         case "ifnull":
                             formula2 = (x, y) => ReferenceEquals(x, null) ? y : x;
