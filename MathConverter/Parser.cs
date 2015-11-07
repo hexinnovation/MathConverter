@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -206,7 +207,7 @@ namespace HexInnovation
                 case TokenType.Number:
                     if (e is VariableNode)
                     {
-                        return Exponent(new ExponentNode(e, new ConstantNumberNode(double.Parse((t as LexicalToken).Lex))));
+                        return Exponent(new ExponentNode(e, new ConstantNumberNode(double.Parse((t as LexicalToken).Lex, NumberStyles.Number, CultureInfo.InvariantCulture))));
                     }
                     else
                     {
@@ -225,7 +226,7 @@ namespace HexInnovation
             switch (t.TokenType)
             {
                 case TokenType.Number:
-                    return new ConstantNumberNode(double.Parse((t as LexicalToken).Lex));
+                    return new ConstantNumberNode(double.Parse((t as LexicalToken).Lex, NumberStyles.Number, CultureInfo.InvariantCulture));
                 case TokenType.Minus:
                     return new NegativeNode(Primary());
                 case TokenType.Not:

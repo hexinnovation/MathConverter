@@ -9,10 +9,31 @@ using System.Windows.Data;
 
 namespace HexInnovation
 {
+    /// <summary>
+    /// MathConverter is a WPF Converter class that does it all.
+    /// </summary>
     public class MathConverter : IValueConverter, IMultiValueConverter
     {
+        /// <summary>
+        /// Creates a new MathConverter object.
+        /// </summary>
+        public MathConverter()
+        {
+
+        }
+
+        /// <summary>
+        /// If <see cref="UseCache"/> is set to true, clears the cache of this MathConverter object; If <see cref="UseCache"/> is false, this method does nothing.
+        /// </summary>
+        public void ClearCache()
+        {
+            if (UseCache)
+            {
+                CachedResults.Clear();
+            }
+        }
+
         private Dictionary<string, AbstractSyntaxTree[]> CachedResults = new Dictionary<string, AbstractSyntaxTree[]>();
-        private static readonly Regex NullableRegex = new Regex(@"^System.Nullable`1\[\[(\S*), mscorlib, Version=.*, Culture=neutral, PublicKeyToken=[a-f0-9]{16}\]\]$", RegexOptions.Compiled | RegexOptions.Singleline);
 
         /// <summary>
         /// The conversion for a single value.
@@ -235,17 +256,9 @@ namespace HexInnovation
                                 throw new NotSupportedException(string.Format("You supplied {0} values; string supports only one", values.Length));
                         }
                     default:
-                        var matches = NullableRegex.Matches(targetType.FullName);
-
-                        if (matches.Count == 1)
+                        if (targetType == typeof(double?))
                         {
-                            switch (matches[0].Groups[1].Value)
-                            {
-                                case "System.Double":
-                                    return ConvertToDouble(values[0]);
-                                default:
-                                    throw new NotSupportedException(string.Format("You cannot convert to a System.Nullable<{0}>", matches[0].Groups[1].Value));
-                            }
+                            return ConvertToDouble(values[0]);
                         }
 
                         throw new NotSupportedException(string.Format("You cannot convert to a {0}", targetType.Name));
@@ -290,10 +303,10 @@ namespace HexInnovation
         }
 
         /// <summary>
-        /// Converts a number to a double.
+        /// Converts a number to an object.
         /// </summary>
-        /// <param name="parameter">The value we're converting to a double.</param>
-        /// <returns>The number, converted to a double.</returns>
+        /// <param name="parameter">The value we're converting to an object.</param>
+        /// <returns>The number, converted to an object.</returns>
         public static object ConvertToObject(object parameter)
         {
             if (parameter == null)
@@ -350,7 +363,7 @@ namespace HexInnovation
                 return null;
 
             double v;
-            if (parameter is string && double.TryParse(parameter as string, out v))
+            if (parameter is string && double.TryParse(parameter as string, NumberStyles.Number, CultureInfo.InvariantCulture, out v))
             {
                 return v;
             }
