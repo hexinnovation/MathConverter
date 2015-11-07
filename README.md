@@ -99,7 +99,9 @@ This is where `MathConverter` comes in handy. It is a single Converter class tha
 Getting Started
 ---------------
 
-First of all, you need to add a `MathConverter` object to your resources.
+You can install [MathConverter from Nuget](https://www.nuget.org/packages/MathConverter/), or you can check out the [source from GitHub](https://github.com/timothylcooke/MathConverter)
+
+Once you have MathConverter referenced, you need to add a `MathConverter` object to your resources.
 
 ```xaml
 <Window.Resources>
