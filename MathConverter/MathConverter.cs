@@ -157,7 +157,8 @@ namespace HexInnovation
                             return MathConverter.ConvertToDouble(x[0].Evaluate(values));
                         }
 
-                        throw new NotSupportedException(string.Format("You cannot convert to a {0}", targetType.Name));
+                        // We don't know what to return, so let's just evaluate the parameter and return what it returns.
+                        return x[0].Evaluate(values); //throw new NotSupportedException(string.Format("You cannot convert to a {0}", targetType.Name));
                 }
             }
             else if (parameter == null)
@@ -351,7 +352,8 @@ namespace HexInnovation
                         return null;
                     }
 
-                    throw new NotSupportedException(paramType + " cannot be converted to singleton.");
+                    return parameter;
+                    //throw new NotSupportedException(paramType + " cannot be converted to singleton.");
             }
         }
         public static double? ConvertToDouble(object parameter)
