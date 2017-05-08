@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace HexInnovation
@@ -13,7 +14,18 @@ namespace HexInnovation
         {
             using (var p = new Parser(expression))
             {
-                return p.ConverterParameter().ToArray();
+                try
+                {
+                    return p.ConverterParameter().ToArray();
+                }
+                catch (ParsingException e)
+#if DEBUG
+                when (false)
+#endif
+
+                {
+                    throw new Exception($"Failed to parse the expression:{Environment.NewLine}{expression}{Environment.NewLine}See the inner exception for details.", e);
+                }
             }
         }
 
@@ -21,7 +33,23 @@ namespace HexInnovation
         private Scanner scanner;
         private Parser(string expression)
         {
-            scanner = new Scanner(expression);
+            scanner = new Scanner(this, expression);
+        }
+        internal AbstractSyntaxTree ParseDollarStringArg()
+        {
+            var result = Conditional();
+
+            var t = scanner.Peek();
+
+            switch (t.TokenType)
+            {
+                case TokenType.RCurlyBracket:
+                case TokenType.Colon:
+                    return result;
+                default:
+                    throw new ParsingException(scanner.Position, "Error parsing $ string. Could not find closing curly bracket (or a colon) after the argument.");
+            }
+
         }
         private IEnumerable<AbstractSyntaxTree> ConverterParameter()
         {
@@ -54,6 +82,9 @@ namespace HexInnovation
             switch (t.TokenType)
             {
                 case TokenType.QuestionMark:
+                    if (scanner.Peek().TokenType == TokenType.QuestionMark)
+                        throw new ParsingException(scanner.Position, "The ?? operator is not supported.");
+
                     var then = ConditionalOr();
                     t = scanner.GetToken();
                     switch (t.TokenType)
@@ -239,6 +270,10 @@ namespace HexInnovation
                     return new VariableNode(2);
                 case TokenType.String:
                     return new StringNode((t as LexicalToken).Lex);
+                case TokenType.DollarString:
+                    var token = t as DollarStringToken;
+                    return new FormulaNodeN("Format", FormulaNodeN.Format, new AbstractSyntaxTree[] { new StringNode(token.Lex) }.Union(token.Arguments));
+
                 case TokenType.Lexical:
                     var lex = (t as LexicalToken).Lex;
                     Func<object> formula0 = null;
@@ -249,6 +284,10 @@ namespace HexInnovation
                     {
                         case "null":
                             return new NullNode();
+                        case "true":
+                            return new BooleanNode(true);
+                        case "false":
+                            return new BooleanNode(false);
                         case "NOW":
                         case "Now":
                         case "now":
@@ -443,6 +482,35 @@ namespace HexInnovation
                         case "Format":
                         case "format":
                             formulaN = FormulaNodeN.Format;
+                            break;
+                        case "CONCAT":
+                        case "Concat":
+                        case "concat":
+                            formulaN = FormulaNodeN.Concat;
+                            break;
+                        case "JOIN":
+                        case "Join":
+                        case "join":
+                            formulaN = FormulaNodeN.Join;
+                            break;
+                        case "CONTAINS":
+                        case "Contains":
+                        case "contains":
+                            formula2 = (x, y) => 
+                            {
+                                if (x is IEnumerable<dynamic>)
+                                {
+                                    return (x as IEnumerable<dynamic>).Contains(y);
+                                }
+                                else if (x is string)
+                                {
+                                    return (x as string).Contains(y as dynamic);
+                                }
+                                else
+                                {
+                                    return null;
+                                }
+                            };
                             break;
                         default:
                             var err = lex + " is an invalid formula name";

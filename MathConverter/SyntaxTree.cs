@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -300,6 +301,22 @@ namespace HexInnovation
             return "null";
         }
     }
+    class BooleanNode : AbstractSyntaxTree
+    {
+        public BooleanNode(bool Value)
+        {
+            this.Value = Value;
+        }
+        private bool Value;
+        public override object Evaluate(object[] Parameters)
+        {
+            return Value;
+        }
+        public override string ToString()
+        {
+            return Value.ToString().ToLower();
+        }
+    }
     class NotNode : AbstractSyntaxTree
     {
         public NotNode(AbstractSyntaxTree node)
@@ -403,7 +420,7 @@ namespace HexInnovation
                         break;
                 }
 
-                var error = new StringBuilder("Error accessing variable ").Append(variableName);
+                var error = new StringBuilder("Error accessing variable ").Append(variableName).Append(". ");
 
                 if (Parameters.Length == 0)
                     error.Append("No");
@@ -566,6 +583,24 @@ namespace HexInnovation
             dynamic format = args.First();
 
             return string.Format(format, args.Skip(1).ToArray());
+        }
+        public static string Concat(IEnumerable<object> args)
+        {
+            List<object> argVals = args.ToList();
+            if (argVals.Count == 1 && argVals[0] is IEnumerable)
+                return string.Concat(argVals[0] as dynamic);
+            else
+                return string.Concat(argVals);
+        }
+        public static string Join(IEnumerable<object> args)
+        {
+            dynamic separator = args.First();
+
+            var argVals = args.Skip(1).ToArray();
+            if (argVals.Length == 1 && argVals[0] is IEnumerable)
+                return string.Join(separator, argVals[0] as dynamic);
+            else
+                return string.Concat(argVals);
         }
         public static object Average(IEnumerable<object> args)
         {

@@ -16,7 +16,7 @@ namespace HexInnovation
 
         public override string ToString()
         {
-            return TokenType.ToString() + " token";
+            return $"{TokenType} token";
         }
     }
     class LexicalToken : Token
@@ -30,8 +30,17 @@ namespace HexInnovation
 
         public override string ToString()
         {
-            return "Lexical Token (\"" + Lex + "\")";
+            return $"Lexical ({TokenType}) Token (\"{Lex.Replace("\"", "\\\"")}\")";
         }
+    }
+    class DollarStringToken : LexicalToken
+    {
+        public DollarStringToken(string Lex, List<AbstractSyntaxTree> Arguments)
+            : base(TokenType.DollarString, Lex)
+        {
+            this.Arguments = Arguments;
+        }
+        public List<AbstractSyntaxTree> Arguments { get; set; }
     }
     enum TokenType
     {
@@ -64,5 +73,7 @@ namespace HexInnovation
         Or,
         And,
         Modulo,
+        DollarString,
+        RCurlyBracket,
     }
 }
