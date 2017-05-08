@@ -296,7 +296,7 @@ In the constructor of the `Window`, we add the following code:
 public MainWindow()
 {
     InitializeComponent();
-    cb.ItemsSource = new IndexedCollection<string> { "English", "Español", "Français" };
+    cb.ItemsSource = new IndexedCollection<string> { "English", "EspaÃ±ol", "FranÃ§ais" };
     cb.SelectedIndex = 0;
 }
 ```
@@ -307,7 +307,9 @@ The real magic being done here is in the [`System.String.Format`](https://msdn.m
 
 `format` is another example of an N-value function. The only difference is that this particular function does not return a numeric value, but rather returns a string. Other non-numeric N-value functions are: `and`, `or`, `nor`. These functions take and return boolean values. The zero-value function function `now()` returns [`System.DateTime.Now`](https://msdn.microsoft.com/en-us/library/system.datetime.now(v=vs.110).aspx)
 
-Let's look again at the `ConverterParameter` in the previous example: `ConverterParameter="format(&quot;Language {0}: {1}&quot;,x+1,y)"`. Because this is xaml, the `&quot;` characters are converted to `"` characters. Thus, at runtime, the `ConverterParameter` is `format("Language {0}: {1}",x+1,y)`. When `MathConverter` parses the `ConverterParameter`, it sees that "Language {0}: {1}" is a string. In order to include special characters in the string, you can simply backslash-escape them, just like you're used to. So `\r`, `\n`, `\"`, and `\t` (among others) are valid special characters that can be added to strings.
+Let's look again at the `ConverterParameter` in the previous example: `ConverterParameter="format(&quot;Language {0}: {1}&quot;,x+1,y)"`. Because this is xaml, the `&quot;` characters are converted to `"` characters. Thus, at runtime, the `ConverterParameter` is `format("Language {0}: {1}",x+1,y)`. When `MathConverter` parses the `ConverterParameter`, it sees that "Language {0}: {1}" is a string. In order to include special characters in the string, you can simply backslash-escape them, just like you're used to. So `\r`, `\n`, `\"`, and `\t` (among others) are valid special characters that can be added to strings. At the moment, arbitrary unicode characters (such as `\u0000`) are not supported, but these can be added if there is sufficient demand.
+
+You can also use the grave (`` ` ``) character to enclose strings, to avoid needing to add `&quot;` over and over again in a `ConverterParameter`. So we can actually use ``format(`Language {0}: {1}`,x+1,y)`` in the above example.
 
 Next, we're going to take a look at an example of how to pluralize an object.
 
@@ -334,6 +336,16 @@ Next, we're going to take a look at an example of how to pluralize an object.
 Here, we can see that we change the format string based on whether or not the integer we are binding to is equal to 1. The format string is `"{0} apple" + (x == 1 ? "" : "s")`. We use the ternary conditional (`? =`) operator to change our format string from `{0} apple` to `{0} apples` depending on whether the value is plural or singular.
 
 
+
+Interpolated Strings
+--------------------
+`MathConverter` supports interpolated strings, just like C#.
+
+In the previous example, we used `ConverterParameter="format(&quot;Language {0}: {1}&quot;,x+1,y)"`. We established that this was equivalent to C#'s `string.Format("Language {0}: {1}", x+1, y)`.
+
+In C#, you can simplify the call to string.Format by using an interpolated string. In this case, that would be `$"Language {x+1}: {y}"`. Similarly, in `MathConverter`, we can use ``ConverterParameter="$`Language {x+1}: {y}`"``. This will be converted by `MathConverter`'s compiler into a call to `string.Format("Language {0}: {1}", x+1, y)`.
+
+Just like in C#, you can embed strings within in an interpolated string. So `MathConverter`'s interpolated strings can be just as complex as C#'s. For example, you can simplify the expression `ConverterParameter='format(&quot;{0} apple&quot; + (x == 1 ? &quot;&quot; : &quot;s&quot;), x)'` to simply be ```ConverterParameter='$&quot;{x} apple{(x==1 ? `` : `s`)}&quot;'```.
 
 
 
