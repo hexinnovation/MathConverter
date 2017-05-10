@@ -345,7 +345,7 @@ In the previous example, we used `ConverterParameter="format(&quot;Language {0}:
 
 In C#, you can simplify the call to string.Format by using an interpolated string. In this case, that would be `$"Language {x+1}: {y}"`. Similarly, in `MathConverter`, we can use ``ConverterParameter="$`Language {x+1}: {y}`"``. This will be converted by `MathConverter`'s compiler into a call to `string.Format("Language {0}: {1}", x+1, y)`.
 
-Just like in C#, you can embed strings within in an interpolated string. So `MathConverter`'s interpolated strings can be just as complex as C#'s. For example, you can simplify the expression `ConverterParameter='format(&quot;{0} apple&quot; + (x == 1 ? &quot;&quot; : &quot;s&quot;), x)'` to simply be ```ConverterParameter='$&quot;{x} apple{(x==1 ? `` : `s`)}&quot;'```.
+Just like in C#, you can embed strings within in an interpolated string. So `MathConverter`'s interpolated strings can be just as complex as C#'s. For example, you can simplify the expression `ConverterParameter='format(&quot;{0} apple&quot; + (x == 1 ? &quot;&quot; : &quot;s&quot;), x)'` to simply be ```ConverterParameter='$`{x} apple{(x==1 ? `` : `s`)}`'```.
 
 
 

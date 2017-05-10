@@ -23,7 +23,6 @@ namespace HexInnovation
         private TextReader _reader;
         private Token _lastToken;
         private bool _needsToken;
-        private Stack<ScannerState> _parsingDollarStrings = new Stack<ScannerState>();
         public int Position { get; private set; }
 
 
@@ -111,17 +110,9 @@ namespace HexInnovation
                                 sb.Append('.');
                                 break;
                             case '"':
-                                if (_parsingDollarStrings.Any(p => p == ScannerState.DoubleQuoteString))
-                                {
-                                    throw new ParsingException(Position, "You must backslash-escape a \" character embedded in another double-quote-enclosed string.");
-                                }
                                 state = ScannerState.DoubleQuoteString;
                                 break;
                             case '`':
-                                if (_parsingDollarStrings.Any(p => p == ScannerState.CaretString))
-                                {
-                                    throw new ParsingException(Position, "You must backslash-escape a ` character embedded in another caret-enclosed string.");
-                                }
                                 state = ScannerState.CaretString;
                                 break;
                             case '$':
@@ -129,39 +120,10 @@ namespace HexInnovation
                                 ch = _reader.Read();
                                 switch (ch)
                                 {
-                                    case '\\':
-                                        if (_parsingDollarStrings.Any())
-                                        {
-                                            Position++;
-                                            switch (ch = _reader.Read())
-                                            {
-                                                case '`':
-                                                    state = ScannerState.DollarString | ScannerState.CaretString;
-                                                    break;
-                                                case '"':
-                                                    state = ScannerState.DollarString | ScannerState.DoubleQuoteString;
-                                                    break;
-                                                default:
-                                                    throw new ParsingException(Position, $"The character \'\\{(char)ch}\' is not a valid backslash-escaped character.");
-                                            }
-                                        }
-                                        else
-                                        {
-                                            throw new ParsingException(Position, "A '$' character must be proceeded by a caret (`) or double-quote (\") character.");
-                                        }
-                                        break;
                                     case '`':
-                                        if (_parsingDollarStrings.Any(p => p == ScannerState.CaretString))
-                                        {
-                                            throw new ParsingException(Position, "You must backslash-escape a ` character embedded in another caret-enclosed string.");
-                                        }
                                         state = ScannerState.DollarString | ScannerState.CaretString;
                                         break;
                                     case '"':
-                                        if (_parsingDollarStrings.Any(p => p == ScannerState.DoubleQuoteString))
-                                        {
-                                            throw new ParsingException(Position, "You must backslash-escape a \" character embedded in another double-quote-enclosed string.");
-                                        }
                                         state = ScannerState.DollarString | ScannerState.DoubleQuoteString;
                                         break;
                                     default:
@@ -213,25 +175,6 @@ namespace HexInnovation
                                 if (_reader.Read() != '&')
                                     throw new ParsingException(Position, "'&' signs are only valid in pairs of two.");
                                 return new Token(TokenType.And);
-                            case '\\':
-                                if (!_parsingDollarStrings.Any())
-                                {
-                                    // backslashes are allowed only to start a string in an embedded string.
-                                    throw new ParsingException(Position, $"Found invalid token '{(char)ch}'");
-                                }
-                                Position++;
-                                switch (ch = _reader.Read())
-                                {
-                                    case '`':
-                                        state = ScannerState.CaretString;
-                                        break;
-                                    case '"':
-                                        state = ScannerState.DoubleQuoteString;
-                                        break;
-                                    default:
-                                        throw new ParsingException(Position, $"The character \'\\{(char)ch}\' is not a valid backslash-escaped character.");
-                                }
-                                break;
                             default:
                                 if (char.IsDigit((char)ch))
                                 {
@@ -341,7 +284,6 @@ namespace HexInnovation
                                              */
 
                                             sb.Append(Arguments.Count);
-                                            _parsingDollarStrings.Push(state & ~ScannerState.DollarString);
                                             try
                                             {
                                                 Arguments.Add(_parser.ParseDollarStringArg());
@@ -419,16 +361,12 @@ namespace HexInnovation
                                                                     }
                                                                     break;
                                                                 case '`':
-                                                                    if (_parsingDollarStrings.Any(q => q == ScannerState.CaretString))
-                                                                        throw new ParsingException(Position, "You must baskslash-escape ` characters embedded in `-enclosed strings.");
-                                                                    else if ((state & ~ScannerState.DollarString) == ScannerState.CaretString)
+                                                                    if ((state & ~ScannerState.DollarString) == ScannerState.CaretString)
                                                                         throw new ParsingException(Position, "Missing close delimiter '}' for interpolated expression started with '{'.");
                                                                     sb.Append('`');
                                                                     break;
                                                                 case '"':
-                                                                    if (_parsingDollarStrings.Any(q => q == ScannerState.DoubleQuoteString))
-                                                                        throw new ParsingException(Position, "You must baskslash-escape \" characters embedded in \"-enclosed strings.");
-                                                                    else if ((state & ~ScannerState.DollarString) == ScannerState.DoubleQuoteString)
+                                                                    if ((state & ~ScannerState.DollarString) == ScannerState.DoubleQuoteString)
                                                                         throw new ParsingException(Position, "Missing close delimiter '}' for interpolated expression started with '{'.");
                                                                     sb.Append('"');
                                                                     break;
@@ -449,7 +387,6 @@ namespace HexInnovation
                                             {
                                                 throw new ParsingException(Position, "Failed to parse the $-string to a call to String.Format. See the inner exception.", e);
                                             }
-                                            _parsingDollarStrings.Pop();
                                         }
                                     }
                                     break;
@@ -482,31 +419,9 @@ namespace HexInnovation
                                             sb.Append('\\');
                                             break;
                                         case '`':
-                                            if (_parsingDollarStrings.Any(p => p == ScannerState.CaretString))
-                                            {
-                                                if ((state & ~ScannerState.DollarString) == ScannerState.CaretString)
-                                                {
-                                                    // Close the string.
-                                                    if (isDollarString)
-                                                        return new DollarStringToken(sb.ToString(), Arguments);
-                                                    else
-                                                        return new LexicalToken(TokenType.String, sb.ToString());
-                                                }
-                                            }
                                             sb.Append('`');
                                             break;
                                         case '"':
-                                            if (_parsingDollarStrings.Any(p => p == ScannerState.DoubleQuoteString))
-                                            {
-                                                if ((state & ~ScannerState.DollarString) == ScannerState.DoubleQuoteString)
-                                                {
-                                                    // Close the string.
-                                                    if (isDollarString)
-                                                        return new DollarStringToken(sb.ToString(), Arguments);
-                                                    else
-                                                        return new LexicalToken(TokenType.String, sb.ToString());
-                                                }
-                                            }
                                             sb.Append('"');
                                             break;
                                         default:
