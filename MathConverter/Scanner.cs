@@ -121,10 +121,10 @@ namespace HexInnovation
                                 switch (ch)
                                 {
                                     case '`':
-                                        state = ScannerState.DollarString | ScannerState.CaretString;
+                                        state = ScannerState.InterpolatedString | ScannerState.CaretString;
                                         break;
                                     case '"':
-                                        state = ScannerState.DollarString | ScannerState.DoubleQuoteString;
+                                        state = ScannerState.InterpolatedString | ScannerState.DoubleQuoteString;
                                         break;
                                     default:
                                         throw new ParsingException(Position, "A '$' character must be proceeded by a caret (`) or double-quote (\") character.");
@@ -246,11 +246,11 @@ namespace HexInnovation
                             }
                         }
 
-                    case ScannerState.CaretString | ScannerState.DollarString:
-                    case ScannerState.DoubleQuoteString | ScannerState.DollarString:
+                    case ScannerState.CaretString | ScannerState.InterpolatedString:
+                    case ScannerState.DoubleQuoteString | ScannerState.InterpolatedString:
                     case ScannerState.CaretString:
                     case ScannerState.DoubleQuoteString:
-                        var isDollarString = (state & ScannerState.DollarString) == ScannerState.DollarString;
+                        var isInterpolatedString = (state & ScannerState.InterpolatedString) == ScannerState.InterpolatedString;
                         var Arguments = new List<AbstractSyntaxTree>();
 
                         while (true)
@@ -265,7 +265,7 @@ namespace HexInnovation
                                     break;
                                 case '{':
                                     sb.Append((char)ch);
-                                    if (isDollarString)
+                                    if (isInterpolatedString)
                                     {
                                         if (_reader.Peek() == '{')
                                         {
@@ -286,7 +286,7 @@ namespace HexInnovation
                                             sb.Append(Arguments.Count);
                                             try
                                             {
-                                                Arguments.Add(_parser.ParseDollarStringArg());
+                                                Arguments.Add(_parser.ParseInterpolatedStringArg());
                                                 switch (GetToken().TokenType)
                                                 {
                                                     case TokenType.Colon:
@@ -318,7 +318,7 @@ namespace HexInnovation
                                                                     Position++;
                                                                     if (_reader.Read() != ch)
                                                                     {
-                                                                        throw new ParsingException(Position, "A '{' character must be escaped (by doubling) in a $-string's argument.");
+                                                                        throw new ParsingException(Position, "A '{' character must be escaped (by doubling) in an interpolated string's argument.");
                                                                     }
                                                                     break;
 
@@ -361,12 +361,12 @@ namespace HexInnovation
                                                                     }
                                                                     break;
                                                                 case '`':
-                                                                    if ((state & ~ScannerState.DollarString) == ScannerState.CaretString)
+                                                                    if ((state & ~ScannerState.InterpolatedString) == ScannerState.CaretString)
                                                                         throw new ParsingException(Position, "Missing close delimiter '}' for interpolated expression started with '{'.");
                                                                     sb.Append('`');
                                                                     break;
                                                                 case '"':
-                                                                    if ((state & ~ScannerState.DollarString) == ScannerState.DoubleQuoteString)
+                                                                    if ((state & ~ScannerState.InterpolatedString) == ScannerState.DoubleQuoteString)
                                                                         throw new ParsingException(Position, "Missing close delimiter '}' for interpolated expression started with '{'.");
                                                                     sb.Append('"');
                                                                     break;
@@ -377,7 +377,7 @@ namespace HexInnovation
                                                         sb.Append('}');
                                                         break;
                                                     default:
-                                                        throw new Exception(); // This should never ever happen because of the body of Parser.ParseDollarStringArg().
+                                                        throw new Exception(); // This should never ever happen because of the body of Parser.ParseInterpolatedStringArg().
                                                 }
                                             }
                                             catch (Exception e)
@@ -385,7 +385,7 @@ namespace HexInnovation
                                             when (false)
 #endif
                                             {
-                                                throw new ParsingException(Position, "Failed to parse the $-string to a call to String.Format. See the inner exception.", e);
+                                                throw new ParsingException(Position, "Failed to parse the interpolated string to a call to String.Format. See the inner exception.", e);
                                             }
                                         }
                                     }
@@ -429,24 +429,24 @@ namespace HexInnovation
                                     }
                                     break;
                                 case '"':
-                                    switch (state & ~ScannerState.DollarString)
+                                    switch (state & ~ScannerState.InterpolatedString)
                                     {
                                         case ScannerState.CaretString:
                                             sb.Append('"');
                                             break;
                                         case ScannerState.DoubleQuoteString:
-                                            if (isDollarString)
-                                                return new DollarStringToken(sb.ToString(), Arguments);
+                                            if (isInterpolatedString)
+                                                return new InterpolatedStringToken(sb.ToString(), Arguments);
                                             else
                                                 return new LexicalToken(TokenType.String, sb.ToString());
                                     }
                                     break;
                                 case '`':
-                                    switch (state & ~ScannerState.DollarString)
+                                    switch (state & ~ScannerState.InterpolatedString)
                                     {
                                         case ScannerState.CaretString:
-                                            if (isDollarString)
-                                                return new DollarStringToken(sb.ToString(), Arguments);
+                                            if (isInterpolatedString)
+                                                return new InterpolatedStringToken(sb.ToString(), Arguments);
                                             else
                                                 return new LexicalToken(TokenType.String, sb.ToString());
                                         case ScannerState.DoubleQuoteString:
@@ -476,7 +476,7 @@ namespace HexInnovation
             DoubleQuoteString = 8,
             CaretString = 16,
 
-            DollarString = 0x8000,
+            InterpolatedString = 0x8000,
         }
 
         ~Scanner()

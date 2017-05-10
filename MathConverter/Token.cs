@@ -33,10 +33,10 @@ namespace HexInnovation
             return $"Lexical ({TokenType}) Token (\"{Lex.Replace("\"", "\\\"")}\")";
         }
     }
-    class DollarStringToken : LexicalToken
+    class InterpolatedStringToken : LexicalToken
     {
-        public DollarStringToken(string Lex, List<AbstractSyntaxTree> Arguments)
-            : base(TokenType.DollarString, Lex)
+        public InterpolatedStringToken(string Lex, List<AbstractSyntaxTree> Arguments)
+            : base(TokenType.InterpolatedString, Lex)
         {
             this.Arguments = Arguments;
         }
@@ -73,7 +73,7 @@ namespace HexInnovation
         Or,
         And,
         Modulo,
-        DollarString,
+        InterpolatedString,
         RCurlyBracket,
     }
 }

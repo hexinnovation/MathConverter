@@ -35,7 +35,7 @@ namespace HexInnovation
         {
             scanner = new Scanner(this, expression);
         }
-        internal AbstractSyntaxTree ParseDollarStringArg()
+        internal AbstractSyntaxTree ParseInterpolatedStringArg()
         {
             var result = Conditional();
 
@@ -47,7 +47,7 @@ namespace HexInnovation
                 case TokenType.Colon:
                     return result;
                 default:
-                    throw new ParsingException(scanner.Position, "Error parsing $ string. Could not find closing curly bracket (or a colon) after the argument.");
+                    throw new ParsingException(scanner.Position, "Error parsing interpolated string. Could not find closing curly bracket (or a colon) after the argument.");
             }
 
         }
@@ -270,8 +270,8 @@ namespace HexInnovation
                     return new VariableNode(2);
                 case TokenType.String:
                     return new StringNode((t as LexicalToken).Lex);
-                case TokenType.DollarString:
-                    var token = t as DollarStringToken;
+                case TokenType.InterpolatedString:
+                    var token = t as InterpolatedStringToken;
                     return new FormulaNodeN("Format", FormulaNodeN.Format, new AbstractSyntaxTree[] { new StringNode(token.Lex) }.Union(token.Arguments));
 
                 case TokenType.Lexical:
