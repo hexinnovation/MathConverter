@@ -47,6 +47,8 @@ namespace HexInnovation
         /// </summary>
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
+            Func<double, object> convert;
+
             if (parameter is string)
             {
                 // Get the parameter
@@ -151,15 +153,63 @@ namespace HexInnovation
                             default:
                                 throw new NotSupportedException(string.Format("You supplied {0} values; string supports only one", x.Length));
                         }
+                    case "System.Single":
+                        convert = p => System.Convert.ToSingle(p);
+                        break;
+                    case "System.Int32":
+                        convert = p => System.Convert.ToInt32(p);
+                        break;
+                    case "System.Int64":
+                        convert = p => System.Convert.ToInt64(p);
+                        break;
+                    case "System.Decimal":
+                        convert = p => System.Convert.ToDecimal(p);
+                        break;
+                    case "System.Byte":
+                        convert = p => System.Convert.ToByte(p);
+                        break;
+                    case "System.SByte":
+                        convert = p => System.Convert.ToSByte(p);
+                        break;
+                    case "System.Char":
+                        convert = p => (char)System.Convert.ToInt32(p);
+                        break;
+                    case "System.Int16":
+                        convert = p => System.Convert.ToInt16(p);
+                        break;
+                    case "System.UInt16":
+                        convert = p => System.Convert.ToUInt16(p);
+                        break;
+                    case "System.UInt32":
+                        convert = p => System.Convert.ToUInt32(p);
+                        break;
+                    case "System.UInt64":
+                        convert = p => System.Convert.ToUInt64(p);
+                        break;
                     default:
                         if (targetType == typeof(double?))
                         {
                             return MathConverter.ConvertToDouble(x[0].Evaluate(values));
                         }
 
-                        // We don't know what to return, so let's just evaluate the parameter and return what it returns.
-                        return x[0].Evaluate(values); //throw new NotSupportedException(string.Format("You cannot convert to a {0}", targetType.Name));
+                        // We don't know what to return, so let's evaluate the parameter and try to convert it.
+                        var evaluatedValue = x[0].Evaluate(values);
+                        if ((targetType.IsGenericType && targetType.GetGenericTypeDefinition() == typeof(Nullable<>)))
+                        {
+                            // We're supposed to return a Nullable<T> where T : struct
+                            if (evaluatedValue == null)
+                                return null;
+                            else
+                                return System.Convert.ChangeType(evaluatedValue, targetType.GetGenericArguments()[0]);
+                        }
+
+                        return System.Convert.ChangeType(evaluatedValue, targetType);
                 }
+                var value = x[0].Evaluate(values);
+                if (value == null)
+                    return null;
+                else
+                    return convert(ConvertToDouble(value).Value);
             }
             else if (parameter == null)
             {
@@ -273,14 +323,75 @@ namespace HexInnovation
                             default:
                                 throw new NotSupportedException($"You supplied {values.Length} values; Uri supports only one");
                         }
+                    case "System.Single":
+                        convert = p => System.Convert.ToSingle(p);
+                        break;
+                    case "System.Int32":
+                        convert = p => System.Convert.ToInt32(p);
+                        break;
+                    case "System.Int64":
+                        convert = p => System.Convert.ToInt64(p);
+                        break;
+                    case "System.Decimal":
+                        convert = p => System.Convert.ToDecimal(p);
+                        break;
+                    case "System.Byte":
+                        convert = p => System.Convert.ToByte(p);
+                        break;
+                    case "System.SByte":
+                        convert = p => System.Convert.ToSByte(p);
+                        break;
+                    case "System.Char":
+                        convert = p => (char)System.Convert.ToInt32(p);
+                        break;
+                    case "System.Int16":
+                        convert = p => System.Convert.ToInt16(p);
+                        break;
+                    case "System.UInt16":
+                        convert = p => System.Convert.ToUInt16(p);
+                        break;
+                    case "System.UInt32":
+                        convert = p => System.Convert.ToUInt32(p);
+                        break;
+                    case "System.UInt64":
+                        convert = p => System.Convert.ToUInt64(p);
+                        break;
                     default:
-                        if (targetType == typeof(double?))
+                        switch (values.Length)
                         {
-                            return ConvertToDouble(values[0]);
-                        }
+                            case 1:
+                                if (targetType == typeof(double?))
+                                {
+                                    return ConvertToDouble(values[0]);
+                                }
 
-                        throw new NotSupportedException(string.Format("You cannot convert to a {0}", targetType.Name));
+                                if ((targetType.IsGenericType && targetType.GetGenericTypeDefinition() == typeof(Nullable<>)))
+                                {
+                                    // We're supposed to return a Nullable<T> where T : struct
+                                    if (values[0] == null)
+                                        return null;
+                                    else
+                                        return System.Convert.ChangeType(values[0], targetType.GetGenericArguments()[0]);
+                                }
+
+                                return System.Convert.ChangeType(values[0], targetType);
+                                //throw new NotSupportedException(string.Format("You cannot convert to a {0}", targetType.Name));
+                            default:
+                                throw new NotSupportedException($"You supplied {values.Length} values; {targetType.FullName} supports only one");
+                        }
                 }
+                switch (values.Length)
+                {
+                    case 1:
+                        var value = values[0];
+                        if (value == null)
+                            return null;
+                        else
+                            return convert(ConvertToDouble(value).Value);
+                    default:
+                        throw new NotSupportedException($"You supplied {values.Length} values; {targetType.FullName} supports only one");
+                }
+
             }
             else
             {
@@ -387,7 +498,7 @@ namespace HexInnovation
                 return v;
             }
 
-            throw new Exception("Could not convert the value to a double. The value was: " + parameter);
+            return System.Convert.ChangeType(parameter, typeof(double)) as double?;
         }
         
         /// <summary>

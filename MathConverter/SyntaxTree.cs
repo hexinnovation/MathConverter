@@ -576,7 +576,7 @@ namespace HexInnovation
             dynamic max = null;
             foreach (dynamic arg in args)
             {
-                if (max == null || arg < max)
+                if (max == null || arg > max)
                 {
                     max = arg;
                 }

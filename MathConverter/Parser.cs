@@ -82,15 +82,12 @@ namespace HexInnovation
             switch (t.TokenType)
             {
                 case TokenType.QuestionMark:
-                    if (scanner.Peek().TokenType == TokenType.QuestionMark)
-                        throw new ParsingException(scanner.Position, "The ?? operator is not supported.");
-
-                    var then = NullCoalescing();
+                    var then = Conditional();
                     t = scanner.GetToken();
                     switch (t.TokenType)
                     {
                         case TokenType.Colon:
-                            return Conditional(new TernaryNode(e, then, NullCoalescing()));
+                            return Conditional(new TernaryNode(e, then, Conditional()));
                         default:
                             throw new ParsingException(scanner.Position, "Could not find the ':' to terminate the ternary ('?:') statement");
                     }

@@ -308,20 +308,21 @@ namespace HexInnovation
                                                             {
                                                                 case -1:
                                                                     throw new ParsingException(Position, "Missing close delimiter '}' for interpolated expression started with '{'.");
-
                                                                 default:
                                                                     sb.Append((char)ch);
                                                                     break;
                                                                 case '}':
                                                                     sb.Append((char)ch);
-                                                                    if (_reader.Read() == '}')
+                                                                    if (_reader.Peek() == '}')
                                                                     {
                                                                         Position++;
                                                                         _reader.Read();
+                                                                        sb.Append((char)ch);
                                                                         break;
                                                                     }
                                                                     break;
                                                                 case '{':
+                                                                    sb.Append((char)ch);
                                                                     sb.Append((char)ch);
                                                                     Position++;
                                                                     if (_reader.Read() != ch)
@@ -463,7 +464,8 @@ namespace HexInnovation
                                     }
                                     break;
                                 case -1:
-                                    throw new ParsingException(Position, "Could not find the end of the string.");
+                                    throw new ParsingException(Position, $"Could not find the end of the {(isInterpolatedString ? "interpolated " : "")}string.");
+
                             }
                         }
                 }
