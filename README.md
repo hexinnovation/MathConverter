@@ -177,7 +177,7 @@ The `min` function is also interesting. It can take any number of arguments, exc
 
 There are also several *1-value* and *2-value functions* available. Those functions are: `cos`, `sin`, `tan`, `abs`, `acos`, `asin`, `atan`, `ceil`/`ceiling`, `floor`, `round`, `sqrt`, `deg`/`degrees`, `rad`/`radians`, `atan2`, and `log`. Again, there are more functions that we will come back to.
 
-All functions should be called in all lower-case, all upper-case, or title case.
+All functions are case-insensitive, so you can call them as you wish.
 
 `deg` uses the function:
 ```c#

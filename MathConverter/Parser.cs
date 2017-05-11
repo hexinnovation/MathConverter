@@ -297,7 +297,7 @@ namespace HexInnovation
                     Func<double, double> formula1 = null;
                     Func<object, object, object> formula2 = null;
                     Func<IEnumerable<object>, object> formulaN = null;
-                    switch (lex)
+                    switch (lex.ToLower())
                     {
                         case "null":
                             return new NullNode();
@@ -305,233 +305,153 @@ namespace HexInnovation
                             return new ValueNode(true);
                         case "false":
                             return new ValueNode(false);
-                        case "NOW":
-                        case "Now":
-                        case "now":
-                            formula0 = () => DateTime.Now;
-                            break;
-                        case "COS":
-                        case "Cos":
-                        case "cos":
-                            formula1 = Math.Cos;
-                            break;
-                        case "SIN":
-                        case "Sin":
-                        case "sin":
-                            formula1 = Math.Sin;
-                            break;
-                        case "TAN":
-                        case "Tan":
-                        case "tan":
-                            formula1 = Math.Tan;
-                            break;
-                        case "ABS":
-                        case "Abs":
-                        case "abs":
-                            formula1 = Math.Abs;
-                            break;
-                        case "ACOS":
-                        case "ACos":
-                        case "Acos":
-                        case "acos":
-                        case "ARCCOS":
-                        case "ArcCos":
-                        case "Arccos":
-                        case "arccos":
-                            formula1 = Math.Acos;
-                            break;
-                        case "ASIN":
-                        case "ASin":
-                        case "Asin":
-                        case "asin":
-                        case "ARCSIN":
-                        case "ArcSin":
-                        case "Arcsin":
-                        case "arcsin":
-                            formula1 = Math.Asin;
-                            break;
-                        case "ATAN":
-                        case "ATan":
-                        case "Atan":
-                        case "atan":
-                        case "ARCTAN":
-                        case "ArcTan":
-                        case "Arctan":
-                        case "arctan":
-                            formula1 = Math.Atan;
-                            break;
-                        case "CEIL":
-                        case "Ceil":
-                        case "ceil":
-                        case "CEILING":
-                        case "Ceiling":
-                        case "ceiling":
-                            formula1 = Math.Ceiling;
-                            break;
-                        case "FLOOR":
-                        case "Floor":
-                        case "floor":
-                            formula1 = Math.Floor;
-                            break;
-                        case "SQRT":
-                        case "Sqrt":
-                        case "sqrt":
-                            formula1 = Math.Sqrt;
-                            break;
-                        case "DEGREES":
-                        case "Degrees":
-                        case "degrees":
-                        case "DEG":
-                        case "Deg":
-                        case "deg":
-                            formula1 = x => x / Math.PI * 180;
-                            break;
-                        case "RADIANS":
-                        case "Radians":
-                        case "radians":
-                        case "RAD":
-                        case "Rad":
-                        case "rad":
-                            formula1 = x => x / 180 * Math.PI;
-                            break;
-                        case "ROUND":
-                        case "Round":
-                        case "round":
-                            formula2 = (x, y) =>
-                            {
-                                var a = MathConverter.ConvertToDouble(x);
-                                var b = MathConverter.ConvertToDouble(y);
-                                if (a.HasValue && b.HasValue)
-                                {
-                                    if (b.Value == (int)b.Value)
-                                        return Math.Round(a.Value, (int)b.Value);
-                                    else
-                                        throw new Exception(string.Format("Error calling Math.Round({0}, {1}):\r\n{1} is not an integer.", a, y));
-                                }
-                                else
-                                {
-                                    return null;
-                                }
-                            };
-                            break;
-                        case "ATAN2":
-                        case "ATan2":
-                        case "Atan2":
-                        case "atan2":
-                        case "ARCTAN2":
-                        case "ArcTan2":
-                        case "Arctan2":
-                        case "arctan2":
-                            formula2 = (x, y) =>
-                            {
-                                var a = MathConverter.ConvertToDouble(x);
-                                var b = MathConverter.ConvertToDouble(y);
-                                if (a.HasValue && b.HasValue)
-                                    return Math.Atan2(a.Value, b.Value);
-                                else
-                                    return null;
-                            };
-                            break;
-                        case "LOG":
-                        case "Log":
-                        case "log":
-                            formula2 = (x, y) =>
-                            {
-                                var a = MathConverter.ConvertToDouble(x);
-                                var b = MathConverter.ConvertToDouble(y);
-                                if (a.HasValue && b.HasValue)
-                                    return Math.Log(a.Value, b.Value);
-                                else
-                                    return null;
-                            };
-
-                            break;
-                        case "ISNULL":
-                        case "IsNull":
-                        case "Isnull":
-                        case "isnull":
-                        case "IFNULL":
-                        case "IfNull":
-                        case "Ifnull":
-                        case "ifnull":
-                            formula2 = (x, y) => ReferenceEquals(x, null) ? y : x;
-                            break;
-                        case "AND":
-                        case "And":
-                        case "and":
-                            formulaN = FormulaNodeN.And;
-                            break;
-                        case "NOR":
-                        case "Nor":
-                        case "nor":
-                            formulaN = FormulaNodeN.Nor;
-                            break;
-                        case "OR":
-                        case "Or":
-                        case "or":
-                            formulaN = FormulaNodeN.Or;
-                            break;
-                        case "MAX":
-                        case "Max":
-                        case "max":
-                            formulaN = FormulaNodeN.Max;
-                            break;
-                        case "MIN":
-                        case "Min":
-                        case "min":
-                            formulaN = FormulaNodeN.Min;
-                            break;
-                        case "AVG":
-                        case "Avg":
-                        case "avg":
-                        case "AVERAGE":
-                        case "Average":
-                        case "average":
-                            formulaN = FormulaNodeN.Average;
-                            break;
-                        case "PI":
-                        case "pi":
-                            return new ConstantNumberNode(Math.PI);
-                        case "E":
-                        case "e":
-                            return new ConstantNumberNode(Math.E);
-                        case "FORMAT":
-                        case "Format":
-                        case "format":
-                            formulaN = FormulaNodeN.Format;
-                            break;
-                        case "CONCAT":
-                        case "Concat":
-                        case "concat":
-                            formulaN = FormulaNodeN.Concat;
-                            break;
-                        case "JOIN":
-                        case "Join":
-                        case "join":
-                            formulaN = FormulaNodeN.Join;
-                            break;
-                        case "CONTAINS":
-                        case "Contains":
-                        case "contains":
-                            formula2 = (x, y) => 
-                            {
-                                if (x is IEnumerable<dynamic>)
-                                {
-                                    return (x as IEnumerable<dynamic>).Contains(y);
-                                }
-                                else if (x is string)
-                                {
-                                    return (x as string).Contains(y as dynamic);
-                                }
-                                else
-                                {
-                                    return null;
-                                }
-                            };
-                            break;
                         default:
-                            var err = lex + " is an invalid formula name";
-                            throw new ParsingException(scanner.Position, err, new NotSupportedException(err));
+                            switch (lex.ToLower())
+                            {
+                                case "now":
+                                    formula0 = () => DateTime.Now;
+                                    break;
+                                case "cos":
+                                    formula1 = Math.Cos;
+                                    break;
+                                case "sin":
+                                    formula1 = Math.Sin;
+                                    break;
+                                case "tan":
+                                    formula1 = Math.Tan;
+                                    break;
+                                case "abs":
+                                    formula1 = Math.Abs;
+                                    break;
+                                case "acos":
+                                case "arccos":
+                                    formula1 = Math.Acos;
+                                    break;
+                                case "asin":
+                                case "arcsin":
+                                    formula1 = Math.Asin;
+                                    break;
+                                case "atan":
+                                case "arctan":
+                                    formula1 = Math.Atan;
+                                    break;
+                                case "ceil":
+                                case "ceiling":
+                                    formula1 = Math.Ceiling;
+                                    break;
+                                case "floor":
+                                    formula1 = Math.Floor;
+                                    break;
+                                case "sqrt":
+                                    formula1 = Math.Sqrt;
+                                    break;
+                                case "degrees":
+                                case "deg":
+                                    formula1 = x => x / Math.PI * 180;
+                                    break;
+                                case "radians":
+                                case "rad":
+                                    formula1 = x => x / 180 * Math.PI;
+                                    break;
+                                case "round":
+                                    formula2 = (x, y) =>
+                                    {
+                                        var a = MathConverter.ConvertToDouble(x);
+                                        var b = MathConverter.ConvertToDouble(y);
+                                        if (a.HasValue && b.HasValue)
+                                        {
+                                            if (b.Value == (int)b.Value)
+                                                return Math.Round(a.Value, (int)b.Value);
+                                            else
+                                                throw new Exception(string.Format("Error calling Math.Round({0}, {1}):\r\n{1} is not an integer.", a, y));
+                                        }
+                                        else
+                                        {
+                                            return null;
+                                        }
+                                    };
+                                    break;
+                                case "atan2":
+                                case "arctan2":
+                                    formula2 = (x, y) =>
+                                    {
+                                        var a = MathConverter.ConvertToDouble(x);
+                                        var b = MathConverter.ConvertToDouble(y);
+                                        if (a.HasValue && b.HasValue)
+                                            return Math.Atan2(a.Value, b.Value);
+                                        else
+                                            return null;
+                                    };
+                                    break;
+                                case "log":
+                                    formula2 = (x, y) =>
+                                    {
+                                        var a = MathConverter.ConvertToDouble(x);
+                                        var b = MathConverter.ConvertToDouble(y);
+                                        if (a.HasValue && b.HasValue)
+                                            return Math.Log(a.Value, b.Value);
+                                        else
+                                            return null;
+                                    };
+                                    break;
+                                case "isnull":
+                                case "ifnull":
+                                    formula2 = (x, y) => ReferenceEquals(x, null) ? y : x;
+                                    break;
+                                case "and":
+                                    formulaN = FormulaNodeN.And;
+                                    break;
+                                case "nor":
+                                    formulaN = FormulaNodeN.Nor;
+                                    break;
+                                case "or":
+                                    formulaN = FormulaNodeN.Or;
+                                    break;
+                                case "max":
+                                    formulaN = FormulaNodeN.Max;
+                                    break;
+                                case "min":
+                                    formulaN = FormulaNodeN.Min;
+                                    break;
+                                case "avg":
+                                case "average":
+                                    formulaN = FormulaNodeN.Average;
+                                    break;
+                                case "pi":
+                                    return new ConstantNumberNode(Math.PI);
+                                case "e":
+                                    return new ConstantNumberNode(Math.E);
+                                case "format":
+                                    formulaN = FormulaNodeN.Format;
+                                    break;
+                                case "concat":
+                                    formulaN = FormulaNodeN.Concat;
+                                    break;
+                                case "join":
+                                    formulaN = FormulaNodeN.Join;
+                                    break;
+                                case "contains":
+                                    formula2 = (x, y) =>
+                                    {
+                                        if (x is IEnumerable<dynamic>)
+                                        {
+                                            return (x as IEnumerable<dynamic>).Contains(y);
+                                        }
+                                        else if (x is string)
+                                        {
+                                            return (x as string).Contains(y as dynamic);
+                                        }
+                                        else
+                                        {
+                                            return null;
+                                        }
+                                    };
+                                    break;
+                                default:
+                                    var err = $"{lex} is an invalid formula name";
+                                    throw new ParsingException(scanner.Position, err, new NotSupportedException(err));
+                            }
+                            break;
                     }
 
                     if (formula0 != null)
@@ -609,7 +529,7 @@ namespace HexInnovation
 
                                 break;
                             case TokenType.RParen:
-                                if (lex == "round")
+                                if (lex.ToLower() == "round")
                                 {
                                     return new FormulaNode2(lex, formula2, arg1, new ConstantNumberNode(0));
                                 }
