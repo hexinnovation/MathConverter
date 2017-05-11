@@ -73,7 +73,7 @@ namespace HexInnovation
         }
         private AbstractSyntaxTree Conditional()
         {
-            return Conditional(ConditionalOr());
+            return Conditional(NullCoalescing());
         }
         private AbstractSyntaxTree Conditional(AbstractSyntaxTree e)
         {
@@ -85,15 +85,32 @@ namespace HexInnovation
                     if (scanner.Peek().TokenType == TokenType.QuestionMark)
                         throw new ParsingException(scanner.Position, "The ?? operator is not supported.");
 
-                    var then = ConditionalOr();
+                    var then = NullCoalescing();
                     t = scanner.GetToken();
                     switch (t.TokenType)
                     {
                         case TokenType.Colon:
-                            return Conditional(new TernaryNode(e, then, ConditionalOr()));
+                            return Conditional(new TernaryNode(e, then, NullCoalescing()));
                         default:
                             throw new ParsingException(scanner.Position, "Could not find the ':' to terminate the ternary ('?:') statement");
                     }
+                default:
+                    scanner.PutBackToken();
+                    return e;
+            }
+        }
+        private AbstractSyntaxTree NullCoalescing()
+        {
+            return NullCoalescing(ConditionalOr());
+        }
+        private AbstractSyntaxTree NullCoalescing(AbstractSyntaxTree e)
+        {
+            var t = scanner.GetToken();
+
+            switch (t.TokenType)
+            {
+                case TokenType.DoubleQuestionMark:
+                    return NullCoalescing(new NullCoalescingNode(e, ConditionalOr()));
                 default:
                     scanner.PutBackToken();
                     return e;

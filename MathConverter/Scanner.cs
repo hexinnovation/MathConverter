@@ -102,7 +102,15 @@ namespace HexInnovation
                             case 'z':
                                 return new Token(TokenType.Z);
                             case '?':
-                                return new Token(TokenType.QuestionMark);
+                                switch (_reader.Peek())
+                                {
+                                    case '?':
+                                        Position++;
+                                        _reader.Read();
+                                        return new Token(TokenType.DoubleQuestionMark);
+                                    default:
+                                        return new Token(TokenType.QuestionMark);
+                                }
                             case ':':
                                 return new Token(TokenType.Colon);
                             case '.':

@@ -7,6 +7,16 @@ A WPF Converter class that does it all
 
 
 
+Installation:
+-------------
+
+`MathConverter` is available on [NuGet](https://www.nuget.org/packages/MathConverter/)
+
+To install MathConverter, run the following command in the [Package Manager Console](https://docs.microsoft.com/en-us/nuget/tools/package-manager-console):
+
+```
+PM> Install-Package MathConverter
+```
 
 
 What is MathConverter?
@@ -352,7 +362,7 @@ Just like in C#, you can embed strings within in an interpolated string. So `Mat
 Operators
 ---------
 
-The ternary conditional operator is just one of several operators we can use. In general, the operators used in MathConverter will follow [the standard C# rules regarding operator ordering](https://msdn.microsoft.com/en-us/library/aa691323(v=vs.71).aspx), meaning you can usually expect it to behave just like C#. But there are a few notable exceptions:
+The ternary conditional operator is just one of several operators we can use. In general, the operators used in MathConverter will follow [the standard C# rules regarding operator ordering](https://docs.microsoft.com/en-us/dotnet/articles/csharp/language-reference/operators/), meaning you can usually expect it to behave just like C#. But there are a few notable exceptions:
 
 * Since `MathConverter` is specifically designed to perform math calculations, the caret (`^`) operator does not perform the `XOR` operation. Rather, it is an exponent symbol. It uses [`System.Math.Pow`](https://msdn.microsoft.com/en-us/library/system.math.pow(v=vs.110).aspx) to evaluate expressions, and its precedence is just above multiplicative operations (`*`, `/`, and `%`).
 * The multiplication operator can often be safely ommitted. A `ConverterParameter` value of `xyz` will evaluate to `x*y*z`. The parameter `x2y` will evaluate to `x^2*y` (or equivalently, `xxy` or `x*x*y`). Similarly, `2x3` is equivalent to `2*x^3` or `2*x*x*x`. Note that `x(2)` is equivalent to `x*(2)`, in the same way that `x(y+z)` is equivalent to `x*(y+z)`.
@@ -364,7 +374,6 @@ The ternary conditional operator is just one of several operators we can use. In
     * Binary operations (`<<`, `>>`, `~`) are not supported.
     * The unary operators `++` and `--` are not supported, since they change the values of the inputs.
     * Primary operators (`x.y`, `f(x)`, `a[x]`, `new`, `typeof`, `checked`, `unchecked`) are not supported.
-    * The `??` operator is not listed in [the standard C# rules for operator ordering](https://msdn.microsoft.com/en-us/library/aa691323(v=vs.71).aspx), so `MathConverter` does not support it. See the `isnull` function in the next section.
 
 
 
@@ -373,7 +382,7 @@ The ternary conditional operator is just one of several operators we can use. In
 null
 ----
 
-`MathConverter` fully supportes `null` values. You can include `null` in the `ConverterParameter`, and it will evaluate to `null`. Also, any bindings will still work if the binding returns `null`. As previously mentioned, MathConverter does not support the `??` operator. It does, however, include the 2-value function `isnull`/`ifnull`. `MathConverter` evaluates the expression `isnull(x,y)` in the same way that it would evaluate the expression `x == null ? y : x`.
+`MathConverter` fully supportes `null` values. You can include `null` in the `ConverterParameter`, and it will evaluate to `null`. Also, any bindings will still work if the binding returns `null`. In addition to supporting the `??` null-coalescing operator, it also includes the 2-value function `isnull`/`ifnull`. `MathConverter` evaluates the expression `x ?? y` in the same way that it would evaluate the expressions `isnull(x,y)` or `x == null ? y : x`.
 
 `MathConverter` evaluates most of its values using the `dynamic` type. So `x+y` will yield `null` if `x = 3` and `y = null`. However, if `x = "Hello World"` and `y = null`, `x+y` will yield `"Hello World"`.
 

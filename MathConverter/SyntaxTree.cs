@@ -134,6 +134,23 @@ namespace HexInnovation
             return "(" + left + " && " + right + ")";
         }
     }
+
+    class NullCoalescingNode : BinaryNode
+    {
+        public NullCoalescingNode(AbstractSyntaxTree left, AbstractSyntaxTree right)
+            : base(left, right)
+        {
+
+        }
+        public override object Evaluate(object[] Parameters)
+        {
+            return (dynamic)left.Evaluate(Parameters) ?? (dynamic)right.Evaluate(Parameters);
+        }
+        public override string ToString()
+        {
+            return "(" + left + " ?? " + right + ")";
+        }
+    }
     class OrNode : BinaryNode
     {
         public OrNode(AbstractSyntaxTree left, AbstractSyntaxTree right)
