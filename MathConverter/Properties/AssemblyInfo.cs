@@ -56,3 +56,4 @@ using System.Windows.Markup;
 
 [assembly: XmlnsPrefix("http://hexinnovation.com/math", "math")]
 [assembly: XmlnsDefinition("http://hexinnovation.com/math", "HexInnovation")]
+[assembly: InternalsVisibleTo("MathConverter.UnitTests")]

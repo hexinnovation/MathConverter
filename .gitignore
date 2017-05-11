@@ -1,6 +1,4 @@
-Demo/obj/
-Demo/bin/
+obj/
+bin/
 MathConverter.v12.suo
-MathConverter/bin/
-MathConverter/obj/
 MathConverter/MathConverter.csproj.user

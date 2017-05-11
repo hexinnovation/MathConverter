@@ -293,7 +293,7 @@ namespace HexInnovation
         /// </summary>
         /// <param name="Parameter">The parameter that we're parsing</param>
         /// <returns>A syntax tree that can be evaluated later.</returns>
-        private AbstractSyntaxTree[] ParseParameter(string Parameter)
+        internal AbstractSyntaxTree[] ParseParameter(string Parameter)
         {
             if (CachedResults == null)
                 return Parser.Parse(Parameter);
