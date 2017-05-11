@@ -391,7 +391,9 @@ namespace HexInnovation
                                             }
                                             catch (Exception e)
 #if DEBUG
+#pragma warning disable CS7095 // Filter expression is a constant
                                             when (false)
+#pragma warning restore CS7095 // Filter expression is a constant
 #endif
                                             {
                                                 throw new ParsingException(Position, "Failed to parse the interpolated string to a call to String.Format. See the inner exception.", e);

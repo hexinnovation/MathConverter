@@ -20,7 +20,9 @@ namespace HexInnovation
                 }
                 catch (ParsingException e)
 #if DEBUG
+#pragma warning disable CS7095 // Filter expression is a constant
                 when (false)
+#pragma warning restore CS7095 // Filter expression is a constant
 #endif
 
                 {
@@ -237,6 +239,7 @@ namespace HexInnovation
                     return e;
             }
         }
+
         private AbstractSyntaxTree Exponent()
         {
             return Exponent(Primary());
@@ -299,9 +302,9 @@ namespace HexInnovation
                         case "null":
                             return new NullNode();
                         case "true":
-                            return new BooleanNode(true);
+                            return new ValueNode(true);
                         case "false":
-                            return new BooleanNode(false);
+                            return new ValueNode(false);
                         case "NOW":
                         case "Now":
                         case "now":
@@ -533,7 +536,7 @@ namespace HexInnovation
 
                     if (formula0 != null)
                     {
-                        var ex = lex + " is a formula that takes zero arguments. You must call it like this: \"" + lex + "()\"";
+                        var ex = $"{lex} is a formula that takes zero arguments. You must call it like this: \"{lex}()\"";
 
                         if (scanner.GetToken().TokenType != TokenType.LParen)
                             throw new ParsingException(scanner.Position, ex);
@@ -545,7 +548,7 @@ namespace HexInnovation
                     else if (formula1 != null)
                     {
                         // Create a formula1.
-                        var ex = lex + " is a formula that takes one argument.  You must specify the arguments like this: \"" + lex + "(3)\"";
+                        var ex = $"{lex} is a formula that takes one argument.  You must specify the arguments like this: \"{lex}(3)\"";
 
                         if (scanner.GetToken().TokenType != TokenType.LParen)
                             throw new ParsingException(scanner.Position, ex);
@@ -569,8 +572,8 @@ namespace HexInnovation
                     else if (formula2 != null)
                     {
                         // Create a formula2.
-                        var ex = lex + " is a formula that takes two arguments.  You must specify the arguments like this: \"" + lex + "(3;2)\"";
-                        if (lex == "round")
+                        var ex = $"{lex} is a formula that takes two argument.  You must specify the arguments like this: \"{lex}(3;2)\"";
+                        if (lex.ToLower() == "round")
                             ex = "round is a formula that takes one or two argments. You must specify the argument(s) like this: round(4.693) or round(4.693;2)";
 
                         if (scanner.GetToken().TokenType != TokenType.LParen)
@@ -618,13 +621,13 @@ namespace HexInnovation
                     {
                         // Create a formulaN.
                         if (scanner.GetToken().TokenType != TokenType.LParen)
-                            throw new ParsingException(scanner.Position, "You must specify arguments for " + lex + ".  Those arguments must be enclosed in parentheses.");
+                            throw new ParsingException(scanner.Position, $"You must specify arguments for {lex}.  Those arguments must be enclosed in parentheses.");
 
                         var trees = new List<AbstractSyntaxTree>();
 
                         if (scanner.GetToken().TokenType == TokenType.RParen)
                         {
-                            throw new ParsingException(scanner.Position, "You must specify at least one argument for " + lex + ".");
+                            throw new ParsingException(scanner.Position, $"You must specify at least one argument for {lex}.");
                         }
                         else
                         {
@@ -639,7 +642,7 @@ namespace HexInnovation
                             }
                             catch (Exception e)
                             {
-                                throw new ParsingException(scanner.Position, "Error parsing arguments for " + lex + ".", e);
+                                throw new ParsingException(scanner.Position, $"Error parsing arguments for {lex}.", e);
                             }
 
                             var type = scanner.GetToken().TokenType;
@@ -650,7 +653,7 @@ namespace HexInnovation
                                 case TokenType.Semicolon:
                                     break;
                                 default:
-                                    throw new ParsingException(scanner.Position, "Error parsing arguments for " + lex + ". Invalid character: " + type + ". Expected either a comma, semicolon, or right parenthesis.");
+                                    throw new ParsingException(scanner.Position, $"Error parsing arguments for {lex}. Invalid character: {type}. Expected either a comma, semicolon, or right parenthesis.");
                             }
                         }
                     }

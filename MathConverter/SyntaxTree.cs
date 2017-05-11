@@ -39,7 +39,7 @@ namespace HexInnovation
         }
         public override string ToString()
         {
-            return "(" + left + " ^ " + right + ")";
+            return $"({left} ^ {right})";
         }
     }
     class AddNode : BinaryNode
@@ -61,7 +61,7 @@ namespace HexInnovation
         }
         public override string ToString()
         {
-            return "(" + left + " + " + right + ")";
+            return $"({left} + {right})";
         }
     }
     class SubtractNode : BinaryNode
@@ -83,7 +83,7 @@ namespace HexInnovation
         }
         public override string ToString()
         {
-            return "(" + left + " - " + right + ")";
+            return $"({left} - {right})";
         }
     }
     class MultiplyNode : BinaryNode
@@ -99,7 +99,7 @@ namespace HexInnovation
         }
         public override string ToString()
         {
-            return "(" + left + " * " + right + ")";
+            return $"({left} * {right})";
         }
     }
     class ModuloNode : BinaryNode
@@ -115,7 +115,7 @@ namespace HexInnovation
         }
         public override string ToString()
         {
-            return "(" + left + " % " + right + ")";
+            return $"({left} % {right})";
         }
     }
     class AndNode : BinaryNode
@@ -131,7 +131,7 @@ namespace HexInnovation
         }
         public override string ToString()
         {
-            return "(" + left + " && " + right + ")";
+            return $"({left} && {right})";
         }
     }
 
@@ -148,7 +148,7 @@ namespace HexInnovation
         }
         public override string ToString()
         {
-            return "(" + left + " ?? " + right + ")";
+            return $"({left} ?? {right})";
         }
     }
     class OrNode : BinaryNode
@@ -164,7 +164,7 @@ namespace HexInnovation
         }
         public override string ToString()
         {
-            return "(" + left + " || " + right + ")";
+            return $"({left} || {right})";
         }
     }
     class DivideNode : BinaryNode
@@ -180,7 +180,7 @@ namespace HexInnovation
         }
         public override string ToString()
         {
-            return "(" + left + " / " + right + ")";
+            return $"({left} / {right})";
         }
     }
     class TernaryNode : AbstractSyntaxTree
@@ -208,7 +208,7 @@ namespace HexInnovation
         }
         public override string ToString()
         {
-            return Condition + " ? " + Positive + " : " + Negative;
+            return $"({Condition} ? {Positive} : {Negative})";
         }
     }
     class NotEqualNode : BinaryNode
@@ -224,7 +224,7 @@ namespace HexInnovation
         }
         public override string ToString()
         {
-            return "(" + left + " != " + right + ")";
+            return $"({left} != {right})";
         }
     }
     class EqualNode : BinaryNode
@@ -240,7 +240,7 @@ namespace HexInnovation
         }
         public override string ToString()
         {
-            return "(" + left + " == " + right + ")";
+            return $"({left} == {right})";
         }
     }
     class LessThanNode : BinaryNode
@@ -256,7 +256,7 @@ namespace HexInnovation
         }
         public override string ToString()
         {
-            return "(" + left + " < " + right + ")";
+            return $"({left} < {right})";
         }
     }
     class LessThanEqualNode : BinaryNode
@@ -272,7 +272,7 @@ namespace HexInnovation
         }
         public override string ToString()
         {
-            return "(" + left + " <= " + right + ")";
+            return $"({left} <= {right})";
         }
     }
     class GreaterThanNode : BinaryNode
@@ -288,7 +288,7 @@ namespace HexInnovation
         }
         public override string ToString()
         {
-            return "(" + left + " > " + right + ")";
+            return $"({left} > {right})";
         }
     }
     class GreaterThanEqualNode : BinaryNode
@@ -304,7 +304,7 @@ namespace HexInnovation
         }
         public override string ToString()
         {
-            return "(" + left + " >= " + right + ")";
+            return $"({left} >= {right})";
         }
     }
     class NullNode : AbstractSyntaxTree
@@ -318,52 +318,51 @@ namespace HexInnovation
             return "null";
         }
     }
-    class BooleanNode : AbstractSyntaxTree
+    abstract class UnaryNode : AbstractSyntaxTree
     {
-        public BooleanNode(bool Value)
+        public UnaryNode(AbstractSyntaxTree node)
         {
-            this.Value = Value;
+            this.node = node;
         }
-        private bool Value;
+        private AbstractSyntaxTree node;
         public override object Evaluate(object[] Parameters)
         {
-            return Value;
+            return Evaluate((dynamic)node.Evaluate(Parameters));
         }
+        protected abstract object Evaluate(dynamic value);
         public override string ToString()
         {
-            return Value.ToString().ToLower();
+            return node.ToString();
         }
     }
-    class NotNode : AbstractSyntaxTree
+    class NotNode : UnaryNode
     {
         public NotNode(AbstractSyntaxTree node)
+            : base(node)
         {
-            this.node = node;
         }
-        private AbstractSyntaxTree node;
-        public override object Evaluate(object[] Parameters)
+        protected override object Evaluate(dynamic value)
         {
-            return !(dynamic)node.Evaluate(Parameters);
+            return !value;
         }
         public override string ToString()
         {
-            return "!" + node;
+            return $"!({base.ToString()})";
         }
     }
-    class NegativeNode : AbstractSyntaxTree
+    class NegativeNode : UnaryNode
     {
         public NegativeNode(AbstractSyntaxTree node)
+            : base(node)
         {
-            this.node = node;
         }
-        private AbstractSyntaxTree node;
-        public override object Evaluate(object[] Parameters)
+        protected override object Evaluate(dynamic value)
         {
-            return -(dynamic)node.Evaluate(Parameters);
+            return -value;
         }
         public override string ToString()
         {
-            return "-" + node;
+            return $"-({base.ToString()})";
         }
     }
     class ValueNode : AbstractSyntaxTree
@@ -390,20 +389,15 @@ namespace HexInnovation
         public ConstantNumberNode(double Value)
             : base(Value) { }
     }
-    class StringNode : AbstractSyntaxTree
+    class StringNode : ValueNode
     {
         public StringNode(string Value)
+            : base(Value)
         {
-            this.Value = Value;
         }
-        private string Value;
         public override string ToString()
         {
-            return '"' + Value + '"';
-        }
-        public override object Evaluate(object[] Parameters)
-        {
-            return Value;
+            return $"\"{Value}\"";
         }
     }
     class VariableNode : AbstractSyntaxTree
@@ -433,7 +427,7 @@ namespace HexInnovation
                         variableName = "z";
                         break;
                     default:
-                        variableName = "[" + Index + "]";
+                        variableName = $"[{Index}]";
                         break;
                 }
 
@@ -462,7 +456,7 @@ namespace HexInnovation
                 case 2:
                     return "z";
                 default:
-                    return "[" + Index + "]";
+                    return $"[{Index}]";
             }
         }
     }
@@ -481,7 +475,7 @@ namespace HexInnovation
         }
         public override string ToString()
         {
-            return FormulaName + "()";
+            return $"{FormulaName}()";
         }
     }
     /// <summary>
@@ -509,7 +503,7 @@ namespace HexInnovation
         }
         public override string ToString()
         {
-            return FormulaName + "(" + input + ")";
+            return $"{FormulaName}({input})";
         }
     }
     
@@ -533,7 +527,7 @@ namespace HexInnovation
         }
         public override string ToString()
         {
-            return FormulaName + "(" + arg1 + ", " + arg2 + ")";
+            return $"{FormulaName}({arg1}, {arg2})";
         }
     }
     /// <summary>
@@ -623,9 +617,9 @@ namespace HexInnovation
         {
             dynamic sum = 0.0;
             var count = 0;
-            foreach (var arg in args)
+            foreach (double? arg in args.Select(p => MathConverter.ConvertToDouble(p)))
             {
-                if (arg != null)
+                if (arg.HasValue)
                 {
                     count++;
                     sum += arg;
@@ -652,7 +646,7 @@ namespace HexInnovation
 
         public override string ToString()
         {
-            return FormulaName + "(" + string.Join(", ", args) + ")";
+            return $"{FormulaName}({string.Join(", ", args)})";
         }
     }
 }
