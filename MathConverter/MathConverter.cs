@@ -153,6 +153,21 @@ namespace HexInnovation
                             default:
                                 throw new NotSupportedException(string.Format("You supplied {0} values; string supports only one", x.Length));
                         }
+                    case "System.Uri":
+                        switch (x.Length)
+                        {
+                            case 1:
+                                var val = x[0].Evaluate(values);
+                                if (val is string)
+                                    return new Uri(val as string);
+                                else if (val == null)
+                                    return null;
+                                else
+                                    return new Uri(val.ToString());
+                            default:
+                                throw new NotSupportedException($"You supplied {values.Length} values; Uri supports only one");
+                        }
+
                     case "System.Single":
                         convert = p => System.Convert.ToSingle(p);
                         break;
