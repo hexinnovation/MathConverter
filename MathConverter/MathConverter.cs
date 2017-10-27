@@ -218,7 +218,19 @@ namespace HexInnovation
                                 return System.Convert.ChangeType(evaluatedValue, targetType.GetGenericArguments()[0]);
                         }
 
-                        return System.Convert.ChangeType(evaluatedValue, targetType);
+                        if ((targetType.IsClass && ReferenceEquals(evaluatedValue, null)) || (!ReferenceEquals(evaluatedValue, null) && targetType.IsAssignableFrom(evaluatedValue.GetType())))
+                        {
+                            return evaluatedValue;
+                        }
+                        else if (targetType is IConvertible)
+                        {
+                            return System.Convert.ChangeType(evaluatedValue, targetType);
+                        }
+                        else
+                        {
+                            // Welp, we can't convert this value... O well.
+                            return evaluatedValue;
+                        }
                 }
                 var value = x[0].Evaluate(values);
                 if (value == null)
