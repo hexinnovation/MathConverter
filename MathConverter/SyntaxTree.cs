@@ -483,23 +483,19 @@ namespace HexInnovation
     /// </summary>
     class FormulaNode1 : AbstractSyntaxTree
     {
-        public FormulaNode1(string FormulaName, Func<double, double> formula, AbstractSyntaxTree input)
+        public FormulaNode1(string FormulaName, Func<object, object> formula, AbstractSyntaxTree input)
         {
             this.FormulaName = FormulaName;
             this.formula = formula;
             this.input = input;
         }
         private string FormulaName;
-        private Func<double, double> formula;
+        private Func<object, object> formula;
         private AbstractSyntaxTree input;
 
         public override object Evaluate(object[] Parameters)
         {
-            var value = MathConverter.ConvertToDouble(input.Evaluate(Parameters));
-            if (value == null)
-                return null;
-            else
-                return formula(value.Value);
+            return formula(input.Evaluate(Parameters));
         }
         public override string ToString()
         {

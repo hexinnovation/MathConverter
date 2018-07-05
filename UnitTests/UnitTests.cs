@@ -612,6 +612,13 @@ namespace UnitTests
             Assert.AreEqual(true, Converter.Convert(new object[] { new object[] { "hello", "world" } }, typeof(object), "contains(x, `hello`)", CultureInfo.GetCultureInfo("de")));
             Assert.AreEqual(false, Converter.Convert(new object[] { new object[] { "hello", "world" } }, typeof(object), "contains(x, `Hello`)", CultureInfo.GetCultureInfo("de")));
 
+            Assert.AreEqual(true, Converter.Convert(new object[] { "ψñíçθдë têsт", "ΨÑÍÇΘДË TÊSТ" }, typeof(object), "toupper(x) == y", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual(true, Converter.Convert(new object[] { "ψñíçθдë têsт", "ΨÑÍÇΘДË TÊSТ" }, typeof(object), "tolower(y) == x", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual(true, Converter.Convert(new object[] { "ψñíçθдë têsт", "ΨÑÍÇΘДË TÊSТ" }, typeof(object), "toupper(y) == y", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual(true, Converter.Convert(new object[] { "ψñíçθдë têsт", "ΨÑÍÇΘДË TÊSТ" }, typeof(object), "tolower(x) == x", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual(true, Converter.Convert(new object[] { "ψñíçθдë têsт", "ΨÑÍÇΘДË TÊSТ" }, typeof(object), "toupper(y) != tolower(y)", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual(true, Converter.Convert(new object[] { "ψñíçθдë têsт", "ΨÑÍÇΘДË TÊSТ" }, typeof(object), "toupper(x) != tolower(x)", CultureInfo.GetCultureInfo("de")));
+
             foreach (var x in new bool[] { true, false })
             {
                 Assert.AreEqual(x, Converter.Convert(new object[] { x }, typeof(object), "and(AND(true,true,true,true,true),x,true)", CultureInfo.GetCultureInfo("de")));

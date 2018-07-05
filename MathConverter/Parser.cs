@@ -295,6 +295,7 @@ namespace HexInnovation
                     var lex = (t as LexicalToken).Lex;
                     Func<object> formula0 = null;
                     Func<double, double> formula1 = null;
+                    Func<object, object> formula1_obj = null;
                     Func<object, object, object> formula2 = null;
                     Func<IEnumerable<object>, object> formulaN = null;
                     switch (lex.ToLower())
@@ -352,6 +353,14 @@ namespace HexInnovation
                                 case "radians":
                                 case "rad":
                                     formula1 = x => x / 180 * Math.PI;
+                                    break;
+                                case "tolower":
+                                case "lcase":
+                                    formula1_obj = x => x == null ? null : $"{x}".ToLowerInvariant();
+                                    break;
+                                case "toupper":
+                                case "ucase":
+                                    formula1_obj = x => x == null ? null : $"{x}".ToUpperInvariant();
                                     break;
                                 case "round":
                                     formula2 = (x, y) =>
@@ -465,7 +474,7 @@ namespace HexInnovation
 
                         return new FormulaNode0(lex, formula0);
                     }
-                    else if (formula1 != null)
+                    else if (formula1 != null || formula1_obj != null)
                     {
                         // Create a formula1.
                         var ex = $"{lex} is a formula that takes one argument.  You must specify the arguments like this: \"{lex}(3)\"";
@@ -487,7 +496,19 @@ namespace HexInnovation
                         if (scanner.GetToken().TokenType != TokenType.RParen)
                             throw new ParsingException(scanner.Position, ex);
 
-                        return new FormulaNode1(lex, formula1, arg);
+                        if (formula1 != null)
+                        {
+                            formula1_obj = x =>
+                            {
+                                var val = MathConverter.ConvertToDouble(x);
+                                if (val.HasValue)
+                                    return formula1(val.Value);
+                                else
+                                    return null;
+                            };
+                        }
+
+                        return new FormulaNode1(lex, formula1_obj, arg);
                     }
                     else if (formula2 != null)
                     {
