@@ -4,6 +4,8 @@ using HexInnovation;
 using System.Globalization;
 using Microsoft.CSharp.RuntimeBinder;
 using System.Threading;
+using System.Windows;
+using System.Windows.Media;
 
 namespace UnitTests
 {
@@ -29,7 +31,6 @@ namespace UnitTests
                 Assert.IsFalse(ReferenceEquals(ConverterNoCache.ParseParameter(converterParameter), ConverterNoCache.ParseParameter(converterParameter)));
             }
         }
-
         [TestMethod]
         public void TestConstantNumbers()
         {
@@ -65,7 +66,6 @@ namespace UnitTests
                 }
             }
         }
-
         [TestMethod]
         public void TestConstants()
         {
@@ -85,7 +85,6 @@ namespace UnitTests
                 }
             }
         }
-
         [TestMethod]
         public void TestNot()
         {
@@ -101,7 +100,6 @@ namespace UnitTests
                 }
             }
         }
-
         [TestMethod]
         public void TestVariables()
         {
@@ -131,7 +129,6 @@ namespace UnitTests
                 }
             }
         }
-
         [TestMethod]
         public void TestStrings()
         {
@@ -154,7 +151,6 @@ namespace UnitTests
                 }
             }
         }
-
         [TestMethod]
         public void TestExponents()
         {
@@ -298,7 +294,39 @@ namespace UnitTests
             Assert.AreEqual(true ? y : x, (int?)Converter.Convert(new object[] { x, y }, typeof(int?), "true ? y : x", CultureInfo.GetCultureInfo("de")));
             Assert.AreEqual(false ? y : x, (int?)Converter.Convert(new object[] { x, y }, typeof(int?), "false ? y : x", CultureInfo.GetCultureInfo("de")));
         }
+        [TestMethod]
+        public void TestNullTargetType()
+        {
+            foreach (var culture in new[] {CultureInfo.InvariantCulture, CultureInfo.GetCultureInfo("de")})
+            {
+                Assert.AreEqual("x", Converter.Convert(new object[0], null, "\"x\"", culture));
+                Assert.AreEqual($"hello", Converter.Convert(new object[0], null, "$\"hello\"", culture));
+                Assert.AreEqual(0.0, Converter.Convert(new object[0], null, "0", culture));
+                Assert.AreEqual(true, Converter.Convert(new object[0], null, "true", culture));
+                Assert.AreEqual(null, Converter.Convert(new object[0], null, "null", culture));
+            }
+        }
+        [TestMethod]
+        public void TestGeometry()
+        {
+            var geometry = Converter.Convert(new object[] {100}, typeof(Geometry), "$`M{x},{x}L{2x},{2x}`", CultureInfo.InvariantCulture);
+            Assert.IsInstanceOfType(geometry, typeof(Geometry));
 
+            if (geometry is Geometry geom)
+            {
+                var pen = new Pen(Brushes.Black, 1.0);
+                for (var x = 0.0; x <= 300; x += 20)
+                {
+                    Assert.AreEqual(100 <= x && x <= 200, geom.StrokeContains(pen, new Point(x, x)));
+                }
+            }
+            else
+            {
+                Assert.Fail("MathConverter was expected to return a StreamGeometry when converting to Geometry.");
+            }
+
+            Assert.IsInstanceOfType(Converter.Convert(new object[] { 100 }, typeof(Geometry), "$`M {0.1x},{x} C {x/10},{3x} {3x},-{4x/2} {3*x},{x}`", CultureInfo.InvariantCulture), typeof(Geometry));
+        }
         [TestMethod]
         public void TestOrderOfOperations()
         {
@@ -556,7 +584,6 @@ namespace UnitTests
 
 #pragma warning restore CS1718 // Comparison made to same variable
         }
-
         [TestMethod]
         public void TestInterpolatedStrings()
         {

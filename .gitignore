@@ -2,3 +2,4 @@ obj/
 bin/
 MathConverter.v12.suo
 MathConverter/MathConverter.csproj.user
+.vs/

@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
-using System.Linq;
-using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Data;
+using System.Windows.Media;
 
 namespace HexInnovation
 {
@@ -49,17 +48,15 @@ namespace HexInnovation
         {
             Func<double, object> convert;
 
-            if (parameter is string)
+            if (parameter is string param)
             {
-                // Get the parameter
-                var param = parameter is string ? parameter as string : parameter.ToString();
-                
                 // Get the syntax tree from the expression.  We will cache the results to save time for future parsing of the same expression
                 // by the same MathConverter.
                 var x = ParseParameter(param);
 
-                switch (targetType.FullName)
+                switch (targetType?.FullName)
                 {
+                    case null:
                     case "System.Object":
                         switch (x.Length)
                         {
@@ -201,6 +198,20 @@ namespace HexInnovation
                     case "System.UInt64":
                         convert = p => System.Convert.ToUInt64(p);
                         break;
+                    case "System.Windows.Media.Geometry":
+                        switch (x.Length)
+                        {
+                            case 1:
+                                var val = x[0].Evaluate(values);
+                                if (val is string s)
+                                    return Geometry.Parse(s);
+                                else if (val == null)
+                                    return null;
+                                else
+                                    return Geometry.Parse($"{val}");
+                            default:
+                                throw new NotSupportedException($"You supplied {values.Length} values; Path supports only one");
+                        }
                     default:
                         if (targetType == typeof(double?))
                         {

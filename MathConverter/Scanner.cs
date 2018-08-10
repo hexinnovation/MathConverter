@@ -392,7 +392,9 @@ namespace HexInnovation
                                             catch (Exception e)
 #if DEBUG
 #pragma warning disable CS7095 // Filter expression is a constant
+#pragma warning disable CS8360 // Filter expression is a constant 'false'. 
                                             when (false)
+#pragma warning restore CS8360 // Filter expression is a constant 'false'. 
 #pragma warning restore CS7095 // Filter expression is a constant
 #endif
                                             {
