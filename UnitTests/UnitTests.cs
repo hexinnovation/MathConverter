@@ -656,8 +656,10 @@ namespace UnitTests
 
             for (double x = -5; x < 5; x += 0.1)
             {
+                // Avoid divide-by-zero errors.
                 if (x == 0)
                     continue;
+
                 // We evaluate each spelling of cos, sin, and tan. To avoid divide-by-zero errors, we do not evaluate 0.
                 // But because we're using doubles, we actually evalute -1.0269562977782698E-15, not 0
                 Assert.AreEqual(Math.Cos(x), (double)Converter.Convert(new object[] { x }, typeof(object), $"cos(x) / COS(x) * Cos(x)", CultureInfo.GetCultureInfo("de")), 0.00000001);
@@ -690,6 +692,39 @@ namespace UnitTests
                 {
                     Assert.AreEqual(Math.Atan2(x, y), (double)Converter.Convert(new object[] { x, y }, typeof(object), $"atan2(x,y) / ARCTAN2(x,y) * aTan2(x;y)", CultureInfo.GetCultureInfo("de")));
                     Assert.AreEqual(Math.Log(x, y), (double)Converter.Convert(new object[] { x, y }, typeof(object), $"log(x,y) / LOG(x,y) * Log(x;y)", CultureInfo.GetCultureInfo("de")));
+                }
+
+                foreach (var function in new string[] { "contains", "startswith", "endswith" })
+                {
+                    foreach (var args in new[] { new object[] { "a", "a" }, new object[] { "123", 123 } })
+                    {
+                        Assert.IsTrue((bool)Converter.Convert(args, typeof(object), $"{function}(x,y)", CultureInfo.GetCultureInfo("de")));
+                    }
+                }
+
+                foreach (var function in new string[] { "contains", "startswith" })
+                {
+                    foreach (var args in new[] { new object[] { "abc", "ab" }, new object[] { "123", 12 } })
+                    {
+                        Assert.IsTrue((bool)Converter.Convert(args, typeof(object), $"{function}(x,y)", CultureInfo.GetCultureInfo("de")));
+                    }
+                }
+
+                foreach (var function in new string[] { "contains", "endswith" })
+                {
+                    foreach (var args in new[] { new object[] { "abc", "bc" }, new object[] { "123", 23 } })
+                    {
+                        Assert.IsTrue((bool)Converter.Convert(args, typeof(object), $"{function}(x,y)", CultureInfo.GetCultureInfo("de")));
+                    }
+                }
+
+                Assert.AreEqual(Visibility.Visible, Converter.Convert(new object[] { true }, typeof(object), "visibleorhidden(x)", CultureInfo.GetCultureInfo("de")));
+                Assert.AreEqual(Visibility.Visible, Converter.Convert(new object[] { true }, typeof(object), "visibleorcollapsed(x)", CultureInfo.GetCultureInfo("de")));
+
+                foreach (var arg in new object[] { false, null, "true", "false", "Hello World" })
+                {
+                    Assert.AreEqual(Visibility.Hidden, Converter.Convert(new object[] { arg }, typeof(object), "visibleorhidden(x)", CultureInfo.GetCultureInfo("de")));
+                    Assert.AreEqual(Visibility.Collapsed, Converter.Convert(new object[] { arg }, typeof(object), "visibleorcollapsed(x)", CultureInfo.GetCultureInfo("de")));
                 }
             }
         }

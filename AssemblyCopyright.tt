@@ -1,5 +1,5 @@
-<#@ template language="C#" #>
+﻿<#@ template language="C#" #>
 using System;
 using System.Reflection;
 
-[assembly: AssemblyCopyright("Copyright � Hex Innovation <#=DateTime.Now.Year#>")]
+[assembly: AssemblyCopyright("Copyright © Hex Innovation <#=DateTime.Now.Year#>")]

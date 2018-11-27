@@ -315,7 +315,7 @@ The Converter `format("Language {0}: {1}",x+1,y)` will essentially `return strin
 
 The real magic being done here is in the [`System.String.Format`](https://msdn.microsoft.com/en-us/library/b1csw23d(v=vs.110).aspx) method. If you unfamiliar with this method, you can see a lot of examples [here](http://msdn.microsoft.com/en-us/library/txafckwd).
 
-`format` is another example of an N-value function. The only difference is that this particular function does not return a numeric value, but rather returns a string. Other non-numeric N-value functions are: `and`, `or`, `nor`. These functions take and return boolean values. The zero-value function function `now()` returns [`System.DateTime.Now`](https://msdn.microsoft.com/en-us/library/system.datetime.now(v=vs.110).aspx). There are also one-value functions useful for case-conversion: `tolower` / `lcase`, and `toupper` / `ucase`. When passed `null`, these functions will return `null`. When passed an object, they will call `ToString()` on the object and then convert to lower/upper case.
+`format` is another example of an N-value function. The only difference is that this particular function does not return a numeric value, but rather returns a string. Other non-numeric N-value functions are: `and`, `or`, `nor`. These functions take and return boolean values. The zero-value function function `now()` returns [`System.DateTime.Now`](https://msdn.microsoft.com/en-us/library/system.datetime.now(v=vs.110).aspx). There are also one-value functions useful for case-conversion: `tolower` / `lcase`, and `toupper` / `ucase`. When passed `null`, these functions will return `null`. When passed an object, they will call `ToString()` on the object and then convert to lower/upper case. There are a few two-value string-related functions: `contains`, `startswith`, and `endswith`. The first variable must be a string. The second variable must be either a string or a value whose `ToString()` returns a string with a non-zero length. If the first value is not a string, these methods will return `null`. If the second value is `null`, or if its `ToString()` method returns a `null` or empty string, the methods will also return `null`. Otherwise, the methods will return true if the string contains the second argument's `ToString()` value. Alternatively, the `contains` function can also be passed an `IEnumerable` of objects, and will return `true` if the `IEnumerable` contains the second argument, or `false` if it does not.
 
 Let's look again at the `ConverterParameter` in the previous example: `ConverterParameter="format(&quot;Language {0}: {1}&quot;,x+1,y)"`. Because this is xaml, the `&quot;` characters are converted to `"` characters. Thus, at runtime, the `ConverterParameter` is `format("Language {0}: {1}",x+1,y)`. When `MathConverter` parses the `ConverterParameter`, it sees that "Language {0}: {1}" is a string. In order to include special characters in the string, you can simply backslash-escape them, just like you're used to. So `\r`, `\n`, `\"`, and `\t` (among others) are valid special characters that can be added to strings. At the moment, arbitrary unicode characters (such as `\u0000`) are not supported, but these can be added if there is sufficient demand.
 
@@ -358,6 +358,10 @@ In C#, you can simplify the call to string.Format by using an interpolated strin
 Just like in C#, you can embed strings within in an interpolated string. So `MathConverter`'s interpolated strings can be just as complex as C#'s. For example, you can simplify the expression `ConverterParameter='format(&quot;{0} apple&quot; + (x == 1 ? &quot;&quot; : &quot;s&quot;), x)'` to simply be ```ConverterParameter='$`{x} apple{(x==1 ? `` : `s`)}`'```.
 
 
+Visibility
+----------
+Often in WPF, it is important to convert to a `Visibility` option. It's often that a control should be hidden or collapsed based on a boolean binding. So you can use the functions `visibleorcollapsed` and `visibleorhidden` to convert a boolean value to a `Visibility` value. Both are one-value functions that will return `Visibility.Visible` if the value `true` is passed in as the parameter. If any other value (e.g. `false`, `null`, `"Hello World"`, or even the string `"true"`, etc.) is passed in, then either `Visibility.Collapsed` or `Visibility.Hidden` are returned, depending on which function was called.
+
 
 Operators
 ---------
@@ -376,17 +380,12 @@ The ternary conditional operator is just one of several operators we can use. In
     * Primary operators (`x.y`, `f(x)`, `a[x]`, `new`, `typeof`, `checked`, `unchecked`) are not supported.
 
 
-
-
-
 null
 ----
 
 `MathConverter` fully supportes `null` values. You can include `null` in the `ConverterParameter`, and it will evaluate to `null`. Also, any bindings will still work if the binding returns `null`. In addition to supporting the `??` null-coalescing operator, it also includes the 2-value function `isnull`/`ifnull`. `MathConverter` evaluates the expression `x ?? y` in the same way that it would evaluate the expressions `isnull(x,y)` or `x == null ? y : x`.
 
 `MathConverter` evaluates most of its values using the `dynamic` type. So `x+y` will yield `null` if `x = 3` and `y = null`. However, if `x = "Hello World"` and `y = null`, `x+y` will yield `"Hello World"`.
-
-
 
 
 
@@ -398,9 +397,6 @@ Each time a conversion must be made, `MathConverter` must parse and evaluate an 
 ```xaml
 <math:MathConverter x:Key="nocache" UseCache="False" />
 ```
-
-
-
 
 
 Thanks for reading!

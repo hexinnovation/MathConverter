@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Reflection;
 
-[assembly: AssemblyCopyright("Copyright � Hex Innovation 2018")]
+[assembly: AssemblyCopyright("Copyright © Hex Innovation 2018")]

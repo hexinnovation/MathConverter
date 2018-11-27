@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace HexInnovation
 {
@@ -304,6 +305,10 @@ namespace HexInnovation
                     {
                         case "null":
                             return new NullNode();
+                        case "pi":
+                            return new ConstantNumberNode(Math.PI);
+                        case "e":
+                            return new ConstantNumberNode(Math.E);
                         case "true":
                             return new ValueNode(true);
                         case "false":
@@ -364,6 +369,18 @@ namespace HexInnovation
                                 case "ucase":
                                     formula1_obj = x => x == null ? null : $"{x}".ToUpperInvariant();
                                     break;
+                                case "startswith":
+                                    formula2 = (x, y) => x is string str1 && (y is string || y?.ToString().Length > 0) ? str1.StartsWith($"{y}") : new bool?();
+                                    break;
+                                case "endswith":
+                                    formula2 = (x, y) => x is string str1 && (y is string || y?.ToString().Length > 0) ? str1.EndsWith($"{y}") : new bool?();
+                                    break;
+                                case "visibleorcollapsed":
+                                    formula1_obj = x => x is bool && (bool)x == true ? Visibility.Visible : Visibility.Collapsed;
+                                    break;
+                                case "visibleorhidden":
+                                    formula1_obj = x => x is bool && (bool)x == true ? Visibility.Visible : Visibility.Hidden;
+                                    break;
                                 case "round":
                                     formula2 = (x, y) =>
                                     {
@@ -374,7 +391,7 @@ namespace HexInnovation
                                             if (b.Value == (int)b.Value)
                                                 return Math.Round(a.Value, (int)b.Value);
                                             else
-                                                throw new Exception(string.Format("Error calling Math.Round({0}, {1}):\r\n{1} is not an integer.", a, y));
+                                                throw new Exception($"Error calling Math.Round({a}, {y}):\r\n{y} is not an integer.");
                                         }
                                         else
                                         {
@@ -428,10 +445,6 @@ namespace HexInnovation
                                 case "average":
                                     formulaN = FormulaNodeN.Average;
                                     break;
-                                case "pi":
-                                    return new ConstantNumberNode(Math.PI);
-                                case "e":
-                                    return new ConstantNumberNode(Math.E);
                                 case "format":
                                     formulaN = FormulaNodeN.Format;
                                     break;
@@ -448,9 +461,9 @@ namespace HexInnovation
                                         {
                                             return (x as IEnumerable<dynamic>).Contains(y);
                                         }
-                                        else if (x is string)
+                                        else if (x is string str1 && (y is string || $"{y}".Length > 0))
                                         {
-                                            return (x as string).Contains(y as dynamic);
+                                            return str1.Contains($"{y}");
                                         }
                                         else
                                         {
