@@ -87,7 +87,7 @@ namespace HexInnovation
                         switch (x.Length)
                         {
                             case 1:
-                                return new GridLength(MathConverter.ConvertToDouble(x[0].Evaluate(values)).Value);
+                                return new GridLengthConverter().ConvertFrom(x[0].Evaluate(values));
                             default:
                                 throw new NotSupportedException(string.Format("The parameter specifies {0} values; GridLength supports only one", x.Length));
                         }
@@ -536,7 +536,14 @@ namespace HexInnovation
                 return v;
             }
 
-            return System.Convert.ChangeType(parameter, typeof(double)) as double?;
+            try
+            {
+                return System.Convert.ChangeType(parameter, typeof(double)) as double?;
+            }
+            catch (InvalidCastException ex)
+            {
+                throw new Exception($"Failed to convert object of type {parameter.GetType().FullName} to double", ex);
+            }
         }
         
         /// <summary>
