@@ -239,6 +239,13 @@ namespace HexInnovation
                         }
                         else
                         {
+                            var converter = TypeDescriptor.GetConverter(targetType);
+
+                            if (converter.CanConvertFrom(evaluatedValue?.GetType() ?? typeof(object)))
+                            {
+                                return converter.ConvertFrom(evaluatedValue);
+                            }
+
                             // Welp, we can't convert this value... O well.
                             return evaluatedValue;
                         }
