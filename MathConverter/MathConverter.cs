@@ -239,13 +239,6 @@ namespace HexInnovation
                         }
                         else
                         {
-                            var converter = TypeDescriptor.GetConverter(targetType);
-
-                            if (converter.CanConvertFrom(evaluatedValue?.GetType() ?? typeof(object)))
-                            {
-                                return converter.ConvertFrom(evaluatedValue);
-                            }
-
                             // Welp, we can't convert this value... O well.
                             return evaluatedValue;
                         }
@@ -449,7 +442,7 @@ namespace HexInnovation
         /// </summary>
         /// <param name="Parameter">The parameter that we're parsing</param>
         /// <returns>A syntax tree that can be evaluated later.</returns>
-        internal AbstractSyntaxTree[] ParseParameter(string Parameter)
+        public AbstractSyntaxTree[] ParseParameter(string Parameter)
         {
             if (CachedResults == null)
                 return Parser.Parse(Parameter);
