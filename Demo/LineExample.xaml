@@ -4,9 +4,10 @@
              xmlns:math="http://hexinnovation.com/math"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:hexInnovation="clr-namespace:HexInnovation;assembly=MathConverterNetCore"
              mc:Ignorable="d" d:DesignHeight="300" d:DesignWidth="300" Background="White">
     <UserControl.Resources>
-        <math:MathConverter x:Key="math"/>
+        <hexInnovation:MathConverter x:Key="math"/>
     </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>

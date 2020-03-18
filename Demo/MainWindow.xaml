@@ -107,9 +107,10 @@
         xmlns:math="http://hexinnovation.com/math"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:hexInnovation="clr-namespace:HexInnovation;assembly=MathConverterNetCore"
         Title="MathConverter Demo" SizeToContent="Height" Width="324">
     <Window.Resources>
-        <math:MathConverter x:Key="math" UseCache="False"/>
+        <hexInnovation:MathConverter x:Key="math" UseCache="False"/>
     </Window.Resources>
     <StackPanel Margin="20">
         <TextBlock Text="How many apples do you want?"/>
