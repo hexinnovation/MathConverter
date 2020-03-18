@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace Demo
+namespace MathConverterDemo
 {
     /// <summary>
     /// Interaction logic for App.xaml

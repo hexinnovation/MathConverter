@@ -24,7 +24,7 @@ namespace MathConverterDemo
         public MainWindow()
         {
             InitializeComponent();
-            //cb.ItemsSource = new IndexedCollection<string> { "English", "Español", "Français", };
+            cb.ItemsSource = new IndexedCollection<string> { "English", "Español", "Français", };
             cb.SelectedIndex = 0;
             this.Loaded += delegate { cb.Focus(); cb.IsDropDownOpen = true; };
         }
