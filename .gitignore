@@ -1,5 +1,5 @@
 obj/
 bin/
 MathConverter.v12.suo
-MathConverter/MathConverter.csproj.user
+*.csproj.user
 .vs/

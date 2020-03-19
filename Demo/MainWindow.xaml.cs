@@ -1,18 +1,6 @@
-﻿using HexInnovation;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace MathConverterDemo
 {
@@ -24,9 +12,21 @@ namespace MathConverterDemo
         public MainWindow()
         {
             InitializeComponent();
-            cb.ItemsSource = new IndexedCollection<string> { "English", "Español", "Français", };
-            cb.SelectedIndex = 0;
-            this.Loaded += delegate { cb.Focus(); cb.IsDropDownOpen = true; };
+
+            // Depending on which sample is being run, we may need to initialize the ComboBox.
+            if (FindName("cb") is ComboBox cb)
+            {
+                if (FindName("label") == null)
+                {
+                    cb.ItemsSource = new IndexedCollection<string> { "English", "Español", "Français", };
+                }
+                else
+                {
+                    cb.ItemsSource = Enumerable.Range(0, 6);
+                }
+                cb.SelectedIndex = 0;
+                Loaded += delegate { cb.Focus(); cb.IsDropDownOpen = true; };
+            }
         }
     }
 }

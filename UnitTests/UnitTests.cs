@@ -591,16 +591,22 @@ namespace UnitTests
             dynamic y = 2.15;
             var args = new object[] { x, y };
 
-            Assert.AreEqual($"{(true?x:0):{{0}}}", Converter.Convert(args, typeof(object), "$`{(true?x:0):{{0}}}`", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual($"{(true?x:0):0}", Converter.Convert(args, typeof(object), "$`{(true?x:0):0}`", CultureInfo.GetCultureInfo("de")));
             Assert.AreEqual($"{(true?null:x)}", Converter.Convert(args, typeof(object), "$`{(true?null:x)}`", CultureInfo.GetCultureInfo("de")));
             Assert.AreEqual($"{x:0.0} + {y:0.0} = {x+y:0.0}", Converter.Convert(args, typeof(object), "$`{x:0.0} + {y:0.0} = {x+y:0.0}`", CultureInfo.GetCultureInfo("de")));
 
             Assert.AreEqual($"{null ?? x:0.0} + {null ?? y:0.0} = {null ?? x + null ?? y:0.0}", Converter.Convert(args, typeof(object), "$`{null ?? x:0.0} + {null ?? y:0.0} = {null ?? x + null ?? y:0.0}`", CultureInfo.GetCultureInfo("de")));
 
-            Assert.AreEqual($"{null ?? x:`0.0`} + {null ?? y:\"{{0.0}}\"} = {$"{x + y}":0.0}", Converter.Convert(args, typeof(object), @"$`{null ?? x:\`0.0\`} + {null ?? y:""{{0.0}}""} = {$""{x + y}"":0.0}`", CultureInfo.GetCultureInfo("de")));
-            Assert.AreEqual($"a{$"b{$"c{$"{x:0.###}d"}e"}f"}g", Converter.Convert(args, typeof(object), @"$""a{$""b{$""c{$""{x:0.###}d""}e""}f""}g""", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual($"{null ?? x:`0.0`} + {null ?? y:\"0.0\"} = {$"{x + y}":0.0}", Converter.Convert(args, typeof(object), @"$`{null ?? x:\`0.0\`} + {null ?? y:""0.0""} = {$""{x + y}"":0.0}`", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual($"a{$"b{$"c{$"{x:0.###}d"}e"}f"}g", Converter.Convert(args, typeof(object), @"$""a{$`b{$""c{$`{x:0.###}d`}e""}f`}g""", CultureInfo.GetCultureInfo("de")));
             Assert.AreEqual($"a{$"b{$"c{$"{x:0.###}d"}e"}f"}g", Converter.Convert(args, typeof(object), @"$`a{$`b{$`c{$`{x:0.###}d`}e`}f`}g`", CultureInfo.GetCultureInfo("de")));
             Assert.AreEqual($"a{$"b{$"c{$"{x:0.###}d"}e"}f"}g", Converter.Convert(args, typeof(object), @"$`a{$`b{$`c{$""{x:0.###}d""}e`}f`}g`", CultureInfo.GetCultureInfo("de")));
+
+            // The following example comes from https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/tokens/interpolated
+            args = new object[] { 299792.458 };
+            Assert.AreEqual("The speed of light is 299.792,458 km/s.", Converter.Convert(args, typeof(object), @"$`The speed of light is {x:N3} km/s.`", CultureInfo.GetCultureInfo("nl-NL")));
+            Assert.AreEqual("The speed of light is 2,99,792.458 km/s.", Converter.Convert(args, typeof(object), @"$`The speed of light is {x:N3} km/s.`", CultureInfo.GetCultureInfo("en-IN")));
+            Assert.AreEqual("The speed of light is 299,792.458 km/s.", Converter.Convert(args, typeof(object), @"$`The speed of light is {x:N3} km/s.`", CultureInfo.InvariantCulture));
         }
         [TestMethod]
         public void TestFunctions()
