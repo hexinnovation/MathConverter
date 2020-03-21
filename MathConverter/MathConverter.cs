@@ -40,406 +40,85 @@ namespace HexInnovation
         /// </summary>
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return Convert(new object[] { value }, targetType, parameter, culture);
+            return Convert(new[] { value }, targetType, parameter, culture);
         }
         /// <summary>
         /// The actual convert method, for zero or more parameters.
         /// </summary>
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            Func<double, object> convert;
+            List<object> evaluatedValues;
 
             if (parameter is string param)
             {
-                // Get the syntax tree from the expression.  We will cache the results to save time for future parsing of the same expression
-                // by the same MathConverter.
-                var x = ParseParameter(param);
+                // We start by evaluating the parameter passed in. For certain types (e.g. Rect), we allow multiple values to be specified in the parameter, separated by either commas or semicolons.
+                // So the parameter "x,2x,x+y,2y" has four parts, which each parse to their own AbstractSyntaxTree: "x", "2x", "x+y", and "2y".
+                var parameterParts = ParseParameter(param);
 
-                switch (targetType?.FullName)
-                {
-                    case null:
-                    case "System.Object":
-                        switch (x.Length)
-                        {
-                            case 1:
-                                return x[0].Evaluate(culture, values);
-                            default:
-                                throw new NotSupportedException($"The parameter specifies {x.Length} values; Double supports only one");
-                        }
-                    case "System.Double":
-                        switch (x.Length)
-                        {
-                            case 1:
-                                return ConvertToDouble(x[0].Evaluate(culture, values));
-                            default:
-                                throw new NotSupportedException($"The parameter specifies {x.Length} values; Double supports only one");
-                        }
-                    case "System.Windows.CornerRadius":
-                        switch (x.Length)
-                        {
-                            case 1:
-                                return new CornerRadius(ConvertToDouble(x[0].Evaluate(culture, values)).Value);
-                            case 4:
-                                return new CornerRadius(ConvertToDouble(x[0].Evaluate(culture, values)).Value, ConvertToDouble(x[1].Evaluate(culture, values)).Value, ConvertToDouble(x[2].Evaluate(culture, values)).Value, ConvertToDouble(x[3].Evaluate(culture, values)).Value);
-                            default:
-                                throw new NotSupportedException($"The parameter specifies {x.Length} values; CornerRadius supports only one or four");
-                        }
-                    case "System.Windows.GridLength":
-                        switch (x.Length)
-                        {
-                            case 1:
-                                return new GridLengthConverter().ConvertFrom(x[0].Evaluate(culture, values));
-                            default:
-                                throw new NotSupportedException($"The parameter specifies {x.Length} values; GridLength supports only one");
-                        }
-                    case "System.Windows.Thickness":
-                        switch (x.Length)
-                        {
-                            case 1:
-                                return new Thickness(ConvertToDouble(x[0].Evaluate(culture, values)).Value);
-                            case 2:
-                                var val0 = ConvertToDouble(x[0].Evaluate(culture, values)).Value;
-                                var val1 = ConvertToDouble(x[1].Evaluate(culture, values)).Value;
-                                return new Thickness(val0, val1, val0, val1);
-                            case 4:
-                                return new Thickness(ConvertToDouble(x[0].Evaluate(culture, values)).Value, ConvertToDouble(x[1].Evaluate(culture, values)).Value, ConvertToDouble(x[2].Evaluate(culture, values)).Value, ConvertToDouble(x[3].Evaluate(culture, values)).Value);
-                            default:
-                                throw new NotSupportedException($"The parameter specifies {x.Length} values; Thickness supports only one, two, or four");
-                        }
-                    case "System.Windows.Rect":
-                        switch (x.Length)
-                        {
-                            case 4:
-                                return new Rect(ConvertToDouble(x[0].Evaluate(culture, values)).Value, ConvertToDouble(x[1].Evaluate(culture, values)).Value, ConvertToDouble(x[2].Evaluate(culture, values)).Value, ConvertToDouble(x[3].Evaluate(culture, values)).Value);
-                            default:
-                                throw new NotSupportedException($"The parameter specifies {x.Length} values; Rect supports only four");
-                        }
-                    case "System.Windows.Size":
-                        switch (x.Length)
-                        {
-                            case 2:
-                                return new Size(ConvertToDouble(x[0].Evaluate(culture, values)).Value, ConvertToDouble(x[1].Evaluate(culture, values)).Value);
-                            default:
-                                throw new NotSupportedException($"You supplied {x.Length} values; Size supports only two");
-                        }
-
-                    case "System.Windows.Point":
-                        switch (x.Length)
-                        {
-                            case 2:
-                                return new Point(ConvertToDouble(x[0].Evaluate(culture, values)).Value, ConvertToDouble(x[1].Evaluate(culture, values)).Value);
-                            default:
-                                throw new NotSupportedException($"You supplied {x.Length} values; Point supports only two");
-                        }
-                    case "System.Boolean":
-                        switch (x.Length)
-                        {
-                            case 1:
-                                return (bool?)x[0].Evaluate(culture, values);
-                            default:
-                                throw new NotSupportedException($"You supplied {x.Length} values; Boolean supports only one");
-                        }
-                    case "System.String":
-                        switch (x.Length)
-                        {
-                            case 1:
-                                var val = x[0].Evaluate(culture, values);
-                                if (val is string)
-                                    return val;
-                                else
-                                    return val?.ToString();
-                            default:
-                                throw new NotSupportedException($"You supplied {x.Length} values; string supports only one");
-                        }
-                    case "System.Uri":
-                        switch (x.Length)
-                        {
-                            case 1:
-                                var val = x[0].Evaluate(culture, values);
-                                if (val is string)
-                                    return new Uri(val as string);
-                                else if (val == null)
-                                    return null;
-                                else
-                                    return new Uri(val.ToString());
-                            default:
-                                throw new NotSupportedException($"You supplied {values.Length} values; Uri supports only one");
-                        }
-
-                    case "System.Single":
-                        convert = p => System.Convert.ToSingle(p);
-                        break;
-                    case "System.Int32":
-                        convert = p => System.Convert.ToInt32(p);
-                        break;
-                    case "System.Int64":
-                        convert = p => System.Convert.ToInt64(p);
-                        break;
-                    case "System.Decimal":
-                        convert = p => System.Convert.ToDecimal(p);
-                        break;
-                    case "System.Byte":
-                        convert = p => System.Convert.ToByte(p);
-                        break;
-                    case "System.SByte":
-                        convert = p => System.Convert.ToSByte(p);
-                        break;
-                    case "System.Char":
-                        convert = p => (char)System.Convert.ToInt32(p);
-                        break;
-                    case "System.Int16":
-                        convert = p => System.Convert.ToInt16(p);
-                        break;
-                    case "System.UInt16":
-                        convert = p => System.Convert.ToUInt16(p);
-                        break;
-                    case "System.UInt32":
-                        convert = p => System.Convert.ToUInt32(p);
-                        break;
-                    case "System.UInt64":
-                        convert = p => System.Convert.ToUInt64(p);
-                        break;
-                    case "System.Windows.Media.Geometry":
-                        switch (x.Length)
-                        {
-                            case 1:
-                                var val = x[0].Evaluate(culture, values);
-                                if (val is string s)
-                                    return Geometry.Parse(s);
-                                else if (val == null)
-                                    return null;
-                                else
-                                    return Geometry.Parse($"{val}");
-                            default:
-                                throw new NotSupportedException($"You supplied {values.Length} values; Path supports only one");
-                        }
-                    default:
-                        if (targetType == typeof(double?))
-                        {
-                            return ConvertToDouble(x[0].Evaluate(culture, values));
-                        }
-
-                        // We don't know what to return, so let's evaluate the parameter and try to convert it.
-                        var evaluatedValue = x[0].Evaluate(culture, values);
-                        if ((targetType.IsGenericType && targetType.GetGenericTypeDefinition() == typeof(Nullable<>)))
-                        {
-                            // We're supposed to return a Nullable<T> where T : struct
-                            if (evaluatedValue == null)
-                                return null;
-                            else
-                                return System.Convert.ChangeType(evaluatedValue, targetType.GetGenericArguments()[0]);
-                        }
-
-                        if ((targetType.IsClass && ReferenceEquals(evaluatedValue, null)) || (!ReferenceEquals(evaluatedValue, null) && targetType.IsInstanceOfType(evaluatedValue)))
-                        {
-                            return evaluatedValue;
-                        }
-                        else if (targetType.GetInterfaces().Contains(typeof(IConvertible)))
-                        {
-                            return System.Convert.ChangeType(evaluatedValue, targetType);
-                        }
-                        else
-                        {
-                            var converter = TypeDescriptor.GetConverter(targetType);
-
-                            if (converter.CanConvertFrom(evaluatedValue?.GetType() ?? typeof(object)))
-                            {
-                                return converter.ConvertFrom(evaluatedValue);
-                            }
-
-                            // Welp, we can't convert this value... O well.
-                            return evaluatedValue;
-                        }
-                }
-                var value = x[0].Evaluate(culture, values);
-                if (value == null)
-                    return null;
-                else
-                    return convert(ConvertToDouble(value).Value);
+                // We now compute the evaluated values. In the above example, the parts would evaluate to four doubles: values[0], 2*values[0], values[0]+values[1], and 2*values[1].
+                evaluatedValues = parameterParts.Select(p => p.Evaluate(culture, values)).ToList();
             }
             else if (parameter == null)
             {
-                switch (targetType.FullName)
-                {
-                    case "System.Object":
-                        switch (values.Length)
-                        {
-                            case 1:
-                                return ConvertToObject(values[0]);
-                            default:
-                                throw new NotSupportedException($"You supplied {values.Length} values; Object supports only one");
-                        }
-                    case "System.Double":
-                        switch (values.Length)
-                        {
-                            case 1:
-                                return ConvertToDouble(values[0]);
-                            default:
-                                throw new NotSupportedException($"You supplied {values.Length} values; Double supports only one");
-                        }
-                    case "System.Windows.CornerRadius":
-                        switch (values.Length)
-                        {
-                            case 1:
-                                return new CornerRadius(ConvertToDouble(values[0]).Value);
-                            case 4:
-                                return new CornerRadius(ConvertToDouble(values[0]).Value, ConvertToDouble(values[1]).Value, ConvertToDouble(values[2]).Value, ConvertToDouble(values[3]).Value);
-                            default:
-                                throw new NotSupportedException($"You supplied {values.Length} values; GridLength supports only one or four");
-                        }
-                    case "System.Windows.GridLength":
-                        switch (values.Length)
-                        {
-                            case 1:
-                                return new GridLength(ConvertToDouble(values[0]).Value);
-                            default:
-                                throw new NotSupportedException($"You supplied {values.Length} values; GridLength supports only one");
-                        }
-                    case "System.Windows.Thickness":
-                        switch (values.Length)
-                        {
-                            case 1:
-                                return new Thickness(ConvertToDouble(values[0]).Value);
-                            case 2:
-                                return new Thickness(ConvertToDouble(values[0]).Value, ConvertToDouble(values[1]).Value, ConvertToDouble(values[0]).Value, ConvertToDouble(values[1]).Value);
-                            case 4:
-                                return new Thickness(ConvertToDouble(values[0]).Value, ConvertToDouble(values[1]).Value, ConvertToDouble(values[2]).Value, ConvertToDouble(values[3]).Value);
-                            default:
-                                throw new NotSupportedException($"You supplied {values.Length} values; Thickness supports only one, two, or four");
-                        }
-                    case "System.Windows.Rect":
-                        switch (values.Length)
-                        {
-                            case 4:
-                                return new Rect(ConvertToDouble(values[0]).Value, ConvertToDouble(values[1]).Value, ConvertToDouble(values[2]).Value, ConvertToDouble(values[3]).Value);
-                            default:
-                                throw new NotSupportedException($"You supplied {values.Length} values; Rect supports only four");
-                        }
-                    case "System.Windows.Size":
-                        switch (values.Length)
-                        {
-                            case 2:
-                                return new Size(ConvertToDouble(values[0]).Value, ConvertToDouble(values[1]).Value);
-                            default:
-                                throw new NotSupportedException($"You supplied {values.Length} values; Size supports only two");
-                        }
-                    case "System.Windows.Point":
-                        switch (values.Length)
-                        {
-                            case 2:
-                                return new Point(ConvertToDouble(values[0]).Value, ConvertToDouble(values[1]).Value);
-                            default:
-                                throw new NotSupportedException($"You supplied {values.Length} values; Point supports only two");
-                        }
-                    case "System.Boolean":
-                        switch (values.Length)
-                        {
-                            case 1:
-                                if (values[0] is string str)
-                                {
-                                    return bool.Parse(str);
-                                }
-                                return (bool?)values[0];
-                            default:
-                                throw new NotSupportedException($"You supplied {values.Length} values; boolean supports only one");
-                        }
-                    case "System.String":
-                        switch (values.Length)
-                        {
-                            case 1:
-                                if (values[0] is string)
-                                    return values[0];
-                                else
-                                    return values[0]?.ToString();
-                            default:
-                                throw new NotSupportedException($"You supplied {values.Length} values; string supports only one");
-                        }
-                    case "System.Uri":
-                        switch (values.Length)
-                        {
-                            case 1:
-                                if (values[0] is string str)
-                                    return new Uri(str);
-                                else if (values[0] == null)
-                                    return null;
-                                else
-                                    return new Uri(values[0].ToString());
-                            default:
-                                throw new NotSupportedException($"You supplied {values.Length} values; Uri supports only one");
-                        }
-                    case "System.Single":
-                        convert = p => System.Convert.ToSingle(p);
-                        break;
-                    case "System.Int32":
-                        convert = p => System.Convert.ToInt32(p);
-                        break;
-                    case "System.Int64":
-                        convert = p => System.Convert.ToInt64(p);
-                        break;
-                    case "System.Decimal":
-                        convert = p => System.Convert.ToDecimal(p);
-                        break;
-                    case "System.Byte":
-                        convert = p => System.Convert.ToByte(p);
-                        break;
-                    case "System.SByte":
-                        convert = p => System.Convert.ToSByte(p);
-                        break;
-                    case "System.Char":
-                        convert = p => (char)System.Convert.ToInt32(p);
-                        break;
-                    case "System.Int16":
-                        convert = p => System.Convert.ToInt16(p);
-                        break;
-                    case "System.UInt16":
-                        convert = p => System.Convert.ToUInt16(p);
-                        break;
-                    case "System.UInt32":
-                        convert = p => System.Convert.ToUInt32(p);
-                        break;
-                    case "System.UInt64":
-                        convert = p => System.Convert.ToUInt64(p);
-                        break;
-                    default:
-                        switch (values.Length)
-                        {
-                            case 1:
-                                if (targetType == typeof(double?))
-                                {
-                                    return ConvertToDouble(values[0]);
-                                }
-
-                                if ((targetType.IsGenericType && targetType.GetGenericTypeDefinition() == typeof(Nullable<>)))
-                                {
-                                    // We're supposed to return a Nullable<T> where T : struct
-                                    if (values[0] == null)
-                                        return null;
-                                    else
-                                        return System.Convert.ChangeType(values[0], targetType.GetGenericArguments()[0]);
-                                }
-
-                                return System.Convert.ChangeType(values[0], targetType);
-                                //throw new NotSupportedException(string.Format("You cannot convert to a {0}", targetType.Name));
-                            default:
-                                throw new NotSupportedException($"You supplied {values.Length} values; {targetType.FullName} supports only one");
-                        }
-                }
-                switch (values.Length)
-                {
-                    case 1:
-                        var value = values[0];
-                        if (value == null)
-                            return null;
-                        else
-                            return convert(ConvertToDouble(value).Value);
-                    default:
-                        throw new NotSupportedException($"You supplied {values.Length} values; {targetType.FullName} supports only one");
-                }
-
+                evaluatedValues = values.ToList();
             }
             else
             {
                 throw new ArgumentException("The Converter Parameter must be a string.", nameof(parameter));
+            }
+
+            // Now if there are more than one value, we will simply merge the values with commas, and use TypeConverter to handle the conversion to the appropriate type.
+            // We do this in invariant culture to ensure that any type conversion (which must happen in InvariantCulture) succeeds.
+            var stringJoinCulture = targetType == typeof(string) ? culture : CultureInfo.InvariantCulture;
+            var finalAnswerToConvert = evaluatedValues.Count == 1 ? evaluatedValues[0] : string.Join(",", evaluatedValues.Select(p => string.Format(stringJoinCulture, "{0}", p)));
+
+            // At this point, we have now computed our final answer.
+            // However, we might need to do standard type conversion to convert it to a different type.
+
+            // We don't need to convert null, and we can't convert if there's no type specified that we need to convert to.
+            if (finalAnswerToConvert == null || targetType == null)
+                return finalAnswerToConvert;
+
+            // We might not need to convert.
+            if (targetType.IsInstanceOfType(finalAnswerToConvert))
+            {
+                return finalAnswerToConvert;
+            }
+
+            // We need to convert. Let's try the default TypeConverter.
+            var converter = TypeDescriptor.GetConverter(targetType); 
+
+            if (converter.CanConvertFrom(finalAnswerToConvert.GetType()))
+            {
+                // We don't want to use the CultureInfo here when converting, because Rect conversion is broken in some cultures.
+                // We'll keep this conversion working in InvariantCulture.
+                return converter.ConvertFrom(null, CultureInfo.InvariantCulture, finalAnswerToConvert);
+            }
+
+            // We know we're not returning null... If we're trying to convert to a Nullable<SomeStruct>, let's just convert to SomeStruct instead.
+            var newTarget = Nullable.GetUnderlyingType(targetType);
+            if (newTarget != null)
+            {
+                targetType = newTarget;
+            }
+
+            try
+            {
+                if (targetType == typeof(char))
+                {
+                    // We'll add a special cast for conversions to char, where we'll convert to int first.
+                    return System.Convert.ToChar((int)System.Convert.ChangeType(finalAnswerToConvert, typeof(int)));
+                }
+                else
+                {
+                    // The default TypeConverter doesn't support this conversion. Let's try Convert.ChangeType
+                    return System.Convert.ChangeType(finalAnswerToConvert, targetType);
+                }
+            }
+            catch (InvalidCastException)
+            {
+                // Welp, we can't convert this value... O well.
+                return finalAnswerToConvert;
             }
         }
         /// <summary>

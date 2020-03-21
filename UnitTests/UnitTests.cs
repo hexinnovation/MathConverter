@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Microsoft.CSharp.RuntimeBinder;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Globalization;
-using Microsoft.CSharp.RuntimeBinder;
 using System.Threading;
 using System.Windows;
 using System.Windows.Media;
@@ -23,6 +23,72 @@ namespace HexInnovation
             _converterNoCache = new MathConverter { UseCache = false };
         }
 
+        [TestMethod]
+        public void TestCommonWpfTypes()
+        {
+            Assert.AreEqual(new CornerRadius(1, 2, 3, 4), _converter.Convert(new object[] { 1, 2, 3, 4 }, typeof(CornerRadius), null, CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual(new CornerRadius(1, 2, 3, 4), _converter.Convert(new object[] { 1, 2, 3, 4 }, typeof(CornerRadius), "x,y,z,[3]", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual(new CornerRadius(1, 2, 3, 4), _converter.Convert(new object[] { 1, 2, 3, 4 }, typeof(CornerRadius), "1,2,3,4", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual(new CornerRadius(1, 2, 3, 4), _converter.Convert(new object[] { 1, 2, 3, 4 }, typeof(CornerRadius), "`1,2,3,4`", CultureInfo.GetCultureInfo("de")));
+
+            Assert.AreEqual(new GridLength(1, GridUnitType.Pixel), _converter.Convert(new object[] { 1 }, typeof(GridLength), "x", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual(new GridLength(1, GridUnitType.Pixel), _converter.Convert(new object[] { 1 }, typeof(GridLength), null, CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual(new GridLength(1, GridUnitType.Star), _converter.Convert(new object[] { 1 }, typeof(GridLength), "$`{x}*`", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual(new GridLength(1, GridUnitType.Star), _converter.Convert(new object[0], typeof(GridLength), "`1*`", CultureInfo.GetCultureInfo("de")));
+
+            Assert.AreEqual(new Thickness(1), _converter.Convert(new object[] { 1 }, typeof(Thickness), "x", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual(new Thickness(1), _converter.Convert(new object[] { 1 }, typeof(Thickness), "1", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual(new Thickness(1), _converter.Convert(new object[] { 1 }, typeof(Thickness), null, CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual(new Thickness(1, 2, 1, 2), _converter.Convert(new object[] { 1, 2 }, typeof(Thickness), "x;y;x;y", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual(new Thickness(1, 2, 1, 2), _converter.Convert(new object[] { 1, 2 }, typeof(Thickness), "x,y,x,y", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual(new Thickness(1, 2, 1, 2), _converter.Convert(new object[] { 1, 2 }, typeof(Thickness), "x,y;x,y", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual(new Thickness(1, 2, 1, 2), _converter.Convert(new object[] { 1, 2 }, typeof(Thickness), "x;y", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual(new Thickness(1, 2, 1, 2), _converter.Convert(new object[] { 1, 2 }, typeof(Thickness), "x,y", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual(new Thickness(1, 2, 1, 2), _converter.Convert(new object[] { 1, 2 }, typeof(Thickness), "1;2;1;2", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual(new Thickness(1, 2, 1, 2), _converter.Convert(new object[] { 1, 2 }, typeof(Thickness), "1,2,1,2", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual(new Thickness(1, 2, 1, 2), _converter.Convert(new object[] { 1, 2 }, typeof(Thickness), "1,2;1,2", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual(new Thickness(1, 2, 1, 2), _converter.Convert(new object[] { 1, 2 }, typeof(Thickness), "1;2", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual(new Thickness(1, 2, 1, 2), _converter.Convert(new object[] { 1, 2 }, typeof(Thickness), "1,2", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual(new Thickness(1, 2, 1, 2), _converter.Convert(new object[] { 1, 2 }, typeof(Thickness), null, CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual(new Thickness(1, 2, 3, 4), _converter.Convert(new object[] { 1, 2, 3, 4 }, typeof(Thickness), "x;y;z;[3]", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual(new Thickness(1, 2, 3, 4), _converter.Convert(new object[] { 1, 2, 3, 4 }, typeof(Thickness), "x,y,z,[3]", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual(new Thickness(1, 2, 3, 4), _converter.Convert(new object[] { 1, 2, 3, 4 }, typeof(Thickness), "x,y;z,4", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual(new Thickness(1, 2, 3, 4), _converter.Convert(new object[] { 1, 2, 3, 4 }, typeof(Thickness), "1;2;3;4", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual(new Thickness(1, 2, 3, 4), _converter.Convert(new object[] { 1, 2, 3, 4 }, typeof(Thickness), "1,2,3,4", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual(new Thickness(1, 2, 3, 4), _converter.Convert(new object[] { 1, 2, 3, 4 }, typeof(Thickness), "1,2;3,4", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual(new Thickness(1, 2, 3, 4), _converter.Convert(new object[] { 1, 2, 3, 4 }, typeof(Thickness), null, CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual(new Thickness(1, 2, 1, 2), _converter.Convert(new object[0], typeof(Thickness), "`1,2,1,2`", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual(new Thickness(1, 2, 1, 2), _converter.Convert(new object[0], typeof(Thickness), "`1,2`", CultureInfo.GetCultureInfo("de")));
+
+            Assert.AreEqual(new Rect(1, 2, 3, 4), _converter.Convert(new object[] { 1, 2, 3, 4 }, typeof(Rect), "x;y;z;[3]", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual(new Rect(1, 2, 3, 4), _converter.Convert(new object[] { 1, 2, 3, 4 }, typeof(Rect), "x,y,z,[3]", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual(new Rect(1, 2, 3, 4), _converter.Convert(new object[] { 1, 2, 3, 4 }, typeof(Rect), "x,y;z,4", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual(new Rect(1, 2, 3, 4), _converter.Convert(new object[] { 1, 2, 3, 4 }, typeof(Rect), "1;2;3;4", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual(new Rect(1, 2, 3, 4), _converter.Convert(new object[] { 1, 2, 3, 4 }, typeof(Rect), "1,2,3,4", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual(new Rect(1, 2, 3, 4), _converter.Convert(new object[] { 1, 2, 3, 4 }, typeof(Rect), "1,2;3,4", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual(new Rect(1, 2, 3, 4), _converter.Convert(new object[] { 1, 2, 3, 4 }, typeof(Rect), null, CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual(new Rect(1, 2, 3, 4), _converter.Convert(new object[] { 1, 2, 3, 4 }, typeof(Rect), "`1,2,3,4`", CultureInfo.GetCultureInfo("de")));
+
+            Assert.AreEqual(new Size(1, 2), _converter.Convert(new object[] { 1, 2 }, typeof(Size), "x;y", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual(new Size(1, 2), _converter.Convert(new object[] { 1, 2 }, typeof(Size), "x,y", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual(new Size(1, 2), _converter.Convert(new object[] { 1, 2 }, typeof(Size), "1;2", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual(new Size(1, 2), _converter.Convert(new object[] { 1, 2 }, typeof(Size), "1,2", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual(new Size(1, 2), _converter.Convert(new object[] { 1, 2 }, typeof(Size), null, CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual(new Size(1, 2), _converter.Convert(new object[] { 1, 2 }, typeof(Size), "`1,2`", CultureInfo.GetCultureInfo("de")));
+
+            Assert.AreEqual(new Point(1, 2), _converter.Convert(new object[] { 1, 2 }, typeof(Point), "x;y", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual(new Point(1, 2), _converter.Convert(new object[] { 1, 2 }, typeof(Point), "x,y", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual(new Point(1, 2), _converter.Convert(new object[] { 1, 2 }, typeof(Point), "1;2", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual(new Point(1, 2), _converter.Convert(new object[] { 1, 2 }, typeof(Point), "1,2", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual(new Point(1, 2), _converter.Convert(new object[] { 1, 2 }, typeof(Point), null, CultureInfo.GetCultureInfo("de")));
+
+            Assert.IsTrue((bool)_converter.Convert(new object[] { true }, typeof(bool), null, CultureInfo.GetCultureInfo("de")));
+            Assert.IsFalse((bool)_converter.Convert(new object[] { false }, typeof(bool), null, CultureInfo.GetCultureInfo("de")));
+            Assert.IsTrue((bool)_converter.Convert(new object[0], typeof(bool), "true", CultureInfo.GetCultureInfo("de")));
+            Assert.IsFalse((bool)_converter.Convert(new object[0], typeof(bool), "false", CultureInfo.GetCultureInfo("de")));
+
+            Assert.AreEqual(Geometry.Parse("M 0,0 L 100,100 L 100,0 Z").ToString(), _converter.Convert(new object[0], typeof(Geometry), "`M 0,0 L 100,100 L 100,0 Z`", CultureInfo.GetCultureInfo("de")).ToString());
+        }
         [TestMethod]
         public void TestCache()
         {
