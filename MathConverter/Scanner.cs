@@ -10,17 +10,17 @@ namespace HexInnovation
 {
     class Scanner : IDisposable
     {
-        public Scanner(Parser parser, string Expression)
-            : this(parser, new StringReader(Expression)) { }
-        public Scanner(Parser parser, StringReader reader)
+        public Scanner(Parser parser, string expression)
+            : this(parser, new StringReader(expression)) { }
+        private Scanner(Parser parser, StringReader reader)
         {
-            this._parser = parser;
-            this._reader = reader;
+            _parser = parser;
+            _reader = reader;
             _needsToken = true;
             Position = -1;
         }
-        private Parser _parser;
-        private TextReader _reader;
+        private readonly Parser _parser;
+        private readonly TextReader _reader;
         private Token _lastToken;
         private bool _needsToken;
         public int Position { get; private set; }
@@ -259,7 +259,7 @@ namespace HexInnovation
                     case ScannerState.CaretString:
                     case ScannerState.DoubleQuoteString:
                         var isInterpolatedString = (state & ScannerState.InterpolatedString) == ScannerState.InterpolatedString;
-                        var Arguments = new List<AbstractSyntaxTree>();
+                        var arguments = new List<AbstractSyntaxTree>();
 
                         while (true)
                         {
@@ -291,10 +291,10 @@ namespace HexInnovation
                                              *  " => maybe throw
                                              */
 
-                                            sb.Append(Arguments.Count);
+                                            sb.Append(arguments.Count);
                                             try
                                             {
-                                                Arguments.Add(_parser.ParseInterpolatedStringArg());
+                                                arguments.Add(_parser.ParseInterpolatedStringArg());
                                                 switch (GetToken().TokenType)
                                                 {
                                                     case TokenType.Colon:
@@ -449,7 +449,7 @@ namespace HexInnovation
                                             break;
                                         case ScannerState.DoubleQuoteString:
                                             if (isInterpolatedString)
-                                                return new InterpolatedStringToken(sb.ToString(), Arguments);
+                                                return new InterpolatedStringToken(sb.ToString(), arguments);
                                             else
                                                 return new LexicalToken(TokenType.String, sb.ToString());
                                     }
@@ -459,7 +459,7 @@ namespace HexInnovation
                                     {
                                         case ScannerState.CaretString:
                                             if (isInterpolatedString)
-                                                return new InterpolatedStringToken(sb.ToString(), Arguments);
+                                                return new InterpolatedStringToken(sb.ToString(), arguments);
                                             else
                                                 return new LexicalToken(TokenType.String, sb.ToString());
                                         case ScannerState.DoubleQuoteString:
@@ -472,6 +472,9 @@ namespace HexInnovation
 
                             }
                         }
+
+                    default:
+                        throw new Exception($"MathConverter internal exception: Parser is in an invalid state.");
                 }
             }
         }
@@ -493,10 +496,6 @@ namespace HexInnovation
             InterpolatedString = 0x8000,
         }
 
-        ~Scanner()
-        {
-            Dispose();
-        }
         public void Dispose()
         {
             _reader.Dispose();

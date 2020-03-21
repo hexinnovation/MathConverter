@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
+using System.Linq;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
@@ -28,11 +29,11 @@ namespace HexInnovation
         {
             if (UseCache)
             {
-                CachedResults.Clear();
+                _cachedResults.Clear();
             }
         }
 
-        private Dictionary<string, AbstractSyntaxTree[]> CachedResults = new Dictionary<string, AbstractSyntaxTree[]>();
+        private Dictionary<string, AbstractSyntaxTree[]> _cachedResults = new Dictionary<string, AbstractSyntaxTree[]>();
 
         /// <summary>
         /// The conversion for a single value.
@@ -61,100 +62,100 @@ namespace HexInnovation
                         switch (x.Length)
                         {
                             case 1:
-                                return x[0].Evaluate(values);
+                                return x[0].Evaluate(culture, values);
                             default:
-                                throw new NotSupportedException(string.Format("The parameter specifies {0} values; Double supports only one", x.Length));
+                                throw new NotSupportedException($"The parameter specifies {x.Length} values; Double supports only one");
                         }
                     case "System.Double":
                         switch (x.Length)
                         {
                             case 1:
-                                return MathConverter.ConvertToDouble(x[0].Evaluate(values));
+                                return ConvertToDouble(x[0].Evaluate(culture, values));
                             default:
-                                throw new NotSupportedException(string.Format("The parameter specifies {0} values; Double supports only one", x.Length));
+                                throw new NotSupportedException($"The parameter specifies {x.Length} values; Double supports only one");
                         }
                     case "System.Windows.CornerRadius":
                         switch (x.Length)
                         {
                             case 1:
-                                return new CornerRadius(MathConverter.ConvertToDouble(x[0].Evaluate(values)).Value);
+                                return new CornerRadius(ConvertToDouble(x[0].Evaluate(culture, values)).Value);
                             case 4:
-                                return new CornerRadius(MathConverter.ConvertToDouble(x[0].Evaluate(values)).Value, MathConverter.ConvertToDouble(x[1].Evaluate(values)).Value, MathConverter.ConvertToDouble(x[2].Evaluate(values)).Value, MathConverter.ConvertToDouble(x[3].Evaluate(values)).Value);
+                                return new CornerRadius(ConvertToDouble(x[0].Evaluate(culture, values)).Value, ConvertToDouble(x[1].Evaluate(culture, values)).Value, ConvertToDouble(x[2].Evaluate(culture, values)).Value, ConvertToDouble(x[3].Evaluate(culture, values)).Value);
                             default:
-                                throw new NotSupportedException(string.Format("The parameter specifies {0} values; CornerRadius supports only one or four", x.Length));
+                                throw new NotSupportedException($"The parameter specifies {x.Length} values; CornerRadius supports only one or four");
                         }
                     case "System.Windows.GridLength":
                         switch (x.Length)
                         {
                             case 1:
-                                return new GridLengthConverter().ConvertFrom(x[0].Evaluate(values));
+                                return new GridLengthConverter().ConvertFrom(x[0].Evaluate(culture, values));
                             default:
-                                throw new NotSupportedException(string.Format("The parameter specifies {0} values; GridLength supports only one", x.Length));
+                                throw new NotSupportedException($"The parameter specifies {x.Length} values; GridLength supports only one");
                         }
                     case "System.Windows.Thickness":
                         switch (x.Length)
                         {
                             case 1:
-                                return new Thickness(MathConverter.ConvertToDouble(x[0].Evaluate(values)).Value);
+                                return new Thickness(ConvertToDouble(x[0].Evaluate(culture, values)).Value);
                             case 2:
-                                return new Thickness(MathConverter.ConvertToDouble(x[0].Evaluate(values)).Value, MathConverter.ConvertToDouble(x[1].Evaluate(values)).Value, MathConverter.ConvertToDouble(x[0].Evaluate(values)).Value, MathConverter.ConvertToDouble(x[1].Evaluate(values)).Value);
+                                var val0 = ConvertToDouble(x[0].Evaluate(culture, values)).Value;
+                                var val1 = ConvertToDouble(x[1].Evaluate(culture, values)).Value;
+                                return new Thickness(val0, val1, val0, val1);
                             case 4:
-                                return new Thickness(MathConverter.ConvertToDouble(x[0].Evaluate(values)).Value, MathConverter.ConvertToDouble(x[1].Evaluate(values)).Value, MathConverter.ConvertToDouble(x[2].Evaluate(values)).Value, MathConverter.ConvertToDouble(x[3].Evaluate(values)).Value);
+                                return new Thickness(ConvertToDouble(x[0].Evaluate(culture, values)).Value, ConvertToDouble(x[1].Evaluate(culture, values)).Value, ConvertToDouble(x[2].Evaluate(culture, values)).Value, ConvertToDouble(x[3].Evaluate(culture, values)).Value);
                             default:
-                                throw new NotSupportedException(string.Format("The parameter specifies {0} values; Thickness supports only one, two, or four", x.Length));
+                                throw new NotSupportedException($"The parameter specifies {x.Length} values; Thickness supports only one, two, or four");
                         }
                     case "System.Windows.Rect":
                         switch (x.Length)
                         {
                             case 4:
-                                return new Rect(MathConverter.ConvertToDouble(x[0].Evaluate(values)).Value, MathConverter.ConvertToDouble(x[1].Evaluate(values)).Value, MathConverter.ConvertToDouble(x[2].Evaluate(values)).Value, MathConverter.ConvertToDouble(x[3].Evaluate(values)).Value);
+                                return new Rect(ConvertToDouble(x[0].Evaluate(culture, values)).Value, ConvertToDouble(x[1].Evaluate(culture, values)).Value, ConvertToDouble(x[2].Evaluate(culture, values)).Value, ConvertToDouble(x[3].Evaluate(culture, values)).Value);
                             default:
-                                throw new NotSupportedException(string.Format("The parameter specifies {0} values; Rect supports only four", x.Length));
+                                throw new NotSupportedException($"The parameter specifies {x.Length} values; Rect supports only four");
                         }
                     case "System.Windows.Size":
                         switch (x.Length)
                         {
                             case 2:
-                                return new Size(MathConverter.ConvertToDouble(x[0].Evaluate(values)).Value, MathConverter.ConvertToDouble(x[1].Evaluate(values)).Value);
+                                return new Size(ConvertToDouble(x[0].Evaluate(culture, values)).Value, ConvertToDouble(x[1].Evaluate(culture, values)).Value);
                             default:
-                                throw new NotSupportedException(string.Format("You supplied {0} values; Size supports only two", x.Length));
+                                throw new NotSupportedException($"You supplied {x.Length} values; Size supports only two");
                         }
 
                     case "System.Windows.Point":
                         switch (x.Length)
                         {
                             case 2:
-                                return new Point(MathConverter.ConvertToDouble(x[0].Evaluate(values)).Value, MathConverter.ConvertToDouble(x[1].Evaluate(values)).Value);
+                                return new Point(ConvertToDouble(x[0].Evaluate(culture, values)).Value, ConvertToDouble(x[1].Evaluate(culture, values)).Value);
                             default:
-                                throw new NotSupportedException(string.Format("You supplied {0} values; Point supports only two", x.Length));
+                                throw new NotSupportedException($"You supplied {x.Length} values; Point supports only two");
                         }
                     case "System.Boolean":
                         switch (x.Length)
                         {
                             case 1:
-                                return (bool?)x[0].Evaluate(values);
+                                return (bool?)x[0].Evaluate(culture, values);
                             default:
-                                throw new NotSupportedException(string.Format("You supplied {0} values; Boolean supports only one", x.Length));
+                                throw new NotSupportedException($"You supplied {x.Length} values; Boolean supports only one");
                         }
                     case "System.String":
                         switch (x.Length)
                         {
                             case 1:
-                                var val = x[0].Evaluate(values);
+                                var val = x[0].Evaluate(culture, values);
                                 if (val is string)
                                     return val;
-                                else if (val == null)
-                                    return null;
                                 else
-                                    return val.ToString();
+                                    return val?.ToString();
                             default:
-                                throw new NotSupportedException(string.Format("You supplied {0} values; string supports only one", x.Length));
+                                throw new NotSupportedException($"You supplied {x.Length} values; string supports only one");
                         }
                     case "System.Uri":
                         switch (x.Length)
                         {
                             case 1:
-                                var val = x[0].Evaluate(values);
+                                var val = x[0].Evaluate(culture, values);
                                 if (val is string)
                                     return new Uri(val as string);
                                 else if (val == null)
@@ -202,7 +203,7 @@ namespace HexInnovation
                         switch (x.Length)
                         {
                             case 1:
-                                var val = x[0].Evaluate(values);
+                                var val = x[0].Evaluate(culture, values);
                                 if (val is string s)
                                     return Geometry.Parse(s);
                                 else if (val == null)
@@ -215,11 +216,11 @@ namespace HexInnovation
                     default:
                         if (targetType == typeof(double?))
                         {
-                            return MathConverter.ConvertToDouble(x[0].Evaluate(values));
+                            return ConvertToDouble(x[0].Evaluate(culture, values));
                         }
 
                         // We don't know what to return, so let's evaluate the parameter and try to convert it.
-                        var evaluatedValue = x[0].Evaluate(values);
+                        var evaluatedValue = x[0].Evaluate(culture, values);
                         if ((targetType.IsGenericType && targetType.GetGenericTypeDefinition() == typeof(Nullable<>)))
                         {
                             // We're supposed to return a Nullable<T> where T : struct
@@ -229,11 +230,11 @@ namespace HexInnovation
                                 return System.Convert.ChangeType(evaluatedValue, targetType.GetGenericArguments()[0]);
                         }
 
-                        if ((targetType.IsClass && ReferenceEquals(evaluatedValue, null)) || (!ReferenceEquals(evaluatedValue, null) && targetType.IsAssignableFrom(evaluatedValue.GetType())))
+                        if ((targetType.IsClass && ReferenceEquals(evaluatedValue, null)) || (!ReferenceEquals(evaluatedValue, null) && targetType.IsInstanceOfType(evaluatedValue)))
                         {
                             return evaluatedValue;
                         }
-                        else if (targetType is IConvertible)
+                        else if (targetType.GetInterfaces().Contains(typeof(IConvertible)))
                         {
                             return System.Convert.ChangeType(evaluatedValue, targetType);
                         }
@@ -250,7 +251,7 @@ namespace HexInnovation
                             return evaluatedValue;
                         }
                 }
-                var value = x[0].Evaluate(values);
+                var value = x[0].Evaluate(culture, values);
                 if (value == null)
                     return null;
                 else
@@ -266,7 +267,7 @@ namespace HexInnovation
                             case 1:
                                 return ConvertToObject(values[0]);
                             default:
-                                throw new NotSupportedException($"You supplied {values.Length} values; Object supports only one or one");
+                                throw new NotSupportedException($"You supplied {values.Length} values; Object supports only one");
                         }
                     case "System.Double":
                         switch (values.Length)
@@ -274,7 +275,7 @@ namespace HexInnovation
                             case 1:
                                 return ConvertToDouble(values[0]);
                             default:
-                                throw new NotSupportedException($"You supplied {values.Length} values; Double supports only one or one");
+                                throw new NotSupportedException($"You supplied {values.Length} values; Double supports only one");
                         }
                     case "System.Windows.CornerRadius":
                         switch (values.Length)
@@ -334,9 +335,9 @@ namespace HexInnovation
                         switch (values.Length)
                         {
                             case 1:
-                                if (values[0] is string)
+                                if (values[0] is string str)
                                 {
-                                    return bool.Parse(values[0] as string);
+                                    return bool.Parse(str);
                                 }
                                 return (bool?)values[0];
                             default:
@@ -348,10 +349,8 @@ namespace HexInnovation
                             case 1:
                                 if (values[0] is string)
                                     return values[0];
-                                else if (values[0] == null)
-                                    return null;
                                 else
-                                    return values[0].ToString();
+                                    return values[0]?.ToString();
                             default:
                                 throw new NotSupportedException($"You supplied {values.Length} values; string supports only one");
                         }
@@ -359,8 +358,8 @@ namespace HexInnovation
                         switch (values.Length)
                         {
                             case 1:
-                                if (values[0] is string)
-                                    return new Uri(values[0] as string);
+                                if (values[0] is string str)
+                                    return new Uri(str);
                                 else if (values[0] == null)
                                     return null;
                                 else
@@ -440,21 +439,21 @@ namespace HexInnovation
             }
             else
             {
-                throw new ArgumentException("The Converter Parameter must be a string.", "parameter");
+                throw new ArgumentException("The Converter Parameter must be a string.", nameof(parameter));
             }
         }
         /// <summary>
         /// Parses an expression into a syntax tree that can be evaluated later.
         /// This method keeps a cache of parsed results, so it doesn't have to parse the same expression twice.
         /// </summary>
-        /// <param name="Parameter">The parameter that we're parsing</param>
+        /// <param name="parameter">The parameter that we're parsing</param>
         /// <returns>A syntax tree that can be evaluated later.</returns>
-        internal AbstractSyntaxTree[] ParseParameter(string Parameter)
+        internal AbstractSyntaxTree[] ParseParameter(string parameter)
         {
-            if (CachedResults == null)
-                return Parser.Parse(Parameter);
+            if (_cachedResults == null)
+                return Parser.Parse(parameter);
 
-            return CachedResults.ContainsKey(Parameter) ? CachedResults[Parameter] : (CachedResults[Parameter] = Parser.Parse(Parameter));
+            return _cachedResults.ContainsKey(parameter) ? _cachedResults[parameter] : (_cachedResults[parameter] = Parser.Parse(parameter));
         }
 
         /// <summary>
@@ -463,16 +462,13 @@ namespace HexInnovation
         [DefaultValue(true)]
         public bool UseCache
         {
-            get
-            {
-                return CachedResults != null;
-            }
+            get => _cachedResults != null;
             set
             {
-                if (value && CachedResults == null)
-                    CachedResults = new Dictionary<string, AbstractSyntaxTree[]>();
+                if (value && _cachedResults == null)
+                    _cachedResults = new Dictionary<string, AbstractSyntaxTree[]>();
                 else if (!value)
-                    CachedResults = null;
+                    _cachedResults = null;
             }
         }
 
@@ -526,19 +522,22 @@ namespace HexInnovation
                     }
 
                     return parameter;
-                    //throw new NotSupportedException(paramType + " cannot be converted to singleton.");
             }
         }
+        /// <summary>
+        /// Converts a number to an object.
+        /// </summary>
+        /// <param name="parameter">The value we're converting to an object.</param>
+        /// <returns>The number, converted to an object.</returns>
         public static double? ConvertToDouble(object parameter)
         {
-            if (parameter is double)
-                return (double)parameter;
+            if (parameter is double dbl)
+                return dbl;
 
             if (parameter == null)
                 return null;
 
-            double v;
-            if (parameter is string && double.TryParse(parameter as string, NumberStyles.Number, CultureInfo.InvariantCulture, out v))
+            if (parameter is string str && double.TryParse(str, NumberStyles.Number, CultureInfo.InvariantCulture, out var v))
             {
                 return v;
             }

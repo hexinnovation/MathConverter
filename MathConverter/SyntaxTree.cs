@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,7 +10,7 @@ namespace HexInnovation
 {
     public abstract class AbstractSyntaxTree
     {
-        public abstract object Evaluate(object[] Parameters);
+        public abstract object Evaluate(CultureInfo cultureInfo, object[] parameters);
         public abstract override string ToString();
     }
     abstract class BinaryNode : AbstractSyntaxTree
@@ -28,10 +29,10 @@ namespace HexInnovation
         {
 
         }
-        public override object Evaluate(object[] Parameters)
+        public override object Evaluate(CultureInfo cultureInfo, object[] parameters)
         {
-            var l = left.Evaluate(Parameters);
-            var r = right.Evaluate(Parameters);
+            var l = left.Evaluate(cultureInfo, parameters);
+            var r = right.Evaluate(cultureInfo, parameters);
             if (l is double && r is double)
                 return Math.Pow((double)l, (double)r);
             else
@@ -49,10 +50,10 @@ namespace HexInnovation
         {
 
         }
-        public override object Evaluate(object[] Parameters)
+        public override object Evaluate(CultureInfo cultureInfo, object[] parameters)
         {
-            var l = (dynamic)left.Evaluate(Parameters);
-            var r = (dynamic)right.Evaluate(Parameters);
+            var l = (dynamic)left.Evaluate(cultureInfo, parameters);
+            var r = (dynamic)right.Evaluate(cultureInfo, parameters);
 
             if (l == null && r == null)
                 return null;
@@ -71,10 +72,10 @@ namespace HexInnovation
         {
 
         }
-        public override object Evaluate(object[] Parameters)
+        public override object Evaluate(CultureInfo cultureInfo, object[] parameters)
         {
-            dynamic l = left.Evaluate(Parameters);
-            dynamic r = right.Evaluate(Parameters);
+            dynamic l = left.Evaluate(cultureInfo, parameters);
+            dynamic r = right.Evaluate(cultureInfo, parameters);
 
             if (l == null || r == null)
                 return null;
@@ -93,9 +94,9 @@ namespace HexInnovation
         {
 
         }
-        public override object Evaluate(object[] Parameters)
+        public override object Evaluate(CultureInfo cultureInfo, object[] parameters)
         {
-            return (dynamic)left.Evaluate(Parameters) * (dynamic)right.Evaluate(Parameters);
+            return (dynamic)left.Evaluate(cultureInfo, parameters) * (dynamic)right.Evaluate(cultureInfo, parameters);
         }
         public override string ToString()
         {
@@ -109,9 +110,9 @@ namespace HexInnovation
         {
 
         }
-        public override object Evaluate(object[] Parameters)
+        public override object Evaluate(CultureInfo cultureInfo, object[] parameters)
         {
-            return (dynamic)left.Evaluate(Parameters) % (dynamic)right.Evaluate(Parameters);
+            return (dynamic)left.Evaluate(cultureInfo, parameters) % (dynamic)right.Evaluate(cultureInfo, parameters);
         }
         public override string ToString()
         {
@@ -125,9 +126,9 @@ namespace HexInnovation
         {
 
         }
-        public override object Evaluate(object[] Parameters)
+        public override object Evaluate(CultureInfo cultureInfo, object[] parameters)
         {
-            return (dynamic)left.Evaluate(Parameters) && (dynamic)right.Evaluate(Parameters);
+            return (dynamic)left.Evaluate(cultureInfo, parameters) && (dynamic)right.Evaluate(cultureInfo, parameters);
         }
         public override string ToString()
         {
@@ -142,9 +143,9 @@ namespace HexInnovation
         {
 
         }
-        public override object Evaluate(object[] Parameters)
+        public override object Evaluate(CultureInfo cultureInfo, object[] parameters)
         {
-            return (dynamic)left.Evaluate(Parameters) ?? (dynamic)right.Evaluate(Parameters);
+            return (dynamic)left.Evaluate(cultureInfo, parameters) ?? (dynamic)right.Evaluate(cultureInfo, parameters);
         }
         public override string ToString()
         {
@@ -158,9 +159,9 @@ namespace HexInnovation
         {
 
         }
-        public override object Evaluate(object[] Parameters)
+        public override object Evaluate(CultureInfo cultureInfo, object[] parameters)
         {
-            return (dynamic)left.Evaluate(Parameters) || (dynamic)right.Evaluate(Parameters);
+            return (dynamic)left.Evaluate(cultureInfo, parameters) || (dynamic)right.Evaluate(cultureInfo, parameters);
         }
         public override string ToString()
         {
@@ -174,9 +175,9 @@ namespace HexInnovation
         {
 
         }
-        public override object Evaluate(object[] Parameters)
+        public override object Evaluate(CultureInfo cultureInfo, object[] parameters)
         {
-            return (dynamic)left.Evaluate(Parameters) / (dynamic)right.Evaluate(Parameters);
+            return (dynamic)left.Evaluate(cultureInfo, parameters) / (dynamic)right.Evaluate(cultureInfo, parameters);
         }
         public override string ToString()
         {
@@ -195,15 +196,15 @@ namespace HexInnovation
         private AbstractSyntaxTree Positive;
         private AbstractSyntaxTree Negative;
 
-        public override object Evaluate(object[] Parameters)
+        public override object Evaluate(CultureInfo cultureInfo, object[] parameters)
         {
-            if ((dynamic)Condition.Evaluate(Parameters) == true)
+            if ((dynamic)Condition.Evaluate(cultureInfo, parameters) == true)
             {
-                return Positive.Evaluate(Parameters);
+                return Positive.Evaluate(cultureInfo, parameters);
             }
             else
             {
-                return Negative.Evaluate(Parameters);
+                return Negative.Evaluate(cultureInfo, parameters);
             }
         }
         public override string ToString()
@@ -218,9 +219,9 @@ namespace HexInnovation
         {
 
         }
-        public override object Evaluate(object[] Parameters)
+        public override object Evaluate(CultureInfo cultureInfo, object[] parameters)
         {
-            return (dynamic)left.Evaluate(Parameters) != (dynamic)right.Evaluate(Parameters);
+            return (dynamic)left.Evaluate(cultureInfo, parameters) != (dynamic)right.Evaluate(cultureInfo, parameters);
         }
         public override string ToString()
         {
@@ -234,9 +235,9 @@ namespace HexInnovation
         {
 
         }
-        public override object Evaluate(object[] Parameters)
+        public override object Evaluate(CultureInfo cultureInfo, object[] parameters)
         {
-            return (dynamic)left.Evaluate(Parameters) == (dynamic)right.Evaluate(Parameters);
+            return (dynamic)left.Evaluate(cultureInfo, parameters) == (dynamic)right.Evaluate(cultureInfo, parameters);
         }
         public override string ToString()
         {
@@ -250,9 +251,9 @@ namespace HexInnovation
         {
 
         }
-        public override object Evaluate(object[] Parameters)
+        public override object Evaluate(CultureInfo cultureInfo, object[] parameters)
         {
-            return (dynamic)left.Evaluate(Parameters) < (dynamic)right.Evaluate(Parameters);
+            return (dynamic)left.Evaluate(cultureInfo, parameters) < (dynamic)right.Evaluate(cultureInfo, parameters);
         }
         public override string ToString()
         {
@@ -266,9 +267,9 @@ namespace HexInnovation
         {
 
         }
-        public override object Evaluate(object[] Parameters)
+        public override object Evaluate(CultureInfo cultureInfo, object[] parameters)
         {
-            return (dynamic)left.Evaluate(Parameters) <= (dynamic)right.Evaluate(Parameters);
+            return (dynamic)left.Evaluate(cultureInfo, parameters) <= (dynamic)right.Evaluate(cultureInfo, parameters);
         }
         public override string ToString()
         {
@@ -282,9 +283,9 @@ namespace HexInnovation
         {
 
         }
-        public override object Evaluate(object[] Parameters)
+        public override object Evaluate(CultureInfo cultureInfo, object[] parameters)
         {
-            return (dynamic)left.Evaluate(Parameters) > (dynamic)right.Evaluate(Parameters);
+            return (dynamic)left.Evaluate(cultureInfo, parameters) > (dynamic)right.Evaluate(cultureInfo, parameters);
         }
         public override string ToString()
         {
@@ -298,9 +299,9 @@ namespace HexInnovation
         {
 
         }
-        public override object Evaluate(object[] Parameters)
+        public override object Evaluate(CultureInfo cultureInfo, object[] parameters)
         {
-            return (dynamic)left.Evaluate(Parameters) >= (dynamic)right.Evaluate(Parameters);
+            return (dynamic)left.Evaluate(cultureInfo, parameters) >= (dynamic)right.Evaluate(cultureInfo, parameters);
         }
         public override string ToString()
         {
@@ -309,7 +310,7 @@ namespace HexInnovation
     }
     class NullNode : AbstractSyntaxTree
     {
-        public override object Evaluate(object[] Parameters)
+        public override object Evaluate(CultureInfo cultureInfo, object[] parameters)
         {
             return null;
         }
@@ -322,17 +323,17 @@ namespace HexInnovation
     {
         public UnaryNode(AbstractSyntaxTree node)
         {
-            this.node = node;
+            _node = node;
         }
-        private AbstractSyntaxTree node;
-        public override object Evaluate(object[] Parameters)
+        private readonly AbstractSyntaxTree _node;
+        public override object Evaluate(CultureInfo cultureInfo, object[] parameters)
         {
-            return Evaluate((dynamic)node.Evaluate(Parameters));
+            return Evaluate((dynamic)_node.Evaluate(cultureInfo, parameters));
         }
         protected abstract object Evaluate(dynamic value);
         public override string ToString()
         {
-            return node.ToString();
+            return _node.ToString();
         }
     }
     class NotNode : UnaryNode
@@ -372,7 +373,7 @@ namespace HexInnovation
         {
             this.Value = Value;
         }
-        public override object Evaluate(object[] Parameters)
+        public override object Evaluate(CultureInfo cultureInfo, object[] parameters)
         {
             return Value;
         }
@@ -402,47 +403,30 @@ namespace HexInnovation
     }
     class VariableNode : AbstractSyntaxTree
     {
-        public VariableNode(int Index)
+        public VariableNode(int index)
         {
-            this.Index = Index;
+            Index = index;
         }
         /// <summary>
         /// The index of the variable we want to get.
         /// </summary>
         private int Index;
-        public override object Evaluate(object[] Parameters)
+        public override object Evaluate(CultureInfo cultureInfo, object[] parameters)
         {
-            if (Parameters.Length <= Index)
+            if (parameters.Length <= Index)
             {
-                string variableName;
-                switch (Index)
-                {
-                    case 0:
-                        variableName = "x";
-                        break;
-                    case 1:
-                        variableName = "y";
-                        break;
-                    case 2:
-                        variableName = "z";
-                        break;
-                    default:
-                        variableName = $"[{Index}]";
-                        break;
-                }
+                var error = new StringBuilder("Error accessing variable ").Append(this).Append(". ");
 
-                var error = new StringBuilder("Error accessing variable ").Append(variableName).Append(". ");
-
-                if (Parameters.Length == 0)
+                if (parameters.Length == 0)
                     error.Append("No");
                 else
-                    error.Append("Only ").Append(Parameters.Length);
+                    error.Append("Only ").Append(parameters.Length);
 
-                throw new IndexOutOfRangeException(error.Append(" variable").Append(Parameters.Length == 1 ? " was" : "s were")
+                throw new IndexOutOfRangeException(error.Append(" variable").Append(parameters.Length == 1 ? " was" : "s were")
                     .Append(" specified.").ToString());
             }
 
-            return MathConverter.ConvertToObject(Parameters[Index]);
+            return MathConverter.ConvertToObject(parameters[Index]);
         }
 
         public override string ToString()
@@ -462,20 +446,20 @@ namespace HexInnovation
     }
     class FormulaNode0 : AbstractSyntaxTree
     {
-        public FormulaNode0(string FormulaName, Func<object> formula)
+        public FormulaNode0(string formulaName, Func<object> formula)
         {
-            this.FormulaName = FormulaName;
-            this.formula = formula;
+            _formulaName = formulaName;
+            _formula = formula;
         }
-        private string FormulaName;
-        private Func<object> formula;
-        public override object Evaluate(object[] Parameters)
+        private readonly string _formulaName;
+        private readonly Func<object> _formula;
+        public override object Evaluate(CultureInfo cultureInfo, object[] parameters)
         {
-            return formula();
+            return _formula();
         }
         public override string ToString()
         {
-            return $"{FormulaName}()";
+            return $"{_formulaName}()";
         }
     }
     /// <summary>
@@ -483,47 +467,47 @@ namespace HexInnovation
     /// </summary>
     class FormulaNode1 : AbstractSyntaxTree
     {
-        public FormulaNode1(string FormulaName, Func<object, object> formula, AbstractSyntaxTree input)
+        public FormulaNode1(string formulaName, Func<object, object> formula, AbstractSyntaxTree input)
         {
-            this.FormulaName = FormulaName;
-            this.formula = formula;
-            this.input = input;
+            _formulaName = formulaName;
+            _formula = formula;
+            _input = input;
         }
-        private string FormulaName;
-        private Func<object, object> formula;
-        private AbstractSyntaxTree input;
+        private readonly string _formulaName;
+        private readonly Func<object, object> _formula;
+        private readonly AbstractSyntaxTree _input;
 
-        public override object Evaluate(object[] Parameters)
+        public override object Evaluate(CultureInfo cultureInfo, object[] parameters)
         {
-            return formula(input.Evaluate(Parameters));
+            return _formula(_input.Evaluate(cultureInfo, parameters));
         }
         public override string ToString()
         {
-            return $"{FormulaName}({input})";
+            return $"{_formulaName}({_input})";
         }
     }
     
     class FormulaNode2 : AbstractSyntaxTree
     {
-        public FormulaNode2(string FormulaName, Func<object, object, object> formula, AbstractSyntaxTree arg1, AbstractSyntaxTree arg2)
+        public FormulaNode2(string formulaName, Func<object, object, object> formula, AbstractSyntaxTree arg1, AbstractSyntaxTree arg2)
         {
-            this.FormulaName = FormulaName;
-            this.formula = formula;
-            this.arg1 = arg1;
-            this.arg2 = arg2;
+            _formulaName = formulaName;
+            _formula = formula;
+            _arg1 = arg1;
+            _arg2 = arg2;
         }
-        private string FormulaName;
-        private Func<object, object, object> formula;
-        private AbstractSyntaxTree arg1, arg2;
-        public override object Evaluate(object[] Parameters)
+        private readonly string _formulaName;
+        private readonly Func<object, object, object> _formula;
+        private readonly AbstractSyntaxTree _arg1, _arg2;
+        public override object Evaluate(CultureInfo cultureInfo, object[] parameters)
         {
-            var val1 = arg1.Evaluate(Parameters);
-            var val2 = arg2.Evaluate(Parameters);
-            return formula(val1, val2);
+            var val1 = _arg1.Evaluate(cultureInfo, parameters);
+            var val2 = _arg2.Evaluate(cultureInfo, parameters);
+            return _formula(val1, val2);
         }
         public override string ToString()
         {
-            return $"{FormulaName}({arg1}, {arg2})";
+            return $"{_formulaName}({_arg1}, {_arg2})";
         }
     }
     /// <summary>
@@ -531,7 +515,7 @@ namespace HexInnovation
     /// </summary>
     class FormulaNodeN : AbstractSyntaxTree
     {
-        public static object And(IEnumerable<object> args)
+        public static object And(CultureInfo cultureInfo, IEnumerable<object> args)
         {
             foreach (bool arg in args)
             {
@@ -541,7 +525,7 @@ namespace HexInnovation
 
             return true;
         }
-        public static object Or(IEnumerable<object> args)
+        public static object Or(CultureInfo cultureInfo, IEnumerable<object> args)
         {
             foreach (bool arg in args)
             {
@@ -551,7 +535,7 @@ namespace HexInnovation
 
             return false;
         }
-        public static object Nor(IEnumerable<object> args)
+        public static object Nor(CultureInfo cultureInfo, IEnumerable<object> args)
         {
             foreach (bool arg in args)
             {
@@ -561,7 +545,7 @@ namespace HexInnovation
 
             return true;
         }
-        public static object Max(IEnumerable<object> args)
+        public static object Max(CultureInfo cultureInfo, IEnumerable<object> args)
         {
             dynamic max = null;
             foreach (dynamic arg in args)
@@ -573,7 +557,7 @@ namespace HexInnovation
             }
             return max;
         }
-        public static object Min(IEnumerable<object> args)
+        public static object Min(CultureInfo cultureInfo, IEnumerable<object> args)
         {
             dynamic min = null;
             foreach (dynamic arg in args)
@@ -585,13 +569,13 @@ namespace HexInnovation
             }
             return min;
         }
-        public static object Format(IEnumerable<object> args)
+        public static object Format(CultureInfo cultureInfo, IEnumerable<object> args)
         {
             dynamic format = args.First();
 
-            return string.Format(format, args.Skip(1).ToArray());
+            return string.Format(cultureInfo, format, args.Skip(1).ToArray());
         }
-        public static string Concat(IEnumerable<object> args)
+        public static string Concat(CultureInfo cultureInfo, IEnumerable<object> args)
         {
             List<object> argVals = args.ToList();
             if (argVals.Count == 1 && argVals[0] is IEnumerable)
@@ -599,26 +583,28 @@ namespace HexInnovation
             else
                 return string.Concat(argVals);
         }
-        public static string Join(IEnumerable<object> args)
+        public static string Join(CultureInfo cultureInfo, IEnumerable<object> args)
         {
-            dynamic separator = args.First();
+            var argsList = args.ToList();
 
-            var argVals = args.Skip(1).ToArray();
-            if (argVals.Length == 1 && argVals[0] is IEnumerable)
-                return string.Join(separator, argVals[0] as dynamic);
+            string separator = $"{argsList[0]}";
+
+            var argVals = argsList.Skip(1).ToArray();
+            if (argVals.Length == 1 && argVals[0] is IEnumerable enumerable)
+                return string.Join(separator, enumerable.Cast<object>().ToArray());
             else
-                return string.Concat(argVals);
+                return string.Join(separator, argVals);
         }
-        public static object Average(IEnumerable<object> args)
+        public static object Average(CultureInfo cultureInfo, IEnumerable<object> args)
         {
-            dynamic sum = 0.0;
+            double sum = 0.0;
             var count = 0;
-            foreach (double? arg in args.Select(p => MathConverter.ConvertToDouble(p)))
+            foreach (double? arg in args.Select(MathConverter.ConvertToDouble))
             {
                 if (arg.HasValue)
                 {
                     count++;
-                    sum += arg;
+                    sum += arg.Value;
                 }
             }
             if (count == 0)
@@ -626,23 +612,24 @@ namespace HexInnovation
 
             return sum / count;
         }
-        public FormulaNodeN(string FormulaName, Func<IEnumerable<object>, object> formula, IEnumerable<AbstractSyntaxTree> args)
+
+        public FormulaNodeN(string formulaName, Func<CultureInfo, IEnumerable<object>, object> formula, IEnumerable<AbstractSyntaxTree> args)
         {
-            this.FormulaName = FormulaName;
-            this.formula = formula;
-            this.args = args;
+            _formulaName = formulaName;
+            _formula = formula;
+            _args = args;
         }
-        private string FormulaName;
-        private Func<IEnumerable<object>, object> formula;
-        private IEnumerable<AbstractSyntaxTree> args;
-        public override object Evaluate(object[] Parameters)
+        private readonly string _formulaName;
+        private readonly Func<CultureInfo, IEnumerable<object>, object> _formula;
+        private readonly IEnumerable<AbstractSyntaxTree> _args;
+        public override object Evaluate(CultureInfo cultureInfo, object[] parameters)
         {
-            return formula(args.Select(p => p.Evaluate(Parameters)));
+            return _formula(cultureInfo, _args.Select(p => p.Evaluate(cultureInfo, parameters)));
         }
 
         public override string ToString()
         {
-            return $"{FormulaName}({string.Join(", ", args)})";
+            return $"{_formulaName}({string.Join(", ", _args)})";
         }
     }
 }
