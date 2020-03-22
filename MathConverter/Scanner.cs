@@ -115,11 +115,14 @@ namespace HexInnovation
                                 state = ScannerState.NumberAfterDecimal;
                                 sb.Append('.');
                                 break;
+                            case '`':
+                                state = ScannerState.CaretString;
+                                break;
                             case '"':
                                 state = ScannerState.DoubleQuoteString;
                                 break;
-                            case '`':
-                                state = ScannerState.CaretString;
+                            case '\'':
+                                state = ScannerState.SingleQuoteString;
                                 break;
                             case '$':
                                 Position++;
@@ -132,8 +135,11 @@ namespace HexInnovation
                                     case '"':
                                         state = ScannerState.InterpolatedString | ScannerState.DoubleQuoteString;
                                         break;
+                                    case '\'':
+                                        state = ScannerState.InterpolatedString | ScannerState.SingleQuoteString;
+                                        break;
                                     default:
-                                        throw new ParsingException(Position, "A '$' character must be proceeded by a caret (`) or double-quote (\") character.");
+                                        throw new ParsingException(Position, "A '$' character must be proceeded by a caret (`), double-quote (\"), or single-quote (') character.");
                                 }
                                 break;
                             case '!':
@@ -254,8 +260,10 @@ namespace HexInnovation
 
                     case ScannerState.CaretString | ScannerState.InterpolatedString:
                     case ScannerState.DoubleQuoteString | ScannerState.InterpolatedString:
+                    case ScannerState.SingleQuoteString | ScannerState.InterpolatedString:
                     case ScannerState.CaretString:
                     case ScannerState.DoubleQuoteString:
+                    case ScannerState.SingleQuoteString:
                         var isInterpolatedString = (state & ScannerState.InterpolatedString) == ScannerState.InterpolatedString;
                         var arguments = new List<AbstractSyntaxTree>();
 
@@ -287,6 +295,7 @@ namespace HexInnovation
                                              *  \ => backslash-escaped.
                                              *  ` => maybe throw
                                              *  " => maybe throw
+                                             *  ' => maybe throw
                                              */
 
                                             sb.Append(arguments.Count);
@@ -363,6 +372,9 @@ namespace HexInnovation
                                                                         case '"':
                                                                             sb.Append('"');
                                                                             break;
+                                                                        case '\'':
+                                                                            sb.Append('\'');
+                                                                            break;
                                                                         default:
                                                                             throw new ParsingException(Position, $"The character \'\\{(char)ch}\' is not a valid backslash-escaped character.");
                                                                     }
@@ -376,6 +388,11 @@ namespace HexInnovation
                                                                     if ((state & ~ScannerState.InterpolatedString) == ScannerState.DoubleQuoteString)
                                                                         throw new ParsingException(Position, "Missing close delimiter '}' for interpolated expression started with '{'.");
                                                                     sb.Append('"');
+                                                                    break;
+                                                                case '\'':
+                                                                    if ((state & ~ScannerState.InterpolatedString) == ScannerState.SingleQuoteString)
+                                                                        throw new ParsingException(Position, "Missing close delimiter '}' for interpolated expression started with '{'.");
+                                                                    sb.Append('`');
                                                                     break;
                                                             }
                                                         }
@@ -435,6 +452,9 @@ namespace HexInnovation
                                         case '"':
                                             sb.Append('"');
                                             break;
+                                        case '\'':
+                                            sb.Append('\'');
+                                            break;
                                         default:
                                             throw new ParsingException(Position, $"The character \'\\{(char)ch}\' is not a valid backslash-escaped character.");
                                     }
@@ -450,6 +470,9 @@ namespace HexInnovation
                                                 return new InterpolatedStringToken(sb.ToString(), arguments);
                                             else
                                                 return new LexicalToken(TokenType.String, sb.ToString());
+                                        case ScannerState.SingleQuoteString:
+                                            sb.Append('"');
+                                            break;
                                     }
                                     break;
                                 case '`':
@@ -463,6 +486,25 @@ namespace HexInnovation
                                         case ScannerState.DoubleQuoteString:
                                             sb.Append('`');
                                             break;
+                                        case ScannerState.SingleQuoteString:
+                                            sb.Append('`');
+                                            break;
+                                    }
+                                    break;
+                                case '\'':
+                                    switch (state & ~ScannerState.InterpolatedString)
+                                    {
+                                        case ScannerState.CaretString:
+                                            sb.Append('\'');
+                                            break;
+                                        case ScannerState.DoubleQuoteString:
+                                            sb.Append('\'');
+                                            break;
+                                        case ScannerState.SingleQuoteString:
+                                            if (isInterpolatedString)
+                                                return new InterpolatedStringToken(sb.ToString(), arguments);
+                                            else
+                                                return new LexicalToken(TokenType.String, sb.ToString());
                                     }
                                     break;
                                 case -1:
@@ -496,6 +538,7 @@ namespace HexInnovation
             Lexical = 4,
             DoubleQuoteString = 8,
             CaretString = 16,
+            SingleQuoteString = 32,
 
             InterpolatedString = 0x8000,
         }

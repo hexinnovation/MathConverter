@@ -203,10 +203,11 @@ namespace HexInnovation
             {
                 Assert.AreEqual("Hello", (string)_converter.Convert(new object[] { 3 }, typeof(string), @"""Hello""", culture));
                 Assert.AreEqual("Hello", (string)_converter.Convert(new object[] { 3 }, typeof(string), @"`Hello`", culture));
-                Assert.AreEqual("H\"el\"lo", (string)_converter.Convert(new object[] { 3 }, typeof(string), @"`H\""el""lo`", culture));
+                Assert.AreEqual("Hello", (string)_converter.Convert(new object[] { 3 }, typeof(string), @"'Hello'", culture));
+                Assert.AreEqual("H\"e'l\"l`o", (string)_converter.Convert(new object[] { 3 }, typeof(string), @"`H\""e'l""l\`o`", culture));
                 Assert.AreEqual("Hel`lo", (string)_converter.Convert(new object[] { 3 }, typeof(string), @"`Hel\`lo`", culture));
-                Assert.AreEqual("He`ll\"o\t", (string)_converter.Convert(new object[] { 3 }, typeof(string), @"""He`ll\""o\t""", culture));
-                Assert.AreEqual("\a\b\f\n\r\t\v\\`\"", (string)_converter.Convert(new object[] { 3 }, typeof(string), @"""\a\b\f\n\r\t\v\\\`\""""", culture));
+                Assert.AreEqual("He`l'l\"o\t", (string)_converter.Convert(new object[] { 3 }, typeof(string), @"""He`l'l\""o\t""", culture));
+                Assert.AreEqual("\a\b\f\n\r\t\v\\`\"'", (string)_converter.Convert(new object[] { 3 }, typeof(string), @"""\a\b\f\n\r\t\v\\\`\""'""", culture));
 
                 try
                 {
@@ -660,14 +661,20 @@ namespace HexInnovation
 
             Assert.AreEqual($"{(true?x:0):0}", _converter.Convert(args, typeof(object), "$`{(true?x:0):0}`", CultureInfo.GetCultureInfo("de")));
             Assert.AreEqual($"{(true?null:x)}", _converter.Convert(args, typeof(object), "$`{(true?null:x)}`", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual($"{(true ? x : 0):0}", _converter.Convert(args, typeof(object), "$'{(true?x:0):0}'", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual($"{(true ? null : x)}", _converter.Convert(args, typeof(object), "$'{(true?null:x)}'", CultureInfo.GetCultureInfo("de")));
             Assert.AreEqual(string.Format(CultureInfo.GetCultureInfo("de"), "{0:0.0} + {1:0.0} = {2:0.0}", x, y, x + y), _converter.Convert(args, typeof(object), "$`{x:0.0} + {y:0.0} = {x+y:0.0}`", CultureInfo.GetCultureInfo("de")));
 
             Assert.AreEqual(string.Format(CultureInfo.GetCultureInfo("de"), "{0:0.0} + {1:0.0} = {2:0.0}", null ?? x, null ?? y, null ?? x + null ?? y), _converter.Convert(args, typeof(object), "$`{null ?? x:0.0} + {null ?? y:0.0} = {null ?? x + null ?? y:0.0}`", CultureInfo.GetCultureInfo("de")));
 
             Assert.AreEqual(string.Format(CultureInfo.GetCultureInfo("de"), "{0:`0.0`} + {1:\"0.0\"} = {2:0.0}", null ?? x, null ?? y, string.Format(CultureInfo.GetCultureInfo("de"), "{0}", x + y)), _converter.Convert(args, typeof(object), @"$`{null ?? x:\`0.0\`} + {null ?? y:""0.0""} = {$""{x + y}"":0.0}`", CultureInfo.GetCultureInfo("de")));
             Assert.AreEqual($"a{$"b{$"c{$"{string.Format(CultureInfo.GetCultureInfo("de"), "{0:0.###}", x)}d"}e"}f"}g", _converter.Convert(args, typeof(object), @"$""a{$""b{$""c{$""{x:0.###}d""}e""}f""}g""", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual($"a{$"b{$"c{$"{string.Format(CultureInfo.GetCultureInfo("de"), "{0:0.###}", x)}d"}e"}f"}g", _converter.Convert(args, typeof(object), @"$'a{$'b{$'c{$'{x:0.###}d'}e'}f'}g'", CultureInfo.GetCultureInfo("de")));
             Assert.AreEqual($"a{$"b{$"c{$"{string.Format(CultureInfo.GetCultureInfo("de"), "{0:0.###}", x)}d"}e"}f"}g", _converter.Convert(args, typeof(object), @"$`a{$`b{$`c{$`{x:0.###}d`}e`}f`}g`", CultureInfo.GetCultureInfo("de")));
             Assert.AreEqual($"a{$"b{$"c{$"{string.Format(CultureInfo.GetCultureInfo("de"), "{0:0.###}", x)}d"}e"}f"}g", _converter.Convert(args, typeof(object), @"$`a{$`b{$`c{$""{x:0.###}d""}e`}f`}g`", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual($"a{$"b{$"c{$"{string.Format(CultureInfo.GetCultureInfo("de"), "{0:0.###}", x)}d"}e"}f"}g", _converter.Convert(args, typeof(object), @"$`a{$'b{$""c{$`{x:0.###}d`}e""}f'}g`", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual($"a{$"b{$"c{$"{string.Format(CultureInfo.GetCultureInfo("de"), "{0:0.###}", x)}d"}e"}f"}g", _converter.Convert(args, typeof(object), @"$'a{$""b{$`c{$'{x:0.###}d'}e`}f""}g'", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual($"a{$"b{$"c{$"{string.Format(CultureInfo.GetCultureInfo("de"), "{0:0.###}", x)}d"}e"}f"}g", _converter.Convert(args, typeof(object), @"$""a{$`b{$'c{$""{x:0.###}d""}e'}f`}g""", CultureInfo.GetCultureInfo("de")));
 
             // The following example comes from https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/tokens/interpolated
             const double speedOfLight = 299792.458;
