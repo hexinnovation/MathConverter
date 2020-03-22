@@ -2,13 +2,11 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.Serialization;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace HexInnovation
 {
-    class Scanner : IDisposable
+    internal class Scanner : IDisposable
     {
         public Scanner(Parser parser, string expression)
             : this(parser, new StringReader(expression)) { }
@@ -484,7 +482,13 @@ namespace HexInnovation
             _needsToken = false;
         }
 
-        enum ScannerState
+        public void Dispose()
+        {
+            _reader.Dispose();
+        }
+
+        [Flags]
+        private enum ScannerState
         {
             NoToken = 0,
             Number = 1,
@@ -494,63 +498,6 @@ namespace HexInnovation
             CaretString = 16,
 
             InterpolatedString = 0x8000,
-        }
-
-        public void Dispose()
-        {
-            _reader.Dispose();
-        }
-    }
-
-    [Serializable]
-    public class ParsingException : Exception
-    {
-        public ParsingException(int position)
-        {
-            this.Position = position;
-        }
-        public ParsingException(int position, string message) : base(message)
-        {
-            this.Position = position;
-        }
-        public ParsingException(int position, string message, Exception inner) : base(message, inner)
-        {
-            this.Position = position;
-        }
-        protected ParsingException(int position, SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-            this.Position = position;
-        }
-        /// <summary>
-        /// The position in the string at which an exception was thrown.
-        /// </summary>
-        public int Position { get; set; }
-        private string PositionOrdinal
-        {
-            get
-            {
-                if (Position < 11 || Position > 13)
-                {
-                    switch (Position % 10)
-                    {
-                        case 1:
-                            return "st";
-                        case 2:
-                            return "nd";
-                        case 3:
-                            return "rd";
-                    }
-                }
-                return "th";
-            }
-        }
-        public override string Message
-        {
-            get
-            {
-                return $"The parser threw an exception at the {Position}{PositionOrdinal} character:\r\n{base.Message}";
-            }
         }
     }
 }
