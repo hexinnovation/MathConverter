@@ -3,8 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace HexInnovation
 {
@@ -15,297 +15,118 @@ namespace HexInnovation
     }
     abstract class BinaryNode : AbstractSyntaxTree
     {
-        protected BinaryNode(AbstractSyntaxTree left, AbstractSyntaxTree right)
+        protected BinaryNode(BinaryOperator @operator, AbstractSyntaxTree left, AbstractSyntaxTree right)
         {
-            this.left = left;
-            this.right = right;
+            _operator = @operator;
+            _left = left;
+            _right = right;
         }
-        protected AbstractSyntaxTree left, right;
+        private readonly AbstractSyntaxTree _left, _right;
+        private readonly BinaryOperator _operator;
+        public sealed override object Evaluate(CultureInfo cultureInfo, object[] parameters)
+        {
+            return _operator.Evaluate(_left, _right, cultureInfo, parameters);
+        }
+        public sealed override string ToString()
+        {
+            return $"({_left} {_operator.OperatorSymbols} {_right})";
+        }
     }
     class ExponentNode : BinaryNode
     {
         public ExponentNode(AbstractSyntaxTree left, AbstractSyntaxTree right)
-            : base(left, right)
-        {
-
-        }
-        public override object Evaluate(CultureInfo cultureInfo, object[] parameters)
-        {
-            var l = left.Evaluate(cultureInfo, parameters);
-            var r = right.Evaluate(cultureInfo, parameters);
-            if (l is double && r is double)
-                return Math.Pow((double)l, (double)r);
-            else
-                return null;
-        }
-        public override string ToString()
-        {
-            return $"({left} ^ {right})";
-        }
+            : base(Operator.Exponentiation, left, right) { }
     }
     class AddNode : BinaryNode
     {
         public AddNode(AbstractSyntaxTree left, AbstractSyntaxTree right)
-            : base(left, right)
-        {
-
-        }
-        public override object Evaluate(CultureInfo cultureInfo, object[] parameters)
-        {
-            var l = (dynamic)left.Evaluate(cultureInfo, parameters);
-            var r = (dynamic)right.Evaluate(cultureInfo, parameters);
-
-            if (l == null && r == null)
-                return null;
-
-            return l + r;
-        }
-        public override string ToString()
-        {
-            return $"({left} + {right})";
-        }
+            : base(Operator.Addition, left, right) { }
     }
     class SubtractNode : BinaryNode
     {
         public SubtractNode(AbstractSyntaxTree left, AbstractSyntaxTree right)
-            : base(left, right)
-        {
-
-        }
-        public override object Evaluate(CultureInfo cultureInfo, object[] parameters)
-        {
-            dynamic l = left.Evaluate(cultureInfo, parameters);
-            dynamic r = right.Evaluate(cultureInfo, parameters);
-
-            if (l == null || r == null)
-                return null;
-
-            return l - r;
-        }
-        public override string ToString()
-        {
-            return $"({left} - {right})";
-        }
+            : base(Operator.Subtraction, left, right) { }
     }
     class MultiplyNode : BinaryNode
     {
         public MultiplyNode(AbstractSyntaxTree left, AbstractSyntaxTree right)
-            : base(left, right)
-        {
-
-        }
-        public override object Evaluate(CultureInfo cultureInfo, object[] parameters)
-        {
-            return (dynamic)left.Evaluate(cultureInfo, parameters) * (dynamic)right.Evaluate(cultureInfo, parameters);
-        }
-        public override string ToString()
-        {
-            return $"({left} * {right})";
-        }
+            : base(Operator.Multiplication, left, right) { }
     }
     class ModuloNode : BinaryNode
     {
         public ModuloNode(AbstractSyntaxTree left, AbstractSyntaxTree right)
-            : base(left, right)
-        {
-
-        }
-        public override object Evaluate(CultureInfo cultureInfo, object[] parameters)
-        {
-            return (dynamic)left.Evaluate(cultureInfo, parameters) % (dynamic)right.Evaluate(cultureInfo, parameters);
-        }
-        public override string ToString()
-        {
-            return $"({left} % {right})";
-        }
+            : base(Operator.Remainder, left, right) { }
     }
     class AndNode : BinaryNode
     {
         public AndNode(AbstractSyntaxTree left, AbstractSyntaxTree right)
-            : base(left, right)
-        {
-
-        }
-        public override object Evaluate(CultureInfo cultureInfo, object[] parameters)
-        {
-            return (dynamic)left.Evaluate(cultureInfo, parameters) && (dynamic)right.Evaluate(cultureInfo, parameters);
-        }
-        public override string ToString()
-        {
-            return $"({left} && {right})";
-        }
+            : base(Operator.And, left, right) { }
     }
 
     class NullCoalescingNode : BinaryNode
     {
         public NullCoalescingNode(AbstractSyntaxTree left, AbstractSyntaxTree right)
-            : base(left, right)
-        {
-
-        }
-        public override object Evaluate(CultureInfo cultureInfo, object[] parameters)
-        {
-            return (dynamic)left.Evaluate(cultureInfo, parameters) ?? (dynamic)right.Evaluate(cultureInfo, parameters);
-        }
-        public override string ToString()
-        {
-            return $"({left} ?? {right})";
-        }
+            : base(Operator.NullCoalescing, left, right) { }
     }
     class OrNode : BinaryNode
     {
         public OrNode(AbstractSyntaxTree left, AbstractSyntaxTree right)
-            : base(left, right)
-        {
-
-        }
-        public override object Evaluate(CultureInfo cultureInfo, object[] parameters)
-        {
-            return (dynamic)left.Evaluate(cultureInfo, parameters) || (dynamic)right.Evaluate(cultureInfo, parameters);
-        }
-        public override string ToString()
-        {
-            return $"({left} || {right})";
-        }
+            : base(Operator.Or, left, right) { }
     }
     class DivideNode : BinaryNode
     {
         public DivideNode(AbstractSyntaxTree left, AbstractSyntaxTree right)
-            : base(left, right)
-        {
-
-        }
-        public override object Evaluate(CultureInfo cultureInfo, object[] parameters)
-        {
-            return (dynamic)left.Evaluate(cultureInfo, parameters) / (dynamic)right.Evaluate(cultureInfo, parameters);
-        }
-        public override string ToString()
-        {
-            return $"({left} / {right})";
-        }
-    }
-    class TernaryNode : AbstractSyntaxTree
-    {
-        public TernaryNode(AbstractSyntaxTree Condition, AbstractSyntaxTree Positive, AbstractSyntaxTree Negative)
-        {
-            this.Condition = Condition;
-            this.Positive = Positive;
-            this.Negative = Negative;
-        }
-        private AbstractSyntaxTree Condition;
-        private AbstractSyntaxTree Positive;
-        private AbstractSyntaxTree Negative;
-
-        public override object Evaluate(CultureInfo cultureInfo, object[] parameters)
-        {
-            if ((dynamic)Condition.Evaluate(cultureInfo, parameters) == true)
-            {
-                return Positive.Evaluate(cultureInfo, parameters);
-            }
-            else
-            {
-                return Negative.Evaluate(cultureInfo, parameters);
-            }
-        }
-        public override string ToString()
-        {
-            return $"({Condition} ? {Positive} : {Negative})";
-        }
+            : base(Operator.Division, left, right) { }
     }
     class NotEqualNode : BinaryNode
     {
         public NotEqualNode(AbstractSyntaxTree left, AbstractSyntaxTree right)
-            : base(left, right)
-        {
-
-        }
-        public override object Evaluate(CultureInfo cultureInfo, object[] parameters)
-        {
-            return (dynamic)left.Evaluate(cultureInfo, parameters) != (dynamic)right.Evaluate(cultureInfo, parameters);
-        }
-        public override string ToString()
-        {
-            return $"({left} != {right})";
-        }
+            : base(Operator.Inequality, left, right) { }
     }
     class EqualNode : BinaryNode
     {
         public EqualNode(AbstractSyntaxTree left, AbstractSyntaxTree right)
-            : base(left, right)
-        {
-
-        }
-        public override object Evaluate(CultureInfo cultureInfo, object[] parameters)
-        {
-            return (dynamic)left.Evaluate(cultureInfo, parameters) == (dynamic)right.Evaluate(cultureInfo, parameters);
-        }
-        public override string ToString()
-        {
-            return $"({left} == {right})";
-        }
+            : base(Operator.Equality, left, right) { }
     }
     class LessThanNode : BinaryNode
     {
         public LessThanNode(AbstractSyntaxTree left, AbstractSyntaxTree right)
-            : base(left, right)
-        {
-
-        }
-        public override object Evaluate(CultureInfo cultureInfo, object[] parameters)
-        {
-            return (dynamic)left.Evaluate(cultureInfo, parameters) < (dynamic)right.Evaluate(cultureInfo, parameters);
-        }
-        public override string ToString()
-        {
-            return $"({left} < {right})";
-        }
+            : base(Operator.LessThan, left, right) { }
     }
     class LessThanEqualNode : BinaryNode
     {
         public LessThanEqualNode(AbstractSyntaxTree left, AbstractSyntaxTree right)
-            : base(left, right)
-        {
-
-        }
-        public override object Evaluate(CultureInfo cultureInfo, object[] parameters)
-        {
-            return (dynamic)left.Evaluate(cultureInfo, parameters) <= (dynamic)right.Evaluate(cultureInfo, parameters);
-        }
-        public override string ToString()
-        {
-            return $"({left} <= {right})";
-        }
+            : base(Operator.LessThanOrEqual, left, right) { }
     }
     class GreaterThanNode : BinaryNode
     {
         public GreaterThanNode(AbstractSyntaxTree left, AbstractSyntaxTree right)
-            : base(left, right)
-        {
-
-        }
-        public override object Evaluate(CultureInfo cultureInfo, object[] parameters)
-        {
-            return (dynamic)left.Evaluate(cultureInfo, parameters) > (dynamic)right.Evaluate(cultureInfo, parameters);
-        }
-        public override string ToString()
-        {
-            return $"({left} > {right})";
-        }
+            : base(Operator.GreaterThan, left, right) { }
     }
     class GreaterThanEqualNode : BinaryNode
     {
         public GreaterThanEqualNode(AbstractSyntaxTree left, AbstractSyntaxTree right)
-            : base(left, right)
+            : base(Operator.GreaterThanOrEqual, left, right) { }
+    }
+    class TernaryNode : AbstractSyntaxTree
+    {
+        public TernaryNode(AbstractSyntaxTree condition, AbstractSyntaxTree positive, AbstractSyntaxTree negative)
         {
-
+            _condition = condition;
+            _positive = positive;
+            _negative = negative;
         }
+        private readonly AbstractSyntaxTree _condition;
+        private readonly AbstractSyntaxTree _positive;
+        private readonly AbstractSyntaxTree _negative;
+
         public override object Evaluate(CultureInfo cultureInfo, object[] parameters)
         {
-            return (dynamic)left.Evaluate(cultureInfo, parameters) >= (dynamic)right.Evaluate(cultureInfo, parameters);
+            return TernaryOperator.Evaluate(_condition, _positive, _negative, cultureInfo, parameters);
         }
         public override string ToString()
         {
-            return $"({left} >= {right})";
+            return $"({_condition} ? {_positive} : {_negative})";
         }
     }
     class NullNode : AbstractSyntaxTree
@@ -321,7 +142,7 @@ namespace HexInnovation
     }
     abstract class UnaryNode : AbstractSyntaxTree
     {
-        public UnaryNode(AbstractSyntaxTree node)
+        protected UnaryNode(AbstractSyntaxTree node)
         {
             _node = node;
         }
@@ -368,10 +189,10 @@ namespace HexInnovation
     }
     class ValueNode : AbstractSyntaxTree
     {
-        public object Value { get; set; }
-        public ValueNode(object Value)
+        protected object Value { get; }
+        public ValueNode(object value)
         {
-            this.Value = Value;
+            Value = value;
         }
         public override object Evaluate(CultureInfo cultureInfo, object[] parameters)
         {
@@ -379,7 +200,7 @@ namespace HexInnovation
         }
         public override string ToString()
         {
-            return Value.ToString();
+            return $"{Value}";
         }
     }
     /// <summary>
@@ -387,33 +208,28 @@ namespace HexInnovation
     /// </summary>
     class ConstantNumberNode : ValueNode
     {
-        public ConstantNumberNode(double Value)
-            : base(Value) { }
+        public ConstantNumberNode(double value)
+            : base(value) { }
     }
     class StringNode : ValueNode
     {
-        public StringNode(string Value)
-            : base(Value)
-        {
-        }
-        public override string ToString()
-        {
-            return $"\"{Value}\"";
-        }
+        public StringNode(string value)
+            : base(value) { }
+        public override string ToString() => $"\"{Value}\"";
     }
     class VariableNode : AbstractSyntaxTree
     {
         public VariableNode(int index)
         {
-            Index = index;
+            _index = index;
         }
         /// <summary>
         /// The index of the variable we want to get.
         /// </summary>
-        private int Index;
+        private readonly int _index;
         public override object Evaluate(CultureInfo cultureInfo, object[] parameters)
         {
-            if (parameters.Length <= Index)
+            if (parameters.Length <= _index)
             {
                 var error = new StringBuilder("Error accessing variable ").Append(this).Append(". ");
 
@@ -426,12 +242,12 @@ namespace HexInnovation
                     .Append(" specified.").ToString());
             }
 
-            return MathConverter.ConvertToObject(parameters[Index]);
+            return MathConverter.ConvertToObject(parameters[_index]);
         }
 
         public override string ToString()
         {
-            switch (Index)
+            switch (_index)
             {
                 case 0:
                     return "x";
@@ -440,7 +256,7 @@ namespace HexInnovation
                 case 2:
                     return "z";
                 default:
-                    return $"[{Index}]";
+                    return $"[{_index}]";
             }
         }
     }
