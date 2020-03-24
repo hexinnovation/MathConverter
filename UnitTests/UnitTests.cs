@@ -682,6 +682,13 @@ namespace HexInnovation
             Assert.AreEqual($"The speed of light is {speedOfLight.ToString("N3", CultureInfo.GetCultureInfo("nl-NL"))} km/s.", _converter.Convert(args, typeof(object), @"$`The speed of light is {x:N3} km/s.`", CultureInfo.GetCultureInfo("nl-NL")));
             Assert.AreEqual($"The speed of light is {speedOfLight.ToString("N3", CultureInfo.GetCultureInfo("en-IN"))} km/s.", _converter.Convert(args, typeof(object), @"$`The speed of light is {x:N3} km/s.`", CultureInfo.GetCultureInfo("en-IN")));
             Assert.AreEqual($"The speed of light is {speedOfLight.ToString("N3", CultureInfo.InvariantCulture)} km/s.", _converter.Convert(args, typeof(object), @"$`The speed of light is {x:N3} km/s.`", CultureInfo.InvariantCulture));
+
+            // Make sure commas work in the string format.
+            Assert.AreEqual(string.Format(CultureInfo.GetCultureInfo("de"), "{0, 1: N2}", 30), _converter.Convert(args, typeof(object), "$\"{30, 1: N2}\"", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual(string.Format(CultureInfo.GetCultureInfo("de"), "{0,-1: N2}", 30), _converter.Convert(args, typeof(object), "$\"{30;-1: N2}\"", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual(string.Format(CultureInfo.GetCultureInfo("de"), "{0, 7: N2}", 30), _converter.Convert(args, typeof(object), "$\"{30; 7: N2}\"", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual(string.Format(CultureInfo.GetCultureInfo("de"), "{0,-7: N2}", 30), _converter.Convert(args, typeof(object), "$\"{30,-7: N2}\"", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual(string.Format(CultureInfo.GetCultureInfo("de"), "{0, 56: N2}", 30), _converter.Convert(args, typeof(object), "$\"{30, 56: N2}\"", CultureInfo.GetCultureInfo("de")));
         }
         [TestMethod]
         public void TestFunctions()

@@ -302,10 +302,13 @@ namespace HexInnovation
                                             try
                                             {
                                                 arguments.Add(_parser.ParseInterpolatedStringArg());
-                                                switch (GetToken().TokenType)
+                                                var nextToken = GetToken().TokenType;
+                                                switch (nextToken)
                                                 {
+                                                    case TokenType.Semicolon:
                                                     case TokenType.Colon:
-                                                        sb.Append(':');
+                                                        sb.Append(nextToken == TokenType.Semicolon ? ',' : ':');
+
                                                         while (ch != '}')
                                                         {
                                                             Position++;

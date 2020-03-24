@@ -3,9 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace HexInnovation
@@ -53,13 +50,13 @@ namespace HexInnovation
 
             switch (t.TokenType)
             {
+                case TokenType.Semicolon:
                 case TokenType.RCurlyBracket:
                 case TokenType.Colon:
                     return result;
                 default:
-                    throw new ParsingException(_scanner.Position, "Error parsing interpolated string. Could not find closing curly bracket (or a colon) after the argument.");
+                    throw new ParsingException(_scanner.Position, "Error parsing interpolated string. Could not find closing curly bracket (or a colon, comma, or semicolon) after the argument.");
             }
-
         }
         private IEnumerable<AbstractSyntaxTree> ConverterParameter()
         {
