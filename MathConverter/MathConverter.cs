@@ -60,6 +60,8 @@ namespace HexInnovation
             }
             else if (parameter == null)
             {
+                // If there is no parameter, we'll just use the value(s) specified by the (Multi)Binding.
+                // In this case, MathConverter is merely used for type conversion (e.g. turning 4 doubles into a Rect).
                 evaluatedValues = values.ToList();
             }
             else
@@ -121,6 +123,7 @@ namespace HexInnovation
                 return finalAnswerToConvert;
             }
         }
+
         /// <summary>
         /// Parses an expression into a syntax tree that can be evaluated later.
         /// This method keeps a cache of parsed results, so it doesn't have to parse the same expression twice.
