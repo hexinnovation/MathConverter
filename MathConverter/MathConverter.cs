@@ -47,6 +47,8 @@ namespace HexInnovation
         /// </summary>
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
+            // TODO: Convert DependencyProperty.Unset value into null!
+
             List<object> evaluatedValues;
 
             if (parameter is string param)
@@ -111,17 +113,21 @@ namespace HexInnovation
                     // We'll add a special cast for conversions to char, where we'll convert to int first.
                     return System.Convert.ToChar((int)System.Convert.ChangeType(finalAnswerToConvert, typeof(int)));
                 }
-                else
+                else if (Operator.DoesImplicitConversionExist(finalAnswerToConvert.GetType(), targetType, true))
                 {
-                    // The default TypeConverter doesn't support this conversion. Let's try Convert.ChangeType
+                    // The default TypeConverter doesn't support this conversion. Let's try an implicit conversion.
+                    return Operator.DoImplicitConversion(finalAnswerToConvert, targetType);
+                }
+                else if (finalAnswerToConvert is IConvertible)
+                {
+                    // Let's try System.Convert. This might throw an exception.
                     return System.Convert.ChangeType(finalAnswerToConvert, targetType);
                 }
             }
-            catch (InvalidCastException)
-            {
-                // Welp, we can't convert this value... O well.
-                return finalAnswerToConvert;
-            }
+            catch (InvalidCastException) { }
+
+            // Welp, we can't convert this value... O well.
+            return finalAnswerToConvert;
         }
 
         /// <summary>
@@ -154,86 +160,6 @@ namespace HexInnovation
             }
         }
 
-        /// <summary>
-        /// Converts a number to an object.
-        /// </summary>
-        /// <param name="parameter">The value we're converting to an object.</param>
-        /// <returns>The number, converted to an object.</returns>
-        public static object ConvertToObject(object parameter)
-        {
-            if (parameter == null)
-                return null;
-            var paramType = parameter.GetType().FullName;
-            switch (paramType)
-            {
-                case "System.TimeSpan":
-                case "System.DateTime":
-                case "System.String":
-                case "System.Boolean":
-                    return parameter;
-                case "System.Char":
-                    return System.Convert.ToDouble((int)(char)parameter);
-                case "System.Byte":
-                    return System.Convert.ToDouble((byte)parameter);
-                case "System.SByte":
-                    return System.Convert.ToDouble((sbyte)parameter);
-                case "System.Decimal":
-                    return System.Convert.ToDouble((decimal)parameter);
-                case "System.Int16":
-                    return System.Convert.ToDouble((short)parameter);
-                case "System.UInt16":
-                    return System.Convert.ToDouble((ushort)parameter);
-                case "System.Int32":
-                    return System.Convert.ToDouble((int)parameter);
-                case "System.UInt32":
-                    return System.Convert.ToDouble((uint)parameter);
-                case "System.Int64":
-                    return System.Convert.ToDouble((long)parameter);
-                case "System.UInt64":
-                    return System.Convert.ToDouble((ulong)parameter);
-                case "System.Single":
-                    return System.Convert.ToDouble((float)parameter);
-                case "System.Double":
-                    return (double)parameter;
-                case "System.Windows.GridLength":
-                    return ((GridLength)parameter).Value;
-                default:
-                    if (parameter == DependencyProperty.UnsetValue)
-                    {
-                        return null;
-                    }
-
-                    return parameter;
-            }
-        }
-        /// <summary>
-        /// Converts a number to an object.
-        /// </summary>
-        /// <param name="parameter">The value we're converting to an object.</param>
-        /// <returns>The number, converted to an object.</returns>
-        public static double? ConvertToDouble(object parameter)
-        {
-            if (parameter is double dbl)
-                return dbl;
-
-            if (parameter == null)
-                return null;
-
-            if (parameter is string str && double.TryParse(str, NumberStyles.Number, CultureInfo.InvariantCulture, out var v))
-            {
-                return v;
-            }
-
-            try
-            {
-                return System.Convert.ChangeType(parameter, typeof(double)) as double?;
-            }
-            catch (InvalidCastException ex)
-            {
-                throw new Exception($"Failed to convert object of type {parameter.GetType().FullName} to double", ex);
-            }
-        }
-        
         /// <summary>
         /// Don't call this method, as it is not supported.
         /// </summary>

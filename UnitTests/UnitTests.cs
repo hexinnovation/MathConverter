@@ -125,7 +125,6 @@ namespace HexInnovation
                     Assert.AreEqual((ushort)2, _converter.Convert(args, typeof(ushort), "2", culture));
                     Assert.AreEqual((uint)2, _converter.Convert(args, typeof(uint), "2", culture));
                     Assert.AreEqual((ulong)2, _converter.Convert(args, typeof(ulong), "2", culture));
-
                 }
                 foreach (var @type in new Type[] { typeof(float), typeof(int), typeof(double), typeof(long), typeof(decimal), typeof(byte), typeof(sbyte), typeof(char), typeof(short), typeof(ushort), typeof(uint), typeof(ulong) })
                 {
@@ -704,18 +703,18 @@ namespace HexInnovation
             Assert.AreEqual(0, ((DateTime)_converter.Convert(null, typeof(object), "NOW()", CultureInfo.GetCultureInfo("de")) - DateTime.Now).TotalMilliseconds, allowWithinMillis);
             Assert.AreEqual(0, ((DateTime)_converter.Convert(null, typeof(object), "Now()", CultureInfo.GetCultureInfo("de")) - DateTime.Now).TotalMilliseconds, allowWithinMillis);
 
-            Assert.AreEqual(3.0, _converter.Convert(new object[] { null, 3, 5 }, typeof(object), "ISNULL(x,y)", CultureInfo.GetCultureInfo("de")));
-            Assert.AreEqual(5.0, _converter.Convert(new object[] { null, 3, 5 }, typeof(object), "IsNull(x,z)", CultureInfo.GetCultureInfo("de")));
-            Assert.AreEqual(5.0, _converter.Convert(new object[] { null, 3, 5 }, typeof(object), "ifnull(x,z)", CultureInfo.GetCultureInfo("de")));
-            Assert.AreEqual(3.0, _converter.Convert(new object[] { null, 3, 5 }, typeof(object), "ifNull(y,z)", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual(3, _converter.Convert(new object[] { null, 3, 5 }, typeof(object), "ISNULL(x,y)", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual(5, _converter.Convert(new object[] { null, 3, 5 }, typeof(object), "IsNull(x,z)", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual(5, _converter.Convert(new object[] { null, 3, 5 }, typeof(object), "ifnull(x,z)", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual(3, _converter.Convert(new object[] { null, 3, 5 }, typeof(object), "ifNull(y,z)", CultureInfo.GetCultureInfo("de")));
             Assert.IsNull(_converter.Convert(new object[] { null, 3, 5 }, typeof(object), "IFNULL(x,x)", CultureInfo.GetCultureInfo("de")));
-            Assert.AreEqual(3.0, _converter.Convert(new object[] { null, 3, 5 }, typeof(object), "ifnull(x,ifnull(x??y,z))", CultureInfo.GetCultureInfo("de")));
-            Assert.AreEqual(5.0, _converter.Convert(new object[] { null, 3, 5 }, typeof(object), "max(x;y;x;z)", CultureInfo.GetCultureInfo("de")));
-            Assert.AreEqual(5.0, _converter.Convert(new object[] { null, 3, 5 }, typeof(object), "max(y;z;z;x;y;y;z)", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual(3, _converter.Convert(new object[] { null, 3, 5 }, typeof(object), "ifnull(x,ifnull(x??y,z))", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual(5, _converter.Convert(new object[] { null, 3, 5 }, typeof(object), "max(x;y;x;z)", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual(5, _converter.Convert(new object[] { null, 3, 5 }, typeof(object), "max(y;z;z;x;y;y;z)", CultureInfo.GetCultureInfo("de")));
             Assert.AreEqual(100.0, _converter.Convert(new object[] { null, 3, 5 }, typeof(object), "max(y;z;100)", CultureInfo.GetCultureInfo("de")));
             Assert.AreEqual(0.0, _converter.Convert(new object[] { null, 3, 5 }, typeof(object), "min(y;z;100;0)", CultureInfo.GetCultureInfo("de")));
-            Assert.AreEqual(3.0, _converter.Convert(new object[] { null, 3, 5 }, typeof(object), "min(y;z;100)", CultureInfo.GetCultureInfo("de")));
-            Assert.AreEqual(3.0, _converter.Convert(new object[] { null, 3, 5 }, typeof(object), "min(null,y;z;100)", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual(3, _converter.Convert(new object[] { null, 3, 5 }, typeof(object), "min(y;z;100)", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual(3, _converter.Convert(new object[] { null, 3, 5 }, typeof(object), "min(null,y;z;100)", CultureInfo.GetCultureInfo("de")));
             Assert.AreEqual(null, _converter.Convert(new object[] { null, 3, 5 }, typeof(object), "min(null,x)", CultureInfo.GetCultureInfo("de")));
             Assert.AreEqual(4.0, _converter.Convert(new object[] { null, 3, 5 }, typeof(object), "avg(y;z)", CultureInfo.GetCultureInfo("de")));
             Assert.AreEqual(4.666666666666, (double)_converter.Convert(new object[] { null, 3, 5 }, typeof(object), "avg(y;z;6)", CultureInfo.GetCultureInfo("de")), 0.00000001);
@@ -740,6 +739,7 @@ namespace HexInnovation
             Assert.AreEqual(true, _converter.Convert(new object[] { "ψñíçθдë têsт", "ΨÑÍÇΘДË TÊSТ" }, typeof(object), "tolower(x) == x", CultureInfo.GetCultureInfo("de")));
             Assert.AreEqual(true, _converter.Convert(new object[] { "ψñíçθдë têsт", "ΨÑÍÇΘДË TÊSТ" }, typeof(object), "toupper(y) != tolower(y)", CultureInfo.GetCultureInfo("de")));
             Assert.AreEqual(true, _converter.Convert(new object[] { "ψñíçθдë têsт", "ΨÑÍÇΘДË TÊSТ" }, typeof(object), "toupper(x) != tolower(x)", CultureInfo.GetCultureInfo("de")));
+            var possibleArgs = new object[] { new ArithmeticOperatorTester(2), new ArithmeticOperatorTester(0), false, true, null };
 
             foreach (var x in new bool[] { true, false })
             {
@@ -967,6 +967,41 @@ namespace HexInnovation
 
             // TODO: Try some invalid arguments!
         }
+
+        [TestMethod]
+        public void TestAndOrOperators()
+        {
+            var possibleArgs = new object[] { new ArithmeticOperatorTester(2), new ArithmeticOperatorTester(0), false, true, null };
+            foreach (var x in possibleArgs)
+            {
+                foreach (var y in possibleArgs)
+                {
+                    object expectedAnd, expectedOr;
+
+                    if (x == null)
+                    {
+                        if (y == null)
+                        {
+                            // null && null is ambiguous.
+                            expectedAnd = expectedOr = null;
+                        }
+                        else
+                        {
+                            // The DLR doesn't handle null && y very well.
+                            expectedAnd = (dynamic)x & (dynamic)y;
+                            expectedOr = (dynamic)x | (dynamic)y;
+                        }
+                    }
+                    else
+                    {
+                        expectedAnd = (dynamic)x && (dynamic)y;
+                        expectedOr = (dynamic)x || (dynamic)y;
+                    }
+                    Assert.AreEqual(expectedAnd, Operator.And.Evaluate(x, y));
+                    Assert.AreEqual(expectedOr, Operator.Or.Evaluate(x, y));
+                }
+            }
+        }
         [TestMethod]
         public void TestGetImplicitOperatorPath()
         {
@@ -998,8 +1033,31 @@ namespace HexInnovation
             Assert.IsNull(Operator.GetImplicitOperatorPath("op_Implicit", typeof(ArithmeticOperatorTester), typeof(string)));
         }
 
-        // TODO: MAKE MORE TESTS
 
+
+        // TODO: MAKE MORE TESTS
+        [TestMethod]
+        public void TestLogicalNotOperator()
+        {
+            Assert.IsNull(Operator.LogicalNot.Evaluate(null));
+            Assert.AreEqual(true, Operator.LogicalNot.Evaluate(false));
+            Assert.AreEqual(false, Operator.LogicalNot.Evaluate(true));
+
+            Assert.AreEqual(!new ArithmeticOperatorTester(0), Operator.LogicalNot.Evaluate(new ArithmeticOperatorTester(0)));
+            Assert.AreEqual(!new ArithmeticOperatorTester(1), Operator.LogicalNot.Evaluate(new ArithmeticOperatorTester(1)));
+            Assert.AreEqual(!new ArithmeticOperatorTester(2), Operator.LogicalNot.Evaluate(new ArithmeticOperatorTester(2)));
+        }
+        [TestMethod]
+        public void TestUnaryNegationOperator()
+        {
+            Assert.IsNull(Operator.LogicalNot.Evaluate(null));
+            Assert.AreEqual(true, Operator.LogicalNot.Evaluate(false));
+            Assert.AreEqual(false, Operator.LogicalNot.Evaluate(true));
+
+            Assert.AreEqual(-new ArithmeticOperatorTester(3), Operator.UnaryNegation.Evaluate(new ArithmeticOperatorTester(3)));
+            Assert.AreEqual(-new ArithmeticOperatorTester(0), Operator.UnaryNegation.Evaluate(new ArithmeticOperatorTester(0)));
+            Assert.AreEqual(-new ArithmeticOperatorTester(-3), Operator.UnaryNegation.Evaluate(new ArithmeticOperatorTester(-3)));
+        }
     }
 
     internal static class ExtensionMethods
@@ -1106,6 +1164,9 @@ namespace HexInnovation
         {
             return new HaveValueClass1(x.Value);
         }
+
+        public static ArithmeticOperatorTester operator -(ArithmeticOperatorTester x) => new ArithmeticOperatorTester(-x.Value);
+        public static ArithmeticOperatorTester operator !(ArithmeticOperatorTester x) => ReferenceEquals(x, null) ? null : new ArithmeticOperatorTester(x.Value == 0 ? 1 : 0);
 
         public override bool Equals(object other)
         {

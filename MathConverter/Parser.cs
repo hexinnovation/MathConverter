@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Windows;
@@ -285,6 +286,8 @@ namespace HexInnovation
                     if (!(t is LexicalToken numToken))
                         throw new ArgumentException(ErrorWrongTokenType(t.TokenType));
                     return new ConstantNumberNode(double.Parse(numToken.Lex, NumberStyles.Number, CultureInfo.InvariantCulture));
+                case TokenType.Plus:
+                    return Primary();
                 case TokenType.Minus:
                     return new NegativeNode(Primary());
                 case TokenType.Not:
@@ -396,14 +399,16 @@ namespace HexInnovation
                                 case "round":
                                     formula2 = (x, y) =>
                                     {
-                                        var a = MathConverter.ConvertToDouble(x);
-                                        var b = MathConverter.ConvertToDouble(y);
-                                        if (a.HasValue && b.HasValue)
+                                        if (Operator.DoesImplicitConversionExist(x?.GetType(), typeof(double), true) &&
+                                            Operator.DoImplicitConversion(x, typeof(double?)) is double a &&
+                                            Operator.DoesImplicitConversionExist(y?.GetType(), typeof(double), true) &&
+                                            Operator.DoImplicitConversion(y, typeof(double?)) is double b)
                                         {
-                                            if (b.Value == (int)b.Value)
-                                                return Math.Round(a.Value, (int)b.Value);
+                                            if (b == (int)b)
+                                                return Math.Round(a, (int)b);
                                             else
-                                                throw new Exception($"Error calling Math.Round({a}, {y}):\r\n{y} is not an integer.");
+                                                throw new Exception(
+                                                    $"Error evaluating Math.Round({a}, {y}):\r\n{y} is not an integer.");
                                         }
                                         else
                                         {
@@ -415,10 +420,11 @@ namespace HexInnovation
                                 case "arctan2":
                                     formula2 = (x, y) =>
                                     {
-                                        var a = MathConverter.ConvertToDouble(x);
-                                        var b = MathConverter.ConvertToDouble(y);
-                                        if (a.HasValue && b.HasValue)
-                                            return Math.Atan2(a.Value, b.Value);
+                                        if (Operator.DoesImplicitConversionExist(x?.GetType(), typeof(double), true) &&
+                                            Operator.DoImplicitConversion(x, typeof(double?)) is double a &&
+                                            Operator.DoesImplicitConversionExist(y?.GetType(), typeof(double), true) &&
+                                            Operator.DoImplicitConversion(y, typeof(double?)) is double b)
+                                            return Math.Atan2(a, b);
                                         else
                                             return null;
                                     };
@@ -426,10 +432,11 @@ namespace HexInnovation
                                 case "log":
                                     formula2 = (x, y) =>
                                     {
-                                        var a = MathConverter.ConvertToDouble(x);
-                                        var b = MathConverter.ConvertToDouble(y);
-                                        if (a.HasValue && b.HasValue)
-                                            return Math.Log(a.Value, b.Value);
+                                        if (Operator.DoesImplicitConversionExist(x?.GetType(), typeof(double), true) &&
+                                            Operator.DoImplicitConversion(x, typeof(double?)) is double a &&
+                                            Operator.DoesImplicitConversionExist(y?.GetType(), typeof(double), true) &&
+                                            Operator.DoImplicitConversion(y, typeof(double?)) is double b)
+                                            return Math.Log(a, b);
                                         else
                                             return null;
                                     };
@@ -527,9 +534,8 @@ namespace HexInnovation
                         {
                             formula1_obj = x =>
                             {
-                                var val = MathConverter.ConvertToDouble(x);
-                                if (val.HasValue)
-                                    return formula1(val.Value);
+                                if (Operator.DoesImplicitConversionExist(x?.GetType(), typeof(double), true) && Operator.DoImplicitConversion(x, typeof(double?)) is double a)
+                                    return formula1(a);
                                 else
                                     return null;
                             };

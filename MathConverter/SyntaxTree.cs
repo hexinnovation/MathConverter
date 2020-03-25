@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
-using System.Reflection;
 using System.Text;
+using System.Windows;
 
 namespace HexInnovation
 {
-    public abstract class AbstractSyntaxTree
+    abstract class AbstractSyntaxTree
     {
         public abstract object Evaluate(CultureInfo cultureInfo, object[] parameters);
         public abstract override string ToString();
@@ -29,86 +31,85 @@ namespace HexInnovation
         }
         public sealed override string ToString()
         {
-            return $"({_left} {_operator.OperatorSymbols} {_right})";
+            return $"({_left} {_operator} {_right})";
         }
     }
-    class ExponentNode : BinaryNode
+    sealed class ExponentNode : BinaryNode
     {
         public ExponentNode(AbstractSyntaxTree left, AbstractSyntaxTree right)
             : base(Operator.Exponentiation, left, right) { }
     }
-    class AddNode : BinaryNode
+    sealed class AddNode : BinaryNode
     {
         public AddNode(AbstractSyntaxTree left, AbstractSyntaxTree right)
             : base(Operator.Addition, left, right) { }
     }
-    class SubtractNode : BinaryNode
+    sealed class SubtractNode : BinaryNode
     {
         public SubtractNode(AbstractSyntaxTree left, AbstractSyntaxTree right)
             : base(Operator.Subtraction, left, right) { }
     }
-    class MultiplyNode : BinaryNode
+    sealed class MultiplyNode : BinaryNode
     {
         public MultiplyNode(AbstractSyntaxTree left, AbstractSyntaxTree right)
             : base(Operator.Multiplication, left, right) { }
     }
-    class ModuloNode : BinaryNode
+    sealed class ModuloNode : BinaryNode
     {
         public ModuloNode(AbstractSyntaxTree left, AbstractSyntaxTree right)
             : base(Operator.Remainder, left, right) { }
     }
-    class AndNode : BinaryNode
+    sealed class AndNode : BinaryNode
     {
         public AndNode(AbstractSyntaxTree left, AbstractSyntaxTree right)
             : base(Operator.And, left, right) { }
     }
-
-    class NullCoalescingNode : BinaryNode
+    sealed class NullCoalescingNode : BinaryNode
     {
         public NullCoalescingNode(AbstractSyntaxTree left, AbstractSyntaxTree right)
             : base(Operator.NullCoalescing, left, right) { }
     }
-    class OrNode : BinaryNode
+    sealed class OrNode : BinaryNode
     {
         public OrNode(AbstractSyntaxTree left, AbstractSyntaxTree right)
             : base(Operator.Or, left, right) { }
     }
-    class DivideNode : BinaryNode
+    sealed class DivideNode : BinaryNode
     {
         public DivideNode(AbstractSyntaxTree left, AbstractSyntaxTree right)
             : base(Operator.Division, left, right) { }
     }
-    class NotEqualNode : BinaryNode
+    sealed class NotEqualNode : BinaryNode
     {
         public NotEqualNode(AbstractSyntaxTree left, AbstractSyntaxTree right)
             : base(Operator.Inequality, left, right) { }
     }
-    class EqualNode : BinaryNode
+    sealed class EqualNode : BinaryNode
     {
         public EqualNode(AbstractSyntaxTree left, AbstractSyntaxTree right)
             : base(Operator.Equality, left, right) { }
     }
-    class LessThanNode : BinaryNode
+    sealed class LessThanNode : BinaryNode
     {
         public LessThanNode(AbstractSyntaxTree left, AbstractSyntaxTree right)
             : base(Operator.LessThan, left, right) { }
     }
-    class LessThanEqualNode : BinaryNode
+    sealed class LessThanEqualNode : BinaryNode
     {
         public LessThanEqualNode(AbstractSyntaxTree left, AbstractSyntaxTree right)
             : base(Operator.LessThanOrEqual, left, right) { }
     }
-    class GreaterThanNode : BinaryNode
+    sealed class GreaterThanNode : BinaryNode
     {
         public GreaterThanNode(AbstractSyntaxTree left, AbstractSyntaxTree right)
             : base(Operator.GreaterThan, left, right) { }
     }
-    class GreaterThanEqualNode : BinaryNode
+    sealed class GreaterThanEqualNode : BinaryNode
     {
         public GreaterThanEqualNode(AbstractSyntaxTree left, AbstractSyntaxTree right)
             : base(Operator.GreaterThanOrEqual, left, right) { }
     }
-    class TernaryNode : AbstractSyntaxTree
+    sealed class TernaryNode : AbstractSyntaxTree
     {
         public TernaryNode(AbstractSyntaxTree condition, AbstractSyntaxTree positive, AbstractSyntaxTree negative)
         {
@@ -129,7 +130,7 @@ namespace HexInnovation
             return $"({_condition} ? {_positive} : {_negative})";
         }
     }
-    class NullNode : AbstractSyntaxTree
+    sealed class NullNode : AbstractSyntaxTree
     {
         public override object Evaluate(CultureInfo cultureInfo, object[] parameters)
         {
@@ -142,82 +143,54 @@ namespace HexInnovation
     }
     abstract class UnaryNode : AbstractSyntaxTree
     {
-        protected UnaryNode(AbstractSyntaxTree node)
+        protected UnaryNode(UnaryOperator @operator, AbstractSyntaxTree node)
         {
+            _operator = @operator;
             _node = node;
         }
+        private readonly UnaryOperator _operator;
         private readonly AbstractSyntaxTree _node;
-        public override object Evaluate(CultureInfo cultureInfo, object[] parameters)
+        public sealed override object Evaluate(CultureInfo cultureInfo, object[] parameters)
         {
-            return Evaluate((dynamic)_node.Evaluate(cultureInfo, parameters));
+            return _operator.Evaluate(_node.Evaluate(cultureInfo, parameters));
         }
-        protected abstract object Evaluate(dynamic value);
-        public override string ToString()
-        {
-            return _node.ToString();
-        }
+        public sealed override string ToString() => $"{_operator}({_node})";
     }
-    class NotNode : UnaryNode
+    sealed class NotNode : UnaryNode
     {
         public NotNode(AbstractSyntaxTree node)
-            : base(node)
-        {
-        }
-        protected override object Evaluate(dynamic value)
-        {
-            return !value;
-        }
-        public override string ToString()
-        {
-            return $"!({base.ToString()})";
-        }
+            : base(Operator.LogicalNot, node) { }
     }
-    class NegativeNode : UnaryNode
+    sealed class NegativeNode : UnaryNode
     {
         public NegativeNode(AbstractSyntaxTree node)
-            : base(node)
-        {
-        }
-        protected override object Evaluate(dynamic value)
-        {
-            return -value;
-        }
-        public override string ToString()
-        {
-            return $"-({base.ToString()})";
-        }
+            : base(Operator.UnaryNegation, node) { }
     }
     class ValueNode : AbstractSyntaxTree
     {
-        protected object Value { get; }
         public ValueNode(object value)
         {
             Value = value;
         }
-        public override object Evaluate(CultureInfo cultureInfo, object[] parameters)
-        {
-            return Value;
-        }
-        public override string ToString()
-        {
-            return $"{Value}";
-        }
+        protected object Value { get; }
+        public sealed override object Evaluate(CultureInfo cultureInfo, object[] parameters) => Value;
+        public override string ToString() => $"{Value}";
     }
     /// <summary>
-    /// A constant, like e or pi
+    /// A constant, like e or pi, or any arbitrary number specified in the ConverterParameter
     /// </summary>
-    class ConstantNumberNode : ValueNode
+    sealed class ConstantNumberNode : ValueNode
     {
         public ConstantNumberNode(double value)
             : base(value) { }
     }
-    class StringNode : ValueNode
+    sealed class StringNode : ValueNode
     {
         public StringNode(string value)
             : base(value) { }
         public override string ToString() => $"\"{Value}\"";
     }
-    class VariableNode : AbstractSyntaxTree
+    sealed class VariableNode : AbstractSyntaxTree
     {
         public VariableNode(int index)
         {
@@ -242,9 +215,8 @@ namespace HexInnovation
                     .Append(" specified.").ToString());
             }
 
-            return MathConverter.ConvertToObject(parameters[_index]);
+            return parameters[_index];
         }
-
         public override string ToString()
         {
             switch (_index)
@@ -260,7 +232,7 @@ namespace HexInnovation
             }
         }
     }
-    class FormulaNode0 : AbstractSyntaxTree
+    sealed class FormulaNode0 : AbstractSyntaxTree
     {
         public FormulaNode0(string formulaName, Func<object> formula)
         {
@@ -281,18 +253,26 @@ namespace HexInnovation
     /// <summary>
     /// A formula that takes one input
     /// </summary>
-    class FormulaNode1 : AbstractSyntaxTree
+    sealed class FormulaNode1 : AbstractSyntaxTree
     {
         public FormulaNode1(string formulaName, Func<object, object> formula, AbstractSyntaxTree input)
         {
             _formulaName = formulaName;
             _formula = formula;
             _input = input;
+
+            switch (formulaName.ToLower())
+            {
+                case "visibleorhidden":
+                case "visibleorcollapsed":
+                    Debug.WriteLine($"Warning: Function {formulaName} is deprecated and will be removed in a later release of MathConverter. You should instead use code like \"{input}\" ? `Visible` : `{(formulaName.ToLower().EndsWith("hidden") ? "Hidden" : "Collapsed")}`");
+                    break;
+            }
+
         }
         private readonly string _formulaName;
         private readonly Func<object, object> _formula;
         private readonly AbstractSyntaxTree _input;
-
         public override object Evaluate(CultureInfo cultureInfo, object[] parameters)
         {
             return _formula(_input.Evaluate(cultureInfo, parameters));
@@ -302,8 +282,10 @@ namespace HexInnovation
             return $"{_formulaName}({_input})";
         }
     }
-    
-    class FormulaNode2 : AbstractSyntaxTree
+    /// <summary>
+    /// A formula that takes two arguments
+    /// </summary>
+    sealed class FormulaNode2 : AbstractSyntaxTree
     {
         public FormulaNode2(string formulaName, Func<object, object, object> formula, AbstractSyntaxTree arg1, AbstractSyntaxTree arg2)
         {
@@ -327,106 +309,159 @@ namespace HexInnovation
         }
     }
     /// <summary>
-    /// A formula that takes one to infinity arguments.
+    /// A formula that takes anywhere from one to infinity arguments.
     /// </summary>
-    class FormulaNodeN : AbstractSyntaxTree
+    sealed class FormulaNodeN : AbstractSyntaxTree
     {
         public static object And(CultureInfo cultureInfo, IEnumerable<object> args)
         {
-            foreach (bool arg in args)
+            var currentValueIsDefined = false;
+            object currentValue = null;
+
+            foreach (var arg in args)
             {
-                if (!arg)
-                    return false;
+                if (currentValueIsDefined)
+                {
+                    currentValue = Operator.And.Evaluate(currentValue, arg);
+                }
+                else
+                {
+                    currentValue = arg;
+                    currentValueIsDefined = true;
+                }
+
+                if (Operator.TryConvertToBool(currentValue) == false)
+                {
+                    return currentValue;
+                }
             }
 
-            return true;
+            return currentValue;
         }
         public static object Or(CultureInfo cultureInfo, IEnumerable<object> args)
         {
-            foreach (bool arg in args)
+            var currentValueIsDefined = false;
+            object currentValue = null;
+
+            foreach (var arg in args)
             {
-                if (arg)
-                    return true;
+                if (currentValueIsDefined)
+                {
+                    currentValue = Operator.Or.Evaluate(currentValue, arg);
+                }
+                else
+                {
+                    currentValue = arg;
+                    currentValueIsDefined = true;
+                }
+
+                if (Operator.TryConvertToBool(currentValue) == true)
+                {
+                    return currentValue;
+                }
             }
 
             return false;
         }
         public static object Nor(CultureInfo cultureInfo, IEnumerable<object> args)
         {
-            foreach (bool arg in args)
-            {
-                if (arg)
-                    return false;
-            }
-
-            return true;
+            return Operator.LogicalNot.Evaluate(Or(cultureInfo, args));
         }
         public static object Max(CultureInfo cultureInfo, IEnumerable<object> args)
         {
-            dynamic max = null;
-            foreach (dynamic arg in args)
+            var currentValueIsDefined = false;
+            object max = null;
+
+            foreach (var arg in args)
             {
-                if (max == null || arg > max)
+                if (currentValueIsDefined)
+                {
+                    if (Operator.TryConvertToBool(Operator.GreaterThan.Evaluate(arg, max)) == true)
+                    {
+                        max = arg;
+                    }
+                }
+                else
                 {
                     max = arg;
+                    currentValueIsDefined = arg != null;
                 }
             }
+
             return max;
         }
         public static object Min(CultureInfo cultureInfo, IEnumerable<object> args)
         {
-            dynamic min = null;
-            foreach (dynamic arg in args)
+            var currentValueIsDefined = false;
+            object min = null;
+
+            foreach (var arg in args)
             {
-                if (min == null || arg < min)
+                if (currentValueIsDefined)
+                {
+                    if (Operator.TryConvertToBool(Operator.LessThan.Evaluate(arg, min)) == true)
+                    {
+                        min = arg;
+                    }
+                }
+                else
                 {
                     min = arg;
+                    currentValueIsDefined = arg != null;
                 }
             }
+
             return min;
         }
         public static object Format(CultureInfo cultureInfo, IEnumerable<object> args)
         {
-            dynamic format = args.First();
+            // Make sure we don't evaluate any of the arguments twice.
+            var argsList = args.ToList();
 
-            return string.Format(cultureInfo, format, args.Skip(1).ToArray());
+            if (argsList.Count > 0 && argsList[0] is string format)
+            {
+                return string.Format(cultureInfo, format, argsList.Skip(1).ToArray());
+            }
+            else
+            {
+                throw new InvalidEnumArgumentException("format() function must be called with a string as the first argument.");
+            }
         }
         public static string Concat(CultureInfo cultureInfo, IEnumerable<object> args)
         {
-            List<object> argVals = args.ToList();
-            if (argVals.Count == 1 && argVals[0] is IEnumerable)
-                return string.Concat(argVals[0] as dynamic);
-            else
-                return string.Concat(argVals);
+            var argsList = args.ToList();
+
+            return string.Concat(argsList.Count == 1 && argsList[0] is IEnumerable enumerable ? enumerable.Cast<object>() : argsList);
         }
         public static string Join(CultureInfo cultureInfo, IEnumerable<object> args)
         {
             var argsList = args.ToList();
 
-            string separator = $"{argsList[0]}";
+            if (argsList[0] is string separator)
+            {
+                var argVals = argsList.Skip(1).ToArray();
 
-            var argVals = argsList.Skip(1).ToArray();
-            if (argVals.Length == 1 && argVals[0] is IEnumerable enumerable)
-                return string.Join(separator, enumerable.Cast<object>().ToArray());
+                return string.Join(separator,
+                    argVals.Length == 1 && argVals[0] is IEnumerable enumerable ? enumerable.Cast<object>() : argVals);
+
+            }
             else
-                return string.Join(separator, argVals);
+            {
+                throw new InvalidEnumArgumentException("join() function must be called with a string as the first argument.");
+            }
         }
         public static object Average(CultureInfo cultureInfo, IEnumerable<object> args)
         {
-            double sum = 0.0;
-            var count = 0;
-            foreach (double? arg in args.Select(MathConverter.ConvertToDouble))
-            {
-                if (arg.HasValue)
-                {
-                    count++;
-                    sum += arg.Value;
-                }
-            }
-            if (count == 0)
-                return null;
+            var arguments = args.Select(p => (double?)Operator.DoImplicitConversion(p, typeof(double?)))
+                .Where(p => p.HasValue).Select(p => p.Value).ToList();
 
-            return sum / count;
+            switch (arguments.Count)
+            {
+                case 0:
+                    return null;
+                default:
+                    return arguments.Average();
+            }
         }
 
         public FormulaNodeN(string formulaName, Func<CultureInfo, IEnumerable<object>, object> formula, IEnumerable<AbstractSyntaxTree> args)
@@ -442,7 +477,6 @@ namespace HexInnovation
         {
             return _formula(cultureInfo, _args.Select(p => p.Evaluate(cultureInfo, parameters)));
         }
-
         public override string ToString()
         {
             return $"{_formulaName}({string.Join(", ", _args)})";
