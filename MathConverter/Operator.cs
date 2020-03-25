@@ -13,143 +13,131 @@ namespace HexInnovation
         /// If either operand is null, it will return null, and it only supports numeric types.
         /// It is designed explicitly different from the C# "^" (exclusive or) operator.
         /// </summary>
-        public static readonly BinaryOperator Exponentiation = Op.Exponentiation;
+        public static readonly BinaryOperator Exponentiation = OperationType.Exponentiation;
 
         /// <summary>
         /// The binary "+" operator. This operator adds two operands together.
         /// It is designed to work like the "+" operator.
         /// <see cref="https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/expressions#addition-operator"/>
         /// </summary>
-        public static readonly BinaryOperator Addition = Op.Addition;
+        public static readonly BinaryOperator Addition = OperationType.Addition;
 
         /// <summary>
         /// The binary "-" operator. This operator subtracts one operand from another.
         /// It is designed to work like the "-" operator.
         /// <see cref="https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/expressions#subtraction-operator"/>
         /// </summary>
-        public static readonly BinaryOperator Subtraction = Op.Subtraction;
+        public static readonly BinaryOperator Subtraction = OperationType.Subtraction;
 
         /// <summary>
         /// The binary "*" operator. This operator multiplies one operand by another.
         /// It is designed to work like the "*" operator.
         /// <see cref="https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/expressions#multiplication-operator"/>
         /// </summary>
-        public static readonly BinaryOperator Multiplication = Op.Multiplication;
+        public static readonly BinaryOperator Multiplication = OperationType.Multiplication;
 
         /// <summary>
         /// The binary "/" operator. This operator divides one operand by another.
         /// It is designed to work like the "/" operator.
         /// <see cref="https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/expressions#division-operator"/>
         /// </summary>
-        public static readonly BinaryOperator Division = Op.Division;
+        public static readonly BinaryOperator Division = OperationType.Division;
 
         /// <summary>
         /// The binary "%" operator. This operator divides one operand by another and returns the remainder.
         /// It is designed to work like the "%" operator.
         /// <see cref="https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/expressions#remainder-operator"/>
         /// </summary>
-        public static readonly BinaryOperator Remainder = Op.Remainder;
+        public static readonly BinaryOperator Remainder = OperationType.Remainder;
 
         /// <summary>
-        /// The binary "&&" operator. This operator explicitly does not do a bitwise-and, and is only applicable for boolean operands, or types that define a true operator.
+        /// The binary "&&" operator. This operator explicitly does not do a bitwise-and, and is only applicable for boolean operands, or types that define a "false" operator and a "&" operator.
         /// If the first operand is false, the second operand will not be evaluated.
         /// <see cref="https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/expressions#conditional-logical-operators"/>
         /// </summary>
-        public static readonly BinaryOperator And = Op.And;
+        public static readonly BinaryOperator And = OperationType.And;
 
         /// <summary>
-        /// The binary "||" operator. This operator explicitly does not do a bitwise-and, and is only applicable for boolean operands, or types that define a true operator.
+        /// The binary "||" operator. This operator explicitly does not do a bitwise-and, and is only applicable for boolean operands, or types that define a "true" operator and a "|" operator.
         /// If the first operand is true, the second operand will not be evaluated.
         /// <see cref="https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/expressions#conditional-logical-operators"/>
         /// </summary>
-        public static readonly BinaryOperator Or = Op.Or;
+        public static readonly BinaryOperator Or = OperationType.Or;
 
         /// <summary>
         /// The binary "??" operator.
-        /// It is designed to work like the "??" operator.
+        /// It is designed to work like the "??" operator in C#.
+        /// It evaluates and returns the first object, unless it is null, in which case it will evaluate and return the second object.
+        /// The second expression is only evaluated if the first object is null.
         /// <see cref="https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/expressions#the-null-coalescing-operator"/>
         /// </summary>
-        public static readonly BinaryOperator NullCoalescing = Op.NullCoalescing;
+        public static readonly BinaryOperator NullCoalescing = OperationType.NullCoalescing;
 
         /// <summary>
         /// The binary "!=" operator.
-        /// It is designed to work like the "!=" operator.
+        /// It is designed to work like the "!=" operator in C#, returning true if the two arguments are not equal, or false if they are equal.
         /// <see cref="https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/expressions#relational-and-type-testing-operators"/>
         /// </summary>
-        public static readonly BinaryOperator Inequality = Op.Inequality;
+        public static readonly BinaryOperator Inequality = OperationType.Inequality;
 
         /// <summary>
         /// The binary "==" operator.
-        /// It is designed to work like the "==" operator.
+        /// It is designed to work like the "==" operator in C#, returning true if the two arguments are equal, or false if not.
         /// <see cref="https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/expressions#relational-and-type-testing-operators"/>
         /// </summary>
-        public static readonly BinaryOperator Equality = Op.Equality;
+        public static readonly BinaryOperator Equality = OperationType.Equality;
 
         /// <summary>
         /// The binary "&lt;" operator.
         /// It is designed to work like the "&lt;" operator.
+        /// It works on numeric types (after converting the operands to double), and also works on any type that defines a "&lt;" operator.
         /// <see cref="https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/expressions#relational-and-type-testing-operators"/>
         /// </summary>
-        public static readonly BinaryOperator LessThan = Op.LessThan;
+        public static readonly BinaryOperator LessThan = OperationType.LessThan;
 
         /// <summary>
         /// The binary "&lt;=" operator.
         /// It is designed to work like the "&lt;=" operator.
+        /// It works on numeric types (after converting the operands to double), and also works on any type that defines a "&lt;=" operator.
         /// <see cref="https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/expressions#relational-and-type-testing-operators"/>
         /// </summary>
-        public static readonly BinaryOperator LessThanOrEqual = Op.LessThanOrEqual;
+        public static readonly BinaryOperator LessThanOrEqual = OperationType.LessThanOrEqual;
 
         /// <summary>
         /// The binary ">" operator.
         /// It is designed to work like the ">" operator.
+        /// It works on numeric types (after converting the operands to double), and also works on any type that defines a ">" operator.
         /// <see cref="https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/expressions#relational-and-type-testing-operators"/>
         /// </summary>
-        public static readonly BinaryOperator GreaterThan = Op.GreaterThan;
+        public static readonly BinaryOperator GreaterThan = OperationType.GreaterThan;
 
         /// <summary>
         /// The binary ">=" operator.
         /// It is designed to work like the ">=" operator.
+        /// It works on numeric types (after converting the operands to double), and also works on any type that defines a ">=" operator.
         /// <see cref="https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/expressions#relational-and-type-testing-operators"/>
         /// </summary>
-        public static readonly BinaryOperator GreaterThanOrEqual = Op.GreaterThanOrEqual;
+        public static readonly BinaryOperator GreaterThanOrEqual = OperationType.GreaterThanOrEqual;
 
         /// <summary>
         /// The unary "!" operator.
         /// It is designed to work like the "!" operator.
+        /// It works on boolean arguments, or any type that defines a "!" operator.
         /// <see cref="https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/expressions#logical-negation-operator" />
         /// </summary>
-        public static readonly UnaryOperator LogicalNot = Op.LogicalNot;
+        public static readonly UnaryOperator LogicalNot = OperationType.LogicalNot;
 
         /// <summary>
         /// The unary "-" operator.
-        /// It is designed to work like the "-" operator.
+        /// It is designed to work like the unary "-" operator.
+        /// It works on numeric arguments (after converting the operand to double), and also works on any type that defines a "-" operator.
         /// <see cref="https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/expressions#unary-minus-operator"/>
         /// </summary>
-        public static readonly UnaryOperator UnaryNegation = Op.UnaryNegation;
+        public static readonly UnaryOperator UnaryNegation = OperationType.UnaryNegation;
 
         // TODO: ADD SUPPORT FOR THE UNARY PLUS OPERATOR!
 
-        public enum Op
-        {
-            Exponentiation,
-            Addition,
-            Subtraction,
-            Multiplication,
-            Division,
-            Remainder,
-            And,
-            Or,
-            NullCoalescing,
-            Inequality,
-            Equality,
-            LessThan,
-            LessThanOrEqual,
-            GreaterThan,
-            GreaterThanOrEqual,
-            LogicalNot,
-            UnaryNegation,s
-        }
-        class OperatorInfo
+        private class OperatorInfo
         {
             public MethodInfo Method { get; set; }
             public ParameterInfo[] Parameters { get; set; }
@@ -584,7 +572,7 @@ namespace HexInnovation
             }
         }
 
-        protected Operator(Op operatorType)
+        protected Operator(OperationType operatorType)
         {
             OperatorType = operatorType;
 
@@ -594,45 +582,45 @@ namespace HexInnovation
             }
         }
 
-        protected readonly Op OperatorType;
+        protected readonly OperationType OperatorType;
         protected string OperatorName
         {
             get
             {
                 switch (OperatorType)
                 {
-                    case Op.Exponentiation:
-                    case Op.NullCoalescing:
+                    case OperationType.Exponentiation:
+                    case OperationType.NullCoalescing:
                         return null;
-                    case Op.And:
+                    case OperationType.And:
                         return "op_BitwiseAnd";
-                    case Op.Or:
+                    case OperationType.Or:
                         return "op_BitwiseOr";
-                    case Op.Addition:
+                    case OperationType.Addition:
                         return "op_Addition";
-                    case Op.Subtraction:
+                    case OperationType.Subtraction:
                         return "op_Subtraction";
-                    case Op.Multiplication:
+                    case OperationType.Multiplication:
                         return "op_Multiplication";
-                    case Op.Division:
+                    case OperationType.Division:
                         return "op_Division";
-                    case Op.Remainder:
+                    case OperationType.Remainder:
                         return "op_Modulus";
-                    case Op.Inequality:
+                    case OperationType.Inequality:
                         return "op_Inequality";
-                    case Op.Equality:
+                    case OperationType.Equality:
                         return "op_Equality";
-                    case Op.LessThan:
+                    case OperationType.LessThan:
                         return "op_LessThan";
-                    case Op.LessThanOrEqual:
+                    case OperationType.LessThanOrEqual:
                         return "op_LessThanOrEqual";
-                    case Op.GreaterThan:
+                    case OperationType.GreaterThan:
                         return "op_GreaterThan";
-                    case Op.GreaterThanOrEqual:
+                    case OperationType.GreaterThanOrEqual:
                         return "op_GreaterThanOrEqual";
-                    case Op.LogicalNot:
+                    case OperationType.LogicalNot:
                         return "op_LogicalNot";
-                    case Op.UnaryNegation:
+                    case OperationType.UnaryNegation:
                         return "op_UnaryNegation";
                     default:
                         throw new NotSupportedException($"The {OperatorType} operator is not supported");
@@ -645,27 +633,27 @@ namespace HexInnovation
             {
                 switch (OperatorType)
                 {
-                    case Op.NullCoalescing:
-                    case Op.And:
-                    case Op.Or:
+                    case OperationType.NullCoalescing:
+                    case OperationType.And:
+                    case OperationType.Or:
                         return Operands.CompletelyCustom;
-                    case Op.Addition:
+                    case OperationType.Addition:
                         return Operands.Number | Operands.String | Operands.StringObject;
-                    case Op.Exponentiation:
-                    case Op.Subtraction:
-                    case Op.Multiplication:
-                    case Op.Division:
-                    case Op.Remainder:
-                    case Op.LessThan:
-                    case Op.LessThanOrEqual:
-                    case Op.GreaterThan:
-                    case Op.GreaterThanOrEqual:
-                    case Op.UnaryNegation:
+                    case OperationType.Exponentiation:
+                    case OperationType.Subtraction:
+                    case OperationType.Multiplication:
+                    case OperationType.Division:
+                    case OperationType.Remainder:
+                    case OperationType.LessThan:
+                    case OperationType.LessThanOrEqual:
+                    case OperationType.GreaterThan:
+                    case OperationType.GreaterThanOrEqual:
+                    case OperationType.UnaryNegation:
                         return Operands.Number;
-                    case Op.Equality:
-                    case Op.Inequality:
+                    case OperationType.Equality:
+                    case OperationType.Inequality:
                         return Operands.Number | Operands.Boolean | Operands.String | Operands.Object;
-                    case Op.LogicalNot:
+                    case OperationType.LogicalNot:
                         return Operands.Boolean;
                     default:
                         throw new NotSupportedException($"The {OperatorType} operator is not supported");
@@ -678,24 +666,24 @@ namespace HexInnovation
             {
                 switch (OperatorType)
                 {
-                    case Op.NullCoalescing:
-                    case Op.And:
-                    case Op.Or:
-                    case Op.Addition:
-                    case Op.Exponentiation:
-                    case Op.Subtraction:
-                    case Op.Multiplication:
-                    case Op.Division:
-                    case Op.Remainder:
-                    case Op.LessThan:
-                    case Op.LessThanOrEqual:
-                    case Op.GreaterThan:
-                    case Op.GreaterThanOrEqual:
-                    case Op.Equality:
-                    case Op.Inequality:
+                    case OperationType.NullCoalescing:
+                    case OperationType.And:
+                    case OperationType.Or:
+                    case OperationType.Addition:
+                    case OperationType.Exponentiation:
+                    case OperationType.Subtraction:
+                    case OperationType.Multiplication:
+                    case OperationType.Division:
+                    case OperationType.Remainder:
+                    case OperationType.LessThan:
+                    case OperationType.LessThanOrEqual:
+                    case OperationType.GreaterThan:
+                    case OperationType.GreaterThanOrEqual:
+                    case OperationType.Equality:
+                    case OperationType.Inequality:
                         return typeof(BinaryOperator);
-                    case Op.LogicalNot:
-                    case Op.UnaryNegation:
+                    case OperationType.LogicalNot:
+                    case OperationType.UnaryNegation:
                         return typeof(UnaryOperator);
                     default:
                         throw new NotSupportedException($"The {OperatorType} operator is not supported");
@@ -708,39 +696,39 @@ namespace HexInnovation
             {
                 switch (OperatorType)
                 {
-                    case Op.Exponentiation:
+                    case OperationType.Exponentiation:
                         return "^";
-                    case Op.Addition:
+                    case OperationType.Addition:
                         return "+";
-                    case Op.Subtraction:
+                    case OperationType.Subtraction:
                         return "-";
-                    case Op.Multiplication:
+                    case OperationType.Multiplication:
                         return "*";
-                    case Op.Division:
+                    case OperationType.Division:
                         return "/";
-                    case Op.Remainder:
+                    case OperationType.Remainder:
                         return "%";
-                    case Op.And:
+                    case OperationType.And:
                         return "&&";
-                    case Op.Or:
+                    case OperationType.Or:
                         return "||";
-                    case Op.NullCoalescing:
+                    case OperationType.NullCoalescing:
                         return "??";
-                    case Op.Inequality:
+                    case OperationType.Inequality:
                         return "!=";
-                    case Op.Equality:
+                    case OperationType.Equality:
                         return "==";
-                    case Op.LessThan:
+                    case OperationType.LessThan:
                         return "<";
-                    case Op.LessThanOrEqual:
+                    case OperationType.LessThanOrEqual:
                         return "<=";
-                    case Op.GreaterThan:
+                    case OperationType.GreaterThan:
                         return ">";
-                    case Op.GreaterThanOrEqual:
+                    case OperationType.GreaterThanOrEqual:
                         return ">=";
-                    case Op.LogicalNot:
+                    case OperationType.LogicalNot:
                         return "!";
-                    case Op.UnaryNegation:
+                    case OperationType.UnaryNegation:
                         return "!";
                     default:
                         throw new NotSupportedException();
@@ -752,23 +740,23 @@ namespace HexInnovation
         {
             switch (OperatorType)
             {
-                case Op.Exponentiation:
-                case Op.Addition:
-                case Op.Subtraction:
-                case Op.Multiplication:
-                case Op.Division:
-                case Op.Remainder:
-                case Op.And:
-                case Op.LessThan:
-                case Op.LessThanOrEqual:
-                case Op.GreaterThanOrEqual:
-                case Op.GreaterThan:
-                case Op.LogicalNot:
-                case Op.UnaryNegation:
+                case OperationType.Exponentiation:
+                case OperationType.Addition:
+                case OperationType.Subtraction:
+                case OperationType.Multiplication:
+                case OperationType.Division:
+                case OperationType.Remainder:
+                case OperationType.And:
+                case OperationType.LessThan:
+                case OperationType.LessThanOrEqual:
+                case OperationType.GreaterThanOrEqual:
+                case OperationType.GreaterThan:
+                case OperationType.LogicalNot:
+                case OperationType.UnaryNegation:
                     return null;
-                case Op.Inequality:
+                case OperationType.Inequality:
                     return false;
-                case Op.Equality:
+                case OperationType.Equality:
                     return true;
                 default:
                     throw new NotSupportedException();
@@ -779,15 +767,15 @@ namespace HexInnovation
     }
     internal sealed class UnaryOperator : Operator
     {
-        private UnaryOperator(Op operatorType) : base(operatorType) { }
+        private UnaryOperator(OperationType operatorType) : base(operatorType) { }
 
-        public static implicit operator UnaryOperator(Op operatorType) => new UnaryOperator(operatorType);
+        public static implicit operator UnaryOperator(OperationType operatorType) => new UnaryOperator(operatorType);
 
         private double ApplyDefaultOperator(double operand)
         {
             switch (OperatorType)
             {
-                case Op.UnaryNegation:
+                case OperationType.UnaryNegation:
                     return -operand;
                 default:
                     throw new NotSupportedException();
@@ -797,7 +785,7 @@ namespace HexInnovation
         {
             switch (OperatorType)
             {
-                case Op.LogicalNot:
+                case OperationType.LogicalNot:
                     return !operand;
                 default:
                     throw new NotSupportedException();
@@ -847,19 +835,19 @@ namespace HexInnovation
     }
     internal sealed class BinaryOperator : Operator
     {
-        private BinaryOperator(Op operatorType) : base(operatorType) { }
+        private BinaryOperator(OperationType operatorType) : base(operatorType) { }
 
-        public static implicit operator BinaryOperator(Op operatorType) => new BinaryOperator(operatorType);
+        public static implicit operator BinaryOperator(OperationType operatorType) => new BinaryOperator(operatorType);
 
         private object ApplyCustomOperator(object l, Func<object> evaluateRight)
         {
             switch (OperatorType)
             {
-                case Op.NullCoalescing:
+                case OperationType.NullCoalescing:
                     // There's really nothing special going on here with type conversion. This way we only evaluate the right syntax tree if the left returns null.
                     return l ?? evaluateRight();
-                case Op.And:
-                case Op.Or:
+                case OperationType.And:
+                case OperationType.Or:
                     // "&" and "|" operators are special, because we're trying to evaluate them as though they were "&&" and "||" Operators.
                     // This means that we might not need to evaluate the right tree.
                     // See https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/expressions#conditional-logical-operators
@@ -882,7 +870,7 @@ namespace HexInnovation
                     if (x.HasValue || l == null)
                     {
                         // We might need to evaluate the right operand.
-                        if (l == null || x.Value == (OperatorType == Op.And))
+                        if (l == null || x.Value == (OperatorType == OperationType.And))
                         {
                             var r = evaluateRight();
 
@@ -899,7 +887,7 @@ namespace HexInnovation
                         // If not, evaluate it 
                         switch (OperatorType)
                         {
-                            case Op.And:
+                            case OperationType.And:
                                 if (x.HasValue)
                                 {
                                     return x.Value ? EvaluateRightAsBool(l is bool) : l;
@@ -909,7 +897,7 @@ namespace HexInnovation
                                     var r = EvaluateRightAsBool(false);
                                     return TryConvertToBool(r) == false ? r : null;
                                 }
-                            case Op.Or:
+                            case OperationType.Or:
                                 if (x.HasValue)
                                 {
                                     return x.Value ? l : EvaluateRightAsBool(l is bool);
@@ -936,29 +924,29 @@ namespace HexInnovation
         {
             switch (OperatorType)
             {
-                case Op.Exponentiation:
+                case OperationType.Exponentiation:
                     return (!x.HasValue || !y.HasValue) ? new double?() : Math.Pow(x.Value, y.Value);
-                case Op.Addition:
+                case OperationType.Addition:
                     return x + y;
-                case Op.Subtraction:
+                case OperationType.Subtraction:
                     return x - y;
-                case Op.Multiplication:
+                case OperationType.Multiplication:
                     return x * y;
-                case Op.Division:
+                case OperationType.Division:
                     return x / y;
-                case Op.Remainder:
+                case OperationType.Remainder:
                     return x % y;
-                case Op.Equality:
+                case OperationType.Equality:
                     return x == y;
-                case Op.Inequality:
+                case OperationType.Inequality:
                     return x != y;
-                case Op.LessThan:
+                case OperationType.LessThan:
                     return x < y;
-                case Op.LessThanOrEqual:
+                case OperationType.LessThanOrEqual:
                     return x <= y;
-                case Op.GreaterThan:
+                case OperationType.GreaterThan:
                     return x > y;
-                case Op.GreaterThanOrEqual:
+                case OperationType.GreaterThanOrEqual:
                     return x >= y;
                 default:
                     throw new NotSupportedException();
@@ -968,11 +956,11 @@ namespace HexInnovation
         {
             switch (OperatorType)
             {
-                case Op.Addition:
+                case OperationType.Addition:
                     return x + y;
-                case Op.Inequality:
+                case OperationType.Inequality:
                     return x != y;
-                case Op.Equality:
+                case OperationType.Equality:
                     return x == y;
                 default:
                     throw new NotSupportedException();
@@ -982,7 +970,7 @@ namespace HexInnovation
         {
             switch (OperatorType)
             {
-                case Op.Addition:
+                case OperationType.Addition:
                     return x + y;
                 default:
                     throw new NotSupportedException();
@@ -992,7 +980,7 @@ namespace HexInnovation
         {
             switch (OperatorType)
             {
-                case Op.Addition:
+                case OperationType.Addition:
                     return x + y;
                 default:
                     throw new NotSupportedException();
@@ -1002,9 +990,9 @@ namespace HexInnovation
         {
             switch (OperatorType)
             {
-                case Op.Inequality:
+                case OperationType.Inequality:
                     return x != y;
-                case Op.Equality:
+                case OperationType.Equality:
                     return x == y;
                 default:
                     throw new NotSupportedException();
@@ -1014,9 +1002,9 @@ namespace HexInnovation
         {
             switch (OperatorType)
             {
-                case Op.Inequality:
+                case OperationType.Inequality:
                     return x != y;
-                case Op.Equality:
+                case OperationType.Equality:
                     return x == y;
                 default:
                     throw new NotSupportedException();
@@ -1126,5 +1114,25 @@ namespace HexInnovation
                 throw Operator.InvalidOperator("?:", conditionObj, new object(), new object());
             }
         }
+    }
+    internal enum OperationType
+    {
+        Exponentiation,
+        Addition,
+        Subtraction,
+        Multiplication,
+        Division,
+        Remainder,
+        And,
+        Or,
+        NullCoalescing,
+        Inequality,
+        Equality,
+        LessThan,
+        LessThanOrEqual,
+        GreaterThan,
+        GreaterThanOrEqual,
+        LogicalNot,
+        UnaryNegation, s
     }
 }
