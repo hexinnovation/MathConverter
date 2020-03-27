@@ -34,7 +34,7 @@ namespace HexInnovation
         /// It is designed to work like the "*" operator.
         /// <see cref="https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/expressions#multiplication-operator"/>
         /// </summary>
-        public static readonly BinaryOperator Multiplication = OperationType.Multiplication;
+        public static readonly BinaryOperator Multiply = OperationType.Multiply;
 
         /// <summary>
         /// The binary "/" operator. This operator divides one operand by another.
@@ -135,8 +135,6 @@ namespace HexInnovation
         /// </summary>
         public static readonly UnaryOperator UnaryNegation = OperationType.UnaryNegation;
 
-        // TODO: ADD SUPPORT FOR THE UNARY PLUS OPERATOR!
-
         private class OperatorInfo
         {
             public MethodInfo Method { get; set; }
@@ -175,7 +173,7 @@ namespace HexInnovation
         {
             // https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/expressions#base-types
 
-            if (ReferenceEquals(type, null))
+            if (type == null)
             {
                 yield break;
             }
@@ -221,7 +219,7 @@ namespace HexInnovation
             // https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/expressions#candidate-user-defined-operators
             return GetTypeAndSubtypes(parameterTypes).SelectMany(type =>
                     type.GetMethods(BindingFlags.Public | BindingFlags.Static)
-                        .Where(method => method.Name == operatorName && method.DeclaringType != typeof(decimal)) // We explicitly ban decimal operations so that we convert our arguments to double.
+                        .Where(method => method.Name == operatorName)
                         .Select(method => new OperatorInfo
                         {
                             Method = method,
@@ -298,7 +296,7 @@ namespace HexInnovation
         protected internal static bool DoesImplicitConversionExist(Type typeFrom, Type typeTo, bool allowImplicitOperator)
         {
             // https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/conversions#implicit-numeric-conversions
-            if (ReferenceEquals(typeFrom, null))
+            if (typeFrom == null)
             {
                 // We're not worrying about nullable types.
                 return true;
@@ -396,7 +394,7 @@ namespace HexInnovation
         protected internal static object DoImplicitConversion(object from, Type typeTo)
         {
             // If we're trying to convert null to a nullable type, let's just return null.
-            if (ReferenceEquals(from, null) && (!typeTo.IsValueType || Nullable.GetUnderlyingType(typeTo)?.IsValueType == true))
+            if (from == null && (!typeTo.IsValueType || Nullable.GetUnderlyingType(typeTo)?.IsValueType == true))
             {
                 if (typeTo.IsValueType)
                 {
@@ -439,8 +437,12 @@ namespace HexInnovation
             }
 
             // We might have to convert to a non-nullable type.
-            if (structTypeTo != null && !ReferenceEquals(from, null))
+            if (structTypeTo != null && from != null)
             {
+                // If we're converting a char, we'll always convert to integer first.
+                if (from is char)
+                    from = Convert.ToInt32(from);
+
                 return Convert.ChangeType(from, structTypeTo);
             }
 
@@ -453,7 +455,7 @@ namespace HexInnovation
             {
                 return b;
             }
-            else if (ReferenceEquals(value, null))
+            else if (value == null)
             {
                 return null;
             }
@@ -469,16 +471,30 @@ namespace HexInnovation
         {
             var argTypes = arguments.Select(x => x == null ? "null" : $"'{x.GetType().FullName}'").ToList();
 
-            return new InvalidOperationException($"Operator '{operatorSymbols}' cannot be applied to operand{(arguments.Length == 1 ? "" : "s")} of type {string.Join(" ", argTypes.Take(argTypes.Count - 1))}{(argTypes.Count == 1 ? "" : " and ")}{argTypes.Last()}");
+            return new InvalidOperationException($"Cannot apply operator '{operatorSymbols}' to operand{(arguments.Length == 1 ? "" : "s")} of type {string.Join(" ", argTypes.Take(argTypes.Count - 1).MyToArray())}{(argTypes.Count == 1 ? "" : " and ")}{argTypes.Last()}");
         }
-        protected MethodInfo GetUserDefinedOperator(params object[] parameters)
+        protected MethodInfo GetUserDefinedOperator(out bool convertToDoubles, params object[] parameters)
         {
+            if ((SupportedOperands & Operands.Number) == Operands.Number && parameters.All(p => DoesImplicitConversionExist(p?.GetType(), typeof(double), false)))
+            // Without implicit operators, the only types that will convert to double are built-in numeric structs (char, byte, sbyte, int, long, float, decimal, etc.)
+            {
+                // If we're trying to compare int < decimal, we might run in to problems where it picks the wrong operator.
+                // Here, we'll force any operand resolutions to be in the double class.
+                parameters = parameters.Select(p => DoImplicitConversion(p, typeof(double?))).ToArray();
+                convertToDoubles = true;
+            }
+            else
+            {
+                convertToDoubles = false;
+            }
+
             var candidateUserDefinedOperators = GetPossibleOperators(OperatorName, parameters);
             // https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/expressions#binary-operator-overload-resolution
 
             switch (candidateUserDefinedOperators.Count)
             {
                 case 0:
+                    convertToDoubles = false;
                     return null;
                 case 1:
                     return candidateUserDefinedOperators[0].Method;
@@ -600,8 +616,8 @@ namespace HexInnovation
                         return "op_Addition";
                     case OperationType.Subtraction:
                         return "op_Subtraction";
-                    case OperationType.Multiplication:
-                        return "op_Multiplication";
+                    case OperationType.Multiply:
+                        return "op_Multiply";
                     case OperationType.Division:
                         return "op_Division";
                     case OperationType.Remainder:
@@ -641,7 +657,7 @@ namespace HexInnovation
                         return Operands.Number | Operands.String | Operands.StringObject;
                     case OperationType.Exponentiation:
                     case OperationType.Subtraction:
-                    case OperationType.Multiplication:
+                    case OperationType.Multiply:
                     case OperationType.Division:
                     case OperationType.Remainder:
                     case OperationType.LessThan:
@@ -672,7 +688,7 @@ namespace HexInnovation
                     case OperationType.Addition:
                     case OperationType.Exponentiation:
                     case OperationType.Subtraction:
-                    case OperationType.Multiplication:
+                    case OperationType.Multiply:
                     case OperationType.Division:
                     case OperationType.Remainder:
                     case OperationType.LessThan:
@@ -702,7 +718,7 @@ namespace HexInnovation
                         return "+";
                     case OperationType.Subtraction:
                         return "-";
-                    case OperationType.Multiplication:
+                    case OperationType.Multiply:
                         return "*";
                     case OperationType.Division:
                         return "/";
@@ -743,17 +759,18 @@ namespace HexInnovation
                 case OperationType.Exponentiation:
                 case OperationType.Addition:
                 case OperationType.Subtraction:
-                case OperationType.Multiplication:
+                case OperationType.Multiply:
                 case OperationType.Division:
                 case OperationType.Remainder:
                 case OperationType.And:
+                case OperationType.LogicalNot:
+                case OperationType.UnaryNegation:
+                    return null;
                 case OperationType.LessThan:
                 case OperationType.LessThanOrEqual:
                 case OperationType.GreaterThanOrEqual:
                 case OperationType.GreaterThan:
-                case OperationType.LogicalNot:
-                case OperationType.UnaryNegation:
-                    return null;
+                    return false;
                 case OperationType.Inequality:
                     return false;
                 case OperationType.Equality:
@@ -795,12 +812,12 @@ namespace HexInnovation
 
         internal object Evaluate(object operand)
         {
-            if (ReferenceEquals(operand, null))
+            if (operand == null)
             {
                 return EvaluateWithNullArguments();
             }
 
-            var @operator = GetUserDefinedOperator(operand);
+            var @operator = GetUserDefinedOperator(out var convertToDoubles, operand);
 
             if (@operator == null)
             {
@@ -828,6 +845,9 @@ namespace HexInnovation
             }
             else
             {
+                if (convertToDoubles)
+                    operand = DoImplicitConversion(operand, typeof(double?));
+
                 // Invoke the operator!
                 return @operator.Invoke(null, new[] { operand });
             }
@@ -857,7 +877,7 @@ namespace HexInnovation
                         var r = evaluateRight();
                         var tryConvert = TryConvertToBool(r);
 
-                        if (tryConvert == null && !ReferenceEquals(r, null))
+                        if (tryConvert == null && r != null)
                         {
                             // We can't convert the operand to a boolean.
                             throw InvalidOperator(OperatorSymbols, l, r);
@@ -875,7 +895,7 @@ namespace HexInnovation
                             var r = evaluateRight();
 
                             // Is there an "&" operator? If l is null, we'll check for an "&" operator between r & r.
-                            var @operator = GetUserDefinedOperator(l ?? r, r);
+                            var @operator = GetUserDefinedOperator(out bool convertToDoubles, l ?? r, r);
 
                             if (@operator != null)
                             {
@@ -930,7 +950,7 @@ namespace HexInnovation
                     return x + y;
                 case OperationType.Subtraction:
                     return x - y;
-                case OperationType.Multiplication:
+                case OperationType.Multiply:
                     return x * y;
                 case OperationType.Division:
                     return x / y;
@@ -1020,12 +1040,12 @@ namespace HexInnovation
 
             var y = evaluateRight();
 
-            if (ReferenceEquals(x, null) && ReferenceEquals(y, null))
+            if (x == null && y == null)
             {
                 return EvaluateWithNullArguments();
             }
 
-            var @operator = GetUserDefinedOperator(x, y);
+            var @operator = GetUserDefinedOperator(out bool convertToDoubles, x, y);
 
             if (@operator == null)
             {
@@ -1083,6 +1103,11 @@ namespace HexInnovation
             }
             else
             {
+                if (convertToDoubles)
+                {
+                    x = DoImplicitConversion(x, typeof(double?));
+                    y = DoImplicitConversion(y, typeof(double?));
+                }
                 // Invoke the operator!
                 return @operator.Invoke(null, new[] { x, y });
             }
@@ -1120,7 +1145,7 @@ namespace HexInnovation
         Exponentiation,
         Addition,
         Subtraction,
-        Multiplication,
+        Multiply,
         Division,
         Remainder,
         And,

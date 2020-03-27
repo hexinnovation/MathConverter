@@ -264,7 +264,7 @@ namespace HexInnovation
                         if (!(t is LexicalToken lex))
                             throw new ArgumentException(ErrorWrongTokenType(t.TokenType));
                         
-                        return Exponent(new ExponentNode(e, new ConstantNumberNode(double.Parse((t as LexicalToken).Lex, NumberStyles.Number, CultureInfo.InvariantCulture))));
+                        return Exponent(new ExponentNode(e, new ConstantNumberNode(double.Parse(lex.Lex, NumberStyles.Number, CultureInfo.InvariantCulture))));
                     }
                     else
                     {
@@ -391,10 +391,13 @@ namespace HexInnovation
                                     formula2 = (x, y) => x is string str1 && (y is string || y?.ToString().Length > 0) ? str1.EndsWith($"{y}") : new bool?();
                                     break;
                                 case "visibleorcollapsed":
-                                    formula1_obj = x => x is bool val && val ? Visibility.Visible : Visibility.Collapsed;
+                                    formula1_obj = x => Operator.TryConvertToBool(x) == true ? Visibility.Visible : Visibility.Collapsed;
                                     break;
                                 case "visibleorhidden":
-                                    formula1_obj = x => x is bool val && val ? Visibility.Visible : Visibility.Hidden;
+                                    formula1_obj = x => Operator.TryConvertToBool(x) == true ? Visibility.Visible : Visibility.Hidden;
+                                    break;
+                                case "tryparsedouble":
+                                    formula1_obj = x => x is string str && double.TryParse(str, out var dbl) ? dbl : new double?();
                                     break;
                                 case "round":
                                     formula2 = (x, y) =>
@@ -511,7 +514,7 @@ namespace HexInnovation
                     else if (formula1 != null || formula1_obj != null)
                     {
                         // Create a formula1.
-                        var ex = $"{lex} is a formula that takes one argument.  You must specify the arguments like this: \"{lex}(3)\"";
+                        var ex = $"{lex} is a formula that takes one argument. You must specify the arguments like this: \"{lex}(3)\"";
 
                         if (_scanner.GetToken().TokenType != TokenType.LParen)
                             throw new ParsingException(_scanner.Position, ex);
@@ -546,9 +549,9 @@ namespace HexInnovation
                     else if (formula2 != null)
                     {
                         // Create a formula2.
-                        var ex = $"{lex} is a formula that takes two argument.  You must specify the arguments like this: \"{lex}(3;2)\"";
+                        var ex = $"{lex} is a formula that takes two arguments. You must specify the arguments like this: \"{lex}(3;2)\"";
                         if (lex.ToLower() == "round")
-                            ex = "round is a formula that takes one or two argments. You must specify the argument(s) like this: round(4.693) or round(4.693;2)";
+                            ex = "round is a formula that takes one or two arguments. You must specify the argument(s) like this: round(4.693) or round(4.693;2)";
 
                         if (_scanner.GetToken().TokenType != TokenType.LParen)
                             throw new ParsingException(_scanner.Position, ex);
@@ -595,7 +598,7 @@ namespace HexInnovation
                     {
                         // Create a formulaN.
                         if (_scanner.GetToken().TokenType != TokenType.LParen)
-                            throw new ParsingException(_scanner.Position, $"You must specify arguments for {lex}.  Those arguments must be enclosed in parentheses.");
+                            throw new ParsingException(_scanner.Position, $"You must specify arguments for {lex}. Those arguments must be enclosed in parentheses.");
 
                         var trees = new List<AbstractSyntaxTree>();
 

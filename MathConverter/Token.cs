@@ -1,32 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace HexInnovation
 {
     class Token
     {
-        public Token(TokenType TokenType)
+        public Token(TokenType tokenType)
         {
-            this.TokenType = TokenType;
+            TokenType = tokenType;
         }
-        public TokenType TokenType { get; set; }
+        public TokenType TokenType { get; }
 
-        public override string ToString()
-        {
-            return $"{TokenType} token";
-        }
+        public override string ToString() => $"{TokenType} token";
     }
     class LexicalToken : Token
     {
-        public LexicalToken(TokenType TokenType, string Lex)
-            : base(TokenType)
+        public LexicalToken(TokenType tokenType, string lex)
+            : base(tokenType)
         {
-            this.Lex = Lex;
+            Lex = lex;
         }
-        public string Lex { get; set; }
+        public string Lex { get; }
 
         public override string ToString()
         {
@@ -35,12 +28,12 @@ namespace HexInnovation
     }
     class InterpolatedStringToken : LexicalToken
     {
-        public InterpolatedStringToken(string Lex, List<AbstractSyntaxTree> Arguments)
-            : base(TokenType.InterpolatedString, Lex)
+        public InterpolatedStringToken(string lex, List<AbstractSyntaxTree> arguments)
+            : base(TokenType.InterpolatedString, lex)
         {
-            this.Arguments = Arguments;
+            Arguments = arguments;
         }
-        public List<AbstractSyntaxTree> Arguments { get; set; }
+        public List<AbstractSyntaxTree> Arguments { get; }
     }
     enum TokenType
     {

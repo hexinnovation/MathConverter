@@ -20,10 +20,6 @@
     <PackageTags>WPF Converter Math Arbitrary Expressions ConverterParameter IValueConverter IMultiValueConverter</PackageTags>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
-
-  <ItemGroup Condition="$(TargetFramework.StartsWith('net4'))">
-    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-  </ItemGroup>
   <ItemGroup>
     <None Include="..\ReadmeAssets\smalllogo.png">
       <Pack>True</Pack>

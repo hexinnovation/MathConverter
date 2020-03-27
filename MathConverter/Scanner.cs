@@ -66,8 +66,12 @@ namespace HexInnovation
                             case -1:
                                 return new Token(TokenType.EOF);
                             case '+':
+                                if (_reader.Peek() == '+')
+                                    throw new ParsingException(Position, "The ++ operator is not supported.");
                                 return new Token(TokenType.Plus);
                             case '-':
+                                if (_reader.Peek() == '-')
+                                    throw new ParsingException(Position, "The -- operator is not supported.");
                                 return new Token(TokenType.Minus);
                             case '*':
                                 return new Token(TokenType.Times);
@@ -229,9 +233,9 @@ namespace HexInnovation
                             else
                             {
                                 if (ch == '.')
-                                    throw new ParsingException(Position, "Found second decimal in number " + sb.ToString());
+                                    throw new ParsingException(Position, $"Found second decimal in number {sb}");
                                 else if (sb.ToString().Last() == '.')
-                                    throw new ParsingException(Position, "A number cannot end in a decimal.  The number was: " + sb.ToString());
+                                    throw new ParsingException(Position, $"A number cannot end in a decimal. The number was {sb}");
 
                                 return new LexicalToken(TokenType.Number, sb.ToString());
                             }

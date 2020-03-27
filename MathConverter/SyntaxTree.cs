@@ -52,7 +52,7 @@ namespace HexInnovation
     sealed class MultiplyNode : BinaryNode
     {
         public MultiplyNode(AbstractSyntaxTree left, AbstractSyntaxTree right)
-            : base(Operator.Multiplication, left, right) { }
+            : base(Operator.Multiply, left, right) { }
     }
     sealed class ModuloNode : BinaryNode
     {
