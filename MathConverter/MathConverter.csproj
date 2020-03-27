@@ -6,10 +6,10 @@
     <RootNamespace>HexInnovation</RootNamespace>
     <Copyright>Copyright © 2015-$([System.DateTime]::Now.ToString(`yyyy`)) $(Company)</Copyright>
     <Product>$(AssemblyName)</Product>
-    <Version>1.3.0</Version>
-    <AssemblyVersion>$(Version)&#46;0</AssemblyVersion>
-    <FileVersion>$(Version)&#46;0</FileVersion>
-    <ApplicationVersion>$(Version)&#46;0</ApplicationVersion>
+    <Version>2.0-alpha</Version>
+    <AssemblyVersion>2.0.0.0</AssemblyVersion>
+    <FileVersion>$(AssemblyVersion)</FileVersion>
+    <ApplicationVersion>$(AssemblyVersion)</ApplicationVersion>
     <Company>Hex Innovation</Company>
     <Authors>$(Company)</Authors>
     <Description>A WPF Converter class that does it all.</Description>
