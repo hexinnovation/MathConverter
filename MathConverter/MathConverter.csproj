@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.1;net45</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1;net35;net40;net45</TargetFrameworks>
     <UseWPF>true</UseWPF>
     <AssemblyName>MathConverter</AssemblyName>
     <RootNamespace>HexInnovation</RootNamespace>
@@ -19,6 +19,10 @@
     <RepositoryType>GitHub</RepositoryType>
     <PackageTags>WPF Converter Math Arbitrary Expressions ConverterParameter IValueConverter IMultiValueConverter</PackageTags>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)'=='net35'">
+    <DefineConstants>NET35</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\ReadmeAssets\smalllogo.png">

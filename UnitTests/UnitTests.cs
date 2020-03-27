@@ -878,6 +878,7 @@ namespace HexInnovation
                 Assert.AreEqual(3.425, _converter.Convert(new object[] { null, 3, 5 }, typeof(object), "TryParseDouble(`3.425`)", CultureInfo.GetCultureInfo("de")));
                 Assert.AreEqual(-3.425, _converter.Convert(new object[] { null, 3, 5 }, typeof(object), "TryParseDouble(`-3.425`)", CultureInfo.GetCultureInfo("de")));
                 Assert.AreEqual(null, _converter.Convert(new object[] { null, 3, 5 }, typeof(object), "TryParseDouble(`INVALID!`)", CultureInfo.GetCultureInfo("de")));
+                Assert.AreEqual(null, _converter.Convert(new object[] { TimeSpan.FromDays(3) }, typeof(object), "TryParseDouble(x)", CultureInfo.GetCultureInfo("de")));
             }
         }
     }

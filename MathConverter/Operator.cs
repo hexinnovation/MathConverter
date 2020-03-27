@@ -369,7 +369,7 @@ namespace HexInnovation
             }
             if (typeFrom.IsArray && typeFrom.GetArrayRank() == 1 && GetTypeAndSubtypes(typeof(IList<>)).Contains(typeTo))
             {
-                return DoesImplicitConversionExist(typeFrom.GetElementType(), typeTo.GenericTypeArguments[0], true);
+                return DoesImplicitConversionExist(typeFrom.GetElementType(), typeTo.GetGenericArguments()[0], true);
             }
             // MathConverter doesn't support delegates.
 
@@ -583,7 +583,7 @@ namespace HexInnovation
                             return candidateUserDefinedOperators[0].Method;
                         default:
                             throw new AmbiguousMatchException(
-                                $"Could not identify which {OperatorType} operator to apply to type{(parameters.Length == 1 ? "" : "s")} {string.Join(" and ", parameters.Select(p => p.GetType().FullName ?? "null"))} between the following options:{string.Concat(candidateUserDefinedOperators.Select(p => $"{Environment.NewLine}{p}"))}");
+                                $"Could not identify which {OperatorType} operator to apply to type{(parameters.Length == 1 ? "" : "s")} {string.Join(" and ", parameters.Select(p => p.GetType().FullName ?? "null").MyToArray())} between the following options:{string.Concat(candidateUserDefinedOperators.Select(p => $"{Environment.NewLine}{p}").MyToArray())}");
                     }
             }
         }

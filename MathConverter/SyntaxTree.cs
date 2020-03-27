@@ -431,7 +431,7 @@ namespace HexInnovation
         {
             var argsList = args.ToList();
 
-            return string.Concat(argsList.Count == 1 && argsList[0] is IEnumerable enumerable ? enumerable.Cast<object>() : argsList);
+            return string.Concat((argsList.Count == 1 && argsList[0] is IEnumerable enumerable ? enumerable.Cast<object>() : argsList).MyToArray());
         }
         public static string Join(CultureInfo cultureInfo, IEnumerable<object> args)
         {
@@ -441,8 +441,7 @@ namespace HexInnovation
             {
                 var argVals = argsList.Skip(1).ToArray();
 
-                return string.Join(separator,
-                    argVals.Length == 1 && argVals[0] is IEnumerable enumerable ? enumerable.Cast<object>() : argVals);
+                return string.Join(separator, (argVals.Length == 1 && argVals[0] is IEnumerable enumerable ? enumerable.Cast<object>() : argVals).MyToArray());
 
             }
             else
@@ -479,7 +478,7 @@ namespace HexInnovation
         }
         public override string ToString()
         {
-            return $"{_formulaName}({string.Join(", ", _args)})";
+            return $"{_formulaName}({string.Join(", ", _args.MyToArray())})";
         }
     }
 }
