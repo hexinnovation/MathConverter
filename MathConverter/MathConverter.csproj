@@ -4,13 +4,13 @@
     <UseWPF>true</UseWPF>
     <AssemblyName>MathConverter</AssemblyName>
     <RootNamespace>HexInnovation</RootNamespace>
+    <Company>Hex Innovation</Company>
     <Copyright>Copyright © 2015-$([System.DateTime]::Now.ToString(`yyyy`)) $(Company)</Copyright>
     <Product>$(AssemblyName)</Product>
-    <Version>2.0-alpha</Version>
+    <Version>2.0-alpha0002</Version>
     <AssemblyVersion>2.0.0.0</AssemblyVersion>
     <FileVersion>$(AssemblyVersion)</FileVersion>
     <ApplicationVersion>$(AssemblyVersion)</ApplicationVersion>
-    <Company>Hex Innovation</Company>
     <Authors>$(Company)</Authors>
     <Description>A WPF Converter class that does it all.</Description>
     <PackageProjectUrl>https://github.com/hexinnovation/MathConverter</PackageProjectUrl>
@@ -20,14 +20,15 @@
     <PackageTags>WPF Converter Math Arbitrary Expressions ConverterParameter IValueConverter IMultiValueConverter</PackageTags>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <Deterministic>true</Deterministic>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)'=='net35'">
     <DefineConstants>NET35</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="..\ReadmeAssets\smalllogo.png">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0.0" PrivateAssets="All" />
+    <None Include="..\ReadmeAssets\smalllogo.png" Pack="True" PackagePath="smalllogo.png" />
   </ItemGroup>
 </Project>
