@@ -7,7 +7,7 @@
     <Company>Hex Innovation</Company>
     <Copyright>Copyright © 2015-$([System.DateTime]::Now.ToString(`yyyy`)) $(Company)</Copyright>
     <Product>$(AssemblyName)</Product>
-    <Version>2.0-alpha0002</Version>
+    <Version>2.0-alpha0003</Version>
     <AssemblyVersion>2.0.0.0</AssemblyVersion>
     <FileVersion>$(AssemblyVersion)</FileVersion>
     <ApplicationVersion>$(AssemblyVersion)</ApplicationVersion>
@@ -23,6 +23,10 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <Deterministic>true</Deterministic>
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <TargetFrameworkMonikerAssemblyAttributesPath>$([System.IO.Path]::Combine('$(BaseIntermediateOutputPath)', '$(Configuration)', '$(TargetFramework)', '$(AssemblyName).GeneratedAssemblyAttributes.cs'))</TargetFrameworkMonikerAssemblyAttributesPath>
+    <DeterministicSourcePaths Condition="'$(EnableSourceLink)' == ''">false</DeterministicSourcePaths>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)'=='net35'">
     <DefineConstants>NET35</DefineConstants>
@@ -30,5 +34,6 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0.0" PrivateAssets="All" />
     <None Include="..\ReadmeAssets\smalllogo.png" Pack="True" PackagePath="smalllogo.png" />
+    <EmbeddedFiles Include="$(GeneratedAssemblyInfoFile)" />
   </ItemGroup>
 </Project>
