@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
   <PropertyGroup>
-    <TargetFrameworks>net35;net40;net45;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.0;netcoreapp3.1;net35;net40;net45</TargetFrameworks>
     <UseWPF>true</UseWPF>
     <AssemblyName>MathConverterDemo</AssemblyName>
     <RootNamespace>MathConverter</RootNamespace>
