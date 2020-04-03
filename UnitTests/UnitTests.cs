@@ -234,9 +234,7 @@ namespace HexInnovation
                     var invalid = (int)_converter.Convert(new object[] { 0, 1, 2, 3, 4, 5, 6 }, typeof(int), "[7]", culture);
                     Assert.Fail("Should have thrown a IndexOutOfRangeException.");
                 }
-                catch (IndexOutOfRangeException)
-                {
-                }
+                catch (EvaluationException ex) when (ex.InnerException.InnerException is IndexOutOfRangeException) { }
             }
         }
         [TestMethod]
@@ -257,9 +255,7 @@ namespace HexInnovation
                     var invalid = (int)_converter.Convert(new object[] { 0, 1, 2, 3, 4, 5, 6 }, typeof(int), "[7]", culture);
                     Assert.Fail("Should have thrown a IndexOutOfRangeException.");
                 }
-                catch (IndexOutOfRangeException)
-                {
-                }
+                catch (EvaluationException ex) when (ex.InnerException.InnerException is IndexOutOfRangeException) { }
             }
         }
         [TestMethod]
@@ -404,6 +400,13 @@ namespace HexInnovation
             Assert.AreEqual(false ? x : y, (int?)_converter.Convert(new object[] { x, y }, typeof(int?), "false ? x : y", CultureInfo.GetCultureInfo("de")));
             Assert.AreEqual(true ? y : x, (int?)_converter.Convert(new object[] { x, y }, typeof(int?), "true ? y : x", CultureInfo.GetCultureInfo("de")));
             Assert.AreEqual(false ? y : x, (int?)_converter.Convert(new object[] { x, y }, typeof(int?), "false ? y : x", CultureInfo.GetCultureInfo("de")));
+
+            try
+            {
+                _converter.Convert(new object[] { DependencyProperty.UnsetValue }, typeof(int?), "x ? true : false", CultureInfo.GetCultureInfo("de"));
+                Assert.Fail("This should have thrown an exception. We should evaluate DependencyProperty.UnsetValue as null, which fails as the first operand of the Ternary operator.");
+            }
+            catch (EvaluationException ex) when (ex.Message == $"MathConverter threw an exception while performing a conversion.{Environment.NewLine}{Environment.NewLine}ConverterParameter:{Environment.NewLine}x ? true : false{Environment.NewLine}{Environment.NewLine}BindingValues:{Environment.NewLine}[0]: ({DependencyProperty.UnsetValue.GetType().FullName}):  {{DependencyProperty.UnsetValue}}" && ex.InnerException.Message == $"A System.InvalidOperationException was thrown while evaluating the TernaryNode:{Environment.NewLine}(x ? True : False)" && ex.InnerException.InnerException.Message == "Cannot apply operator '?:' when the first operand is null") { }
         }
         [TestMethod]
         public void TestNullTargetType()
@@ -508,12 +511,12 @@ namespace HexInnovation
                 Assert.AreEqual(1 >= 2 || y.Value, _converter.Convert(args, typeof(object), "1 >= 2 || y", CultureInfo.GetCultureInfo("de")));
                 Assert.AreEqual(1 <= 2 || y.Value, _converter.Convert(args, typeof(object), "1 <= 2 || y", CultureInfo.GetCultureInfo("de")));
                 // +,- applied before ||
-                try { _converter.Convert(args, typeof(object), "y || y + \"a\"", CultureInfo.GetCultureInfo("de")); Assert.Fail("|| is applied before +"); } catch (Exception ex) when (ex.Message == "Cannot apply operator '||' to operands of type 'System.Boolean' and 'System.String'") { }
-                try { _converter.Convert(args, typeof(object), "y - 3 || y", CultureInfo.GetCultureInfo("de")); Assert.Fail("|| is applied before -"); } catch (Exception ex) when (ex.Message == "Cannot apply operator '-' to operands of type 'System.Boolean' and 'System.Double'") { }
+                try { _converter.Convert(args, typeof(object), "y || y + \"a\"", CultureInfo.GetCultureInfo("de")); Assert.Fail("|| is applied before +"); } catch (Exception ex) when (ex.InnerException.InnerException.Message == "Cannot apply operator '||' to operands of type 'System.Boolean' and 'System.String'") { }
+                try { _converter.Convert(args, typeof(object), "y - 3 || y", CultureInfo.GetCultureInfo("de")); Assert.Fail("|| is applied before -"); } catch (Exception ex) when (ex.InnerException.InnerException.Message == "Cannot apply operator '-' to operands of type 'System.Boolean' and 'System.Double'") { }
 
                 // *,/ applied before ||
-                try { _converter.Convert(args, typeof(object), "y * 3 || y", CultureInfo.GetCultureInfo("de")); Assert.Fail("|| is applied before *"); } catch (Exception ex) when (ex.Message == "Cannot apply operator '*' to operands of type 'System.Boolean' and 'System.Double'") { }
-                try { _converter.Convert(args, typeof(object), "y / 3 || y", CultureInfo.GetCultureInfo("de")); Assert.Fail("|| is applied before /"); } catch (Exception ex) when (ex.Message == "Cannot apply operator '/' to operands of type 'System.Boolean' and 'System.Double'") { }
+                try { _converter.Convert(args, typeof(object), "y * 3 || y", CultureInfo.GetCultureInfo("de")); Assert.Fail("|| is applied before *"); } catch (Exception ex) when (ex.InnerException.InnerException.Message == "Cannot apply operator '*' to operands of type 'System.Boolean' and 'System.Double'") { }
+                try { _converter.Convert(args, typeof(object), "y / 3 || y", CultureInfo.GetCultureInfo("de")); Assert.Fail("|| is applied before /"); } catch (Exception ex) when (ex.InnerException.InnerException.Message == "Cannot apply operator '/' to operands of type 'System.Boolean' and 'System.Double'") { }
 
                 // ==,!= applied before &&
                 Assert.AreEqual(z == z && x.Value, _converter.Convert(args, typeof(object), "z == z && x", CultureInfo.GetCultureInfo("de")));
@@ -524,13 +527,13 @@ namespace HexInnovation
                 Assert.AreEqual(1 >= 2 && y.Value, _converter.Convert(args, typeof(object), "1 >= 2 && y", CultureInfo.GetCultureInfo("de")));
                 Assert.AreEqual(1 <= 2 && y.Value, _converter.Convert(args, typeof(object), "1 <= 2 && y", CultureInfo.GetCultureInfo("de"))); 
                 // +,- applied before &&
-                try { _converter.Convert(args, typeof(object), "x && x + \"a\"", CultureInfo.GetCultureInfo("de")); Assert.Fail("&& is applied before +"); } catch (Exception ex) when (ex.Message == "Cannot apply operator '&&' to operands of type 'System.Boolean' and 'System.String'") { }
-                try { _converter.Convert(args, typeof(object), "x - 3 && x", CultureInfo.GetCultureInfo("de")); Assert.Fail("&& is applied before -"); } catch (Exception ex) when (ex.Message == "Cannot apply operator '-' to operands of type 'System.Boolean' and 'System.Double'") { }
+                try { _converter.Convert(args, typeof(object), "x && x + \"a\"", CultureInfo.GetCultureInfo("de")); Assert.Fail("&& is applied before +"); } catch (Exception ex) when (ex.InnerException.InnerException.Message == "Cannot apply operator '&&' to operands of type 'System.Boolean' and 'System.String'") { }
+                try { _converter.Convert(args, typeof(object), "x - 3 && x", CultureInfo.GetCultureInfo("de")); Assert.Fail("&& is applied before -"); } catch (Exception ex) when (ex.InnerException.InnerException.Message == "Cannot apply operator '-' to operands of type 'System.Boolean' and 'System.Double'") { }
 
                 // *,/ applied before &&
-                try { _converter.Convert(args, typeof(object), "y * 3 && y", CultureInfo.GetCultureInfo("de")); Assert.Fail("&& is applied before *"); } catch (Exception ex) when (ex.Message == "Cannot apply operator '*' to operands of type 'System.Boolean' and 'System.Double'") { }
+                try { _converter.Convert(args, typeof(object), "y * 3 && y", CultureInfo.GetCultureInfo("de")); Assert.Fail("&& is applied before *"); } catch (Exception ex) when (ex.InnerException.InnerException.Message == "Cannot apply operator '*' to operands of type 'System.Boolean' and 'System.Double'") { }
 
-                try { _converter.Convert(args, typeof(object), "y / 3 && y", CultureInfo.GetCultureInfo("de")); Assert.Fail("&& is applied before /"); } catch (Exception ex) when (ex.Message == "Cannot apply operator '/' to operands of type 'System.Boolean' and 'System.Double'") { }
+                try { _converter.Convert(args, typeof(object), "y / 3 && y", CultureInfo.GetCultureInfo("de")); Assert.Fail("&& is applied before /"); } catch (Exception ex) when (ex.InnerException.InnerException.Message == "Cannot apply operator '/' to operands of type 'System.Boolean' and 'System.Double'") { }
 
                 // <,<=,>,>= applied before ==,!=
                 Assert.AreEqual(1 < 2 == true, _converter.Convert(args, typeof(object), "1 < 2 == true", CultureInfo.GetCultureInfo("de")));
@@ -594,7 +597,7 @@ namespace HexInnovation
                 Assert.IsTrue((bool)_converter.Convert(args, typeof(object), "z||x2", CultureInfo.GetCultureInfo("de")));
                 Assert.IsTrue((bool)_converter.Convert(args, typeof(object), "z||x^2", CultureInfo.GetCultureInfo("de")));
                 // ^ applied before &&:
-                try { _converter.Convert(args, typeof(object), "x ^ true && true ? x : 0", CultureInfo.GetCultureInfo("de")); Assert.Fail("3 ^ true should return null, which cannot be AND-ed"); } catch (Exception ex) when (ex.Message == "Cannot apply operator '^' to operands of type 'System.Double' and 'System.Boolean'") { }
+                try { _converter.Convert(args, typeof(object), "x ^ true && true ? x : 0", CultureInfo.GetCultureInfo("de")); Assert.Fail("3 ^ true should return null, which cannot be AND-ed"); } catch (Exception ex) when (ex.InnerException.InnerException.Message == "Cannot apply operator '^' to operands of type 'System.Double' and 'System.Boolean'") { }
                 Assert.AreEqual(Math.Pow(x, true && true ? x : 0), _converter.Convert(args, typeof(object), "x ^ (true && true ? x : 0)", CultureInfo.GetCultureInfo("de")));
                 // ^ applied before ==,!=
                 Assert.AreEqual(9==x2, _converter.Convert(args, typeof(object), "9==x2", CultureInfo.GetCultureInfo("de")));
@@ -1917,7 +1920,14 @@ namespace HexInnovation
                 Assert.AreEqual(null, ExtensionMethods.TernaryEvaluate(null, true, false));
                 Assert.Fail("The operator should fail if the condition is null");
             }
-            catch (InvalidOperationException ex) when (ex.Message == "Cannot apply operator '?:' to operands of type null 'System.Object' and 'System.Object'") { }
+            catch (InvalidOperationException ex) when (ex.Message == "Cannot apply operator '?:' when the first operand is null") { }
+
+            try
+            {
+                Assert.AreEqual(null, ExtensionMethods.TernaryEvaluate(0, true, false));
+                Assert.Fail("The operator should fail if the condition is an integer");
+            }
+            catch (InvalidOperationException ex) when (ex.Message == "Cannot apply operator '?:' when the first operand is of type 'System.Int32'") { }
         }
 
         [TestMethod]

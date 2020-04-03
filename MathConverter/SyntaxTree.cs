@@ -6,13 +6,23 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text;
-using System.Windows;
 
 namespace HexInnovation
 {
     abstract class AbstractSyntaxTree
     {
-        public abstract object Evaluate(CultureInfo cultureInfo, object[] parameters);
+        public object Evaluate(CultureInfo cultureInfo, object[] parameters)
+        {
+            try
+            {
+                return DoEvaluate(cultureInfo, parameters);
+            }
+            catch (Exception ex) when (!(ex is NodeEvaluationException))
+            {
+                throw new NodeEvaluationException(this, ex);
+            }
+        }
+        public abstract object DoEvaluate(CultureInfo cultureInfo, object[] parameters);
         public abstract override string ToString();
     }
     abstract class BinaryNode : AbstractSyntaxTree
@@ -25,7 +35,7 @@ namespace HexInnovation
         }
         private readonly AbstractSyntaxTree _left, _right;
         private readonly BinaryOperator _operator;
-        public sealed override object Evaluate(CultureInfo cultureInfo, object[] parameters)
+        public sealed override object DoEvaluate(CultureInfo cultureInfo, object[] parameters)
         {
             return _operator.Evaluate(_left, _right, cultureInfo, parameters);
         }
@@ -121,7 +131,7 @@ namespace HexInnovation
         private readonly AbstractSyntaxTree _positive;
         private readonly AbstractSyntaxTree _negative;
 
-        public override object Evaluate(CultureInfo cultureInfo, object[] parameters)
+        public override object DoEvaluate(CultureInfo cultureInfo, object[] parameters)
         {
             return TernaryOperator.Evaluate(_condition, _positive, _negative, cultureInfo, parameters);
         }
@@ -132,7 +142,7 @@ namespace HexInnovation
     }
     sealed class NullNode : AbstractSyntaxTree
     {
-        public override object Evaluate(CultureInfo cultureInfo, object[] parameters)
+        public override object DoEvaluate(CultureInfo cultureInfo, object[] parameters)
         {
             return null;
         }
@@ -150,7 +160,7 @@ namespace HexInnovation
         }
         private readonly UnaryOperator _operator;
         private readonly AbstractSyntaxTree _node;
-        public sealed override object Evaluate(CultureInfo cultureInfo, object[] parameters)
+        public sealed override object DoEvaluate(CultureInfo cultureInfo, object[] parameters)
         {
             return _operator.Evaluate(_node.Evaluate(cultureInfo, parameters));
         }
@@ -173,7 +183,7 @@ namespace HexInnovation
             Value = value;
         }
         protected object Value { get; }
-        public sealed override object Evaluate(CultureInfo cultureInfo, object[] parameters) => Value;
+        public sealed override object DoEvaluate(CultureInfo cultureInfo, object[] parameters) => Value;
         public override string ToString() => $"{Value}";
     }
     /// <summary>
@@ -200,7 +210,7 @@ namespace HexInnovation
         /// The index of the variable we want to get.
         /// </summary>
         private readonly int _index;
-        public override object Evaluate(CultureInfo cultureInfo, object[] parameters)
+        public override object DoEvaluate(CultureInfo cultureInfo, object[] parameters)
         {
             if (parameters.Length <= _index)
             {
@@ -241,7 +251,7 @@ namespace HexInnovation
         }
         private readonly string _formulaName;
         private readonly Func<object> _formula;
-        public override object Evaluate(CultureInfo cultureInfo, object[] parameters)
+        public override object DoEvaluate(CultureInfo cultureInfo, object[] parameters)
         {
             return _formula();
         }
@@ -273,7 +283,7 @@ namespace HexInnovation
         private readonly string _formulaName;
         private readonly Func<object, object> _formula;
         private readonly AbstractSyntaxTree _input;
-        public override object Evaluate(CultureInfo cultureInfo, object[] parameters)
+        public override object DoEvaluate(CultureInfo cultureInfo, object[] parameters)
         {
             return _formula(_input.Evaluate(cultureInfo, parameters));
         }
@@ -297,7 +307,7 @@ namespace HexInnovation
         private readonly string _formulaName;
         private readonly Func<object, object, object> _formula;
         private readonly AbstractSyntaxTree _arg1, _arg2;
-        public override object Evaluate(CultureInfo cultureInfo, object[] parameters)
+        public override object DoEvaluate(CultureInfo cultureInfo, object[] parameters)
         {
             var val1 = _arg1.Evaluate(cultureInfo, parameters);
             var val2 = _arg2.Evaluate(cultureInfo, parameters);
@@ -472,7 +482,7 @@ namespace HexInnovation
         private readonly string _formulaName;
         private readonly Func<CultureInfo, IEnumerable<object>, object> _formula;
         private readonly IEnumerable<AbstractSyntaxTree> _args;
-        public override object Evaluate(CultureInfo cultureInfo, object[] parameters)
+        public override object DoEvaluate(CultureInfo cultureInfo, object[] parameters)
         {
             return _formula(cultureInfo, _args.Select(p => p.Evaluate(cultureInfo, parameters)));
         }

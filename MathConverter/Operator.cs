@@ -467,7 +467,7 @@ namespace HexInnovation
 
             return null;
         }
-        protected internal static InvalidOperationException InvalidOperator(string operatorSymbols, params object[] arguments)
+        protected static InvalidOperationException InvalidOperator(string operatorSymbols, params object[] arguments)
         {
             var argTypes = arguments.Select(x => x == null ? "null" : $"'{x.GetType().FullName}'").ToList();
 
@@ -1136,7 +1136,7 @@ namespace HexInnovation
             }
             else
             {
-                throw Operator.InvalidOperator("?:", conditionObj, new object(), new object());
+                throw new InvalidOperationException($"Cannot apply operator '?:' when the first operand is {(conditionObj == null ? "null" : $"of type '{conditionObj.GetType().FullName}'")}");
             }
         }
     }
@@ -1158,6 +1158,6 @@ namespace HexInnovation
         GreaterThan,
         GreaterThanOrEqual,
         LogicalNot,
-        UnaryNegation, s
+        UnaryNegation,
     }
 }

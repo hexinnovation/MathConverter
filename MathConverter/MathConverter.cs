@@ -111,7 +111,7 @@ namespace HexInnovation
         /// </summary>
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            values = values?.Select((v, i) => SanitizeBinding(v, i, values.Length, parameter, targetType)).ToArray();
+            var sanitizedValues = values?.Select((v, i) => SanitizeBinding(v, i, values.Length, parameter, targetType)).ToArray();
 
             List<object> evaluatedValues;
 
@@ -122,13 +122,20 @@ namespace HexInnovation
                 var parameterParts = ParseParameter(param);
 
                 // We now compute the evaluated values. In the above example, the parts would evaluate to four doubles: values[0], 2*values[0], values[0]+values[1], and 2*values[1].
-                evaluatedValues = parameterParts.Select(p => p.Evaluate(culture, values)).ToList();
+                try
+                {
+                    evaluatedValues = parameterParts.Select(p => p.Evaluate(culture, sanitizedValues)).ToList();
+                }
+                catch (NodeEvaluationException ex)
+                {
+                    throw new EvaluationException(param, values, ex);
+                }
             }
             else if (parameter == null)
             {
                 // If there is no parameter, we'll just use the value(s) specified by the (Multi)Binding.
                 // In this case, MathConverter is merely used for type conversion (e.g. turning 4 doubles into a Rect).
-                evaluatedValues = values?.ToList() ?? new List<object>();
+                evaluatedValues = sanitizedValues?.ToList() ?? new List<object>();
             }
             else
             {
@@ -226,6 +233,5 @@ namespace HexInnovation
 
             return _cachedResults.ContainsKey(parameter) ? _cachedResults[parameter] : (_cachedResults[parameter] = Parser.Parse(parameter));
         }
-
     }
 }
