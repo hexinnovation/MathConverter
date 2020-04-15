@@ -1,18 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+#if XAMARIN
+using System.Reflection;
+using Xamarin.Forms;
+using TypeConverterAttribute = Xamarin.Forms.TypeConverterAttribute;
+using XamarinTypeConverter = Xamarin.Forms.TypeConverter;
+#else
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Data;
+#endif
 
 namespace HexInnovation
 {
     /// <summary>
     /// MathConverter is a WPF Converter class that does it all.
     /// </summary>
-    public class MathConverter : IValueConverter, IMultiValueConverter
+    public class MathConverter : IValueConverter
+#if !XAMARIN
+        , IMultiValueConverter
+#endif
     {
         /// <summary>
         /// Computes the ordinal number for an integer.
@@ -48,11 +58,13 @@ namespace HexInnovation
         /// <returns>The <paramref name="arg"/> passed in, or <code>null</code> if the <paramref name="arg"/> is equal to <see cref="DependencyProperty.UnsetValue"/></returns>
         private static object SanitizeBinding(object arg, int argIndex, int totalBinding, object parameter, Type targetType)
         {
+#if !XAMARIN
             if (arg == DependencyProperty.UnsetValue)
             {
                 Debug.Print($"Encountered {nameof(DependencyProperty.UnsetValue)} in the {(totalBinding > 1 ? $"{ComputeOrdinal(argIndex + 1)} " : "")}argument while trying to convert to type \"{targetType.FullName}\" using the ConverterParameter {(parameter == null ? "'null'" : $"\"{parameter}\"")}. Double-check that your binding is correct.");
                 return null;
             }
+#endif
 
             return arg;
         }
@@ -98,6 +110,9 @@ namespace HexInnovation
         /// This eliminates the need to parse the same statement over and over.
         /// </summary>
         private Dictionary<string, AbstractSyntaxTree[]> _cachedResults = new Dictionary<string, AbstractSyntaxTree[]>();
+#if XAMARIN
+        private static readonly Dictionary<Type, XamarinTypeConverter> XamarinTypeConverters = new Dictionary<Type, XamarinTypeConverter>();
+#endif
 
         /// <summary>
         /// The conversion for a single value.
@@ -161,7 +176,8 @@ namespace HexInnovation
             }
 
             // We need to convert. Let's try the default TypeConverter.
-            var converter = TypeDescriptor.GetConverter(targetType); 
+            // I'm not really sure why this doesn't work the same way in Xamarin.Forms.
+            var converter = TypeDescriptor.GetConverter(targetType);
 
             if (converter.CanConvertFrom(finalAnswerToConvert.GetType()))
             {
@@ -176,6 +192,18 @@ namespace HexInnovation
             {
                 targetType = newTarget;
             }
+
+#if XAMARIN
+            // Let's try Xamarin.Forms.TypeConverter
+            var typeConverter = GetXamarinTypeConverter(targetType);
+
+            if (typeConverter != null)
+            {
+                // Xamarin.Forms.TypeConverters only convert from Invariant Strings. All other conversions are deprecated.
+                string convertFrom = finalAnswerToConvert as string ?? $"{finalAnswerToConvert}";
+                return typeConverter.ConvertFromInvariantString(convertFrom);
+            }
+#endif
 
             try
             {
@@ -219,6 +247,29 @@ namespace HexInnovation
             // WE CAN'T CONVERT BACK
             throw new NotSupportedException();
         }
+#if XAMARIN
+        private static XamarinTypeConverter GetXamarinTypeConverter(Type targetType)
+        {
+            if (XamarinTypeConverters.ContainsKey(targetType))
+            {
+                return XamarinTypeConverters[targetType];
+            }
+
+            var converterAttributes = Attribute.GetCustomAttributes(targetType).OfType<TypeConverterAttribute>().ToList();
+            foreach (var attribute in converterAttributes)
+            {
+                var converterType = Type.GetType(attribute.ConverterTypeName, false);
+                if (converterType != null)
+                {
+                    var ctor = converterType.GetConstructor(BindingFlags.Public | BindingFlags.Instance, null, new Type[0], new ParameterModifier[0]);
+                    return XamarinTypeConverters[targetType] = ctor?.Invoke(null) as XamarinTypeConverter;
+                }
+            }
+
+            return XamarinTypeConverters[targetType] = null;
+        }
+#endif
+
 
         /// <summary>
         /// Parses an expression into a syntax tree that can be evaluated later.

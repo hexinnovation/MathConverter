@@ -3,7 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+#if !XAMARIN
 using System.Windows;
+#endif
 
 namespace HexInnovation
 {
@@ -389,12 +391,14 @@ namespace HexInnovation
                                 case "endswith":
                                     formula2 = (x, y) => x is string str1 && (y is string || y?.ToString().Length > 0) ? str1.EndsWith($"{y}") : new bool?();
                                     break;
+#if !XAMARIN
                                 case "visibleorcollapsed":
                                     formula1_obj = x => Operator.TryConvertToBool(x) == true ? Visibility.Visible : Visibility.Collapsed;
                                     break;
                                 case "visibleorhidden":
                                     formula1_obj = x => Operator.TryConvertToBool(x) == true ? Visibility.Visible : Visibility.Hidden;
                                     break;
+#endif
                                 case "tryparsedouble":
                                     formula1_obj = x => x is string str && double.TryParse(str, out var dbl) ? dbl : new double?();
                                     break;

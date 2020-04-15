@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MathConverter.UnitTests.NET
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MathConverter.UnitTests.NET40", "UnitTests.NET40\MathConverter.UnitTests.NET40.csproj", "{90489DB2-DB02-4B48-B41C-0D454D01FE24}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MathConverter.UnitTests.Android", "MathConverter.UnitTests.Android\MathConverter.UnitTests.Android.csproj", "{839D01A1-DFFF-4333-AD35-6E27015069B6}"
+EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "MathConverter.UnitTests.Shared", "MathConverter.UnitTests.Shared\MathConverter.UnitTests.Shared.shproj", "{10CC73E2-0490-41C2-A610-355BF1014EF1}"
 EndProject
 Global
@@ -24,6 +26,7 @@ Global
 		MathConverter.UnitTests.Shared\MathConverter.UnitTests.Shared.projitems*{10cc73e2-0490-41c2-a610-355bf1014ef1}*SharedItemsImports = 13
 		MathConverter.UnitTests.Shared\MathConverter.UnitTests.Shared.projitems*{490f8728-751d-4b98-8786-1f9d737e84ba}*SharedItemsImports = 5
 		MathConverter.UnitTests.Shared\MathConverter.UnitTests.Shared.projitems*{65c1cc79-d72e-4a08-a1f9-b3bd3e030c39}*SharedItemsImports = 4
+		MathConverter.UnitTests.Shared\MathConverter.UnitTests.Shared.projitems*{839d01a1-dfff-4333-ad35-6e27015069b6}*SharedItemsImports = 4
 		MathConverter.UnitTests.Shared\MathConverter.UnitTests.Shared.projitems*{90489db2-db02-4b48-b41c-0d454d01fe24}*SharedItemsImports = 4
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +54,12 @@ Global
 		{90489DB2-DB02-4B48-B41C-0D454D01FE24}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{90489DB2-DB02-4B48-B41C-0D454D01FE24}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{90489DB2-DB02-4B48-B41C-0D454D01FE24}.Release|Any CPU.Build.0 = Release|Any CPU
+		{839D01A1-DFFF-4333-AD35-6E27015069B6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{839D01A1-DFFF-4333-AD35-6E27015069B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{839D01A1-DFFF-4333-AD35-6E27015069B6}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{839D01A1-DFFF-4333-AD35-6E27015069B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{839D01A1-DFFF-4333-AD35-6E27015069B6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{839D01A1-DFFF-4333-AD35-6E27015069B6}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

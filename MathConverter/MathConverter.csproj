@@ -1,7 +1,7 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+﻿<Project Sdk="MSBuild.Sdk.Extras/2.0.54">
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.0;netcoreapp3.1;net35;net40;net45</TargetFrameworks>
-    <UseWPF>true</UseWPF>
+    <TargetFrameworks>monoandroid90;net35;net40;net45;netcoreapp3.0;netcoreapp3.1</TargetFrameworks>
+    <UseWPF Condition="$(TargetFramework.StartsWith('netcoreapp3'))">true</UseWPF>
     <AssemblyName>MathConverter</AssemblyName>
     <RootNamespace>HexInnovation</RootNamespace>
     <Company>Hex Innovation</Company>
@@ -28,9 +28,29 @@
     <TargetFrameworkMonikerAssemblyAttributesPath>$([System.IO.Path]::Combine('$(BaseIntermediateOutputPath)', '$(Configuration)', '$(TargetFramework)', '$(AssemblyName).GeneratedAssemblyAttributes.cs'))</TargetFrameworkMonikerAssemblyAttributesPath>
     <DeterministicSourcePaths Condition="'$(EnableSourceLink)' == ''">false</DeterministicSourcePaths>
   </PropertyGroup>
+
   <PropertyGroup Condition="'$(TargetFramework)'=='net35'">
     <DefineConstants>NET35</DefineConstants>
   </PropertyGroup>
+
+  <PropertyGroup Condition="$(TargetFramework.StartsWith('monoandroid'))">
+    <DefineConstants>XAMARIN</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup Condition="$(TargetFramework.StartsWith('monoandroid'))">
+    <PackageReference Include="Xamarin.Forms" Version="4.5.0.530" />
+  </ItemGroup>
+
+  <ItemGroup Condition="$(TargetFramework.StartsWith('net3')) Or $(TargetFramework.StartsWith('net4'))">
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+
+  <ItemGroup Condition="$(TargetFramework.StartsWith('net4'))">
+    <Reference Include="System.Xaml" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0.0" PrivateAssets="All" />
     <None Include="..\ReadmeAssets\smalllogo.png" Pack="True" PackagePath="smalllogo.png" />

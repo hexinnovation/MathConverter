@@ -4,8 +4,15 @@ using System.Globalization;
 using System.Reflection;
 using System.Text;
 using System.Threading;
+#if XAMARIN
+using Xamarin.Forms;
+using Rect = Xamarin.Forms.Rectangle;
+#else
 using System.Windows;
 using System.Windows.Media;
+using Point = System.Windows.Point;
+using Size = System.Windows.Size;
+#endif
 
 namespace HexInnovation
 {
@@ -75,8 +82,14 @@ namespace HexInnovation
             Assert.AreEqual(new CornerRadius(1, 2, 3, 4), _converter.Convert(new object[] { 1, 2, 3, 4 }, typeof(CornerRadius), "1,2,3,4", CultureInfo.GetCultureInfo("de")));
             Assert.AreEqual(new CornerRadius(1, 2, 3, 4), _converter.Convert(new object[] { 1, 2, 3, 4 }, typeof(CornerRadius), "`1,2,3,4`", CultureInfo.GetCultureInfo("de")));
 
-            Assert.AreEqual(new GridLength(1, GridUnitType.Pixel), _converter.Convert(new object[] { 1 }, typeof(GridLength), "x", CultureInfo.GetCultureInfo("de")));
-            Assert.AreEqual(new GridLength(1, GridUnitType.Pixel), _converter.Convert(new object[] { 1 }, typeof(GridLength), null, CultureInfo.GetCultureInfo("de")));
+#if XAMARIN
+            var pixel = GridUnitType.Absolute;
+#else
+            var pixel = GridUnitType.Pixel;
+#endif
+
+            Assert.AreEqual(new GridLength(1, pixel), _converter.Convert(new object[] { 1 }, typeof(GridLength), "x", CultureInfo.GetCultureInfo("de")));
+            Assert.AreEqual(new GridLength(1, pixel), _converter.Convert(new object[] { 1 }, typeof(GridLength), null, CultureInfo.GetCultureInfo("de")));
             Assert.AreEqual(new GridLength(1, GridUnitType.Star), _converter.Convert(new object[] { 1 }, typeof(GridLength), "$`{x}*`", CultureInfo.GetCultureInfo("de")));
             Assert.AreEqual(new GridLength(1, GridUnitType.Star), _converter.Convert(new object[0], typeof(GridLength), "`1*`", CultureInfo.GetCultureInfo("de")));
 
@@ -130,8 +143,10 @@ namespace HexInnovation
             Assert.IsFalse((bool)_converter.Convert(new object[] { false }, typeof(bool), null, CultureInfo.GetCultureInfo("de")));
             Assert.IsTrue((bool)_converter.Convert(new object[0], typeof(bool), "true", CultureInfo.GetCultureInfo("de")));
             Assert.IsFalse((bool)_converter.Convert(new object[0], typeof(bool), "false", CultureInfo.GetCultureInfo("de")));
-
+            
+#if !XAMARIN
             Assert.AreEqual(Geometry.Parse("M 0,0 L 100,100 L 100,0 Z").ToString(), _converter.Convert(new object[0], typeof(Geometry), "`M 0,0 L 100,100 L 100,0 Z`", CultureInfo.GetCultureInfo("de")).ToString());
+#endif
         }
         [TestMethod]
         public void TestCache()
@@ -401,12 +416,14 @@ namespace HexInnovation
             Assert.AreEqual(true ? y : x, (int?)_converter.Convert(new object[] { x, y }, typeof(int?), "true ? y : x", CultureInfo.GetCultureInfo("de")));
             Assert.AreEqual(false ? y : x, (int?)_converter.Convert(new object[] { x, y }, typeof(int?), "false ? y : x", CultureInfo.GetCultureInfo("de")));
 
+#if !XAMARIN
             try
             {
                 _converter.Convert(new object[] { DependencyProperty.UnsetValue }, typeof(int?), "x ? true : false", CultureInfo.GetCultureInfo("de"));
                 Assert.Fail("This should have thrown an exception. We should evaluate DependencyProperty.UnsetValue as null, which fails as the first operand of the Ternary operator.");
             }
             catch (EvaluationException ex) when (ex.Message == $"MathConverter threw an exception while performing a conversion.{Environment.NewLine}{Environment.NewLine}ConverterParameter:{Environment.NewLine}x ? true : false{Environment.NewLine}{Environment.NewLine}BindingValues:{Environment.NewLine}[0]: ({DependencyProperty.UnsetValue.GetType().FullName}):  {{DependencyProperty.UnsetValue}}" && ex.InnerException.Message == $"A System.InvalidOperationException was thrown while evaluating the TernaryNode:{Environment.NewLine}(x ? True : False)" && ex.InnerException.InnerException.Message == "Cannot apply operator '?:' when the first operand is null") { }
+#endif
         }
         [TestMethod]
         public void TestNullTargetType()
@@ -420,6 +437,7 @@ namespace HexInnovation
                 Assert.AreEqual(null, _converter.Convert(new object[0], null, "null", culture));
             }
         }
+#if !XAMARIN
         [TestMethod]
         public void TestGeometry()
         {
@@ -441,6 +459,7 @@ namespace HexInnovation
 
             Assert.IsInstanceOfType(_converter.Convert(new object[] { 100 }, typeof(Geometry), "$`M {0.1x},{x} C {x/10},{3x} {3x},-{4x/2} {3*x},{x}`", CultureInfo.InvariantCulture), typeof(Geometry));
         }
+#endif
         [TestMethod]
         public void TestOrderOfOperations()
         {
@@ -866,6 +885,7 @@ namespace HexInnovation
                     }
                 }
 
+#if !XAMARIN
                 // VisibleOrHidden and VisibleOrCollapsed are deprecated!
                 Assert.AreEqual(Visibility.Visible, _converter.Convert(new object[] { true }, typeof(object), "visibleorhidden(x)", CultureInfo.GetCultureInfo("de")));
                 Assert.AreEqual(Visibility.Visible, _converter.Convert(new object[] { true }, typeof(object), "visibleorcollapsed(x)", CultureInfo.GetCultureInfo("de")));
@@ -875,6 +895,7 @@ namespace HexInnovation
                     Assert.AreEqual(Visibility.Hidden, _converter.Convert(new object[] { arg }, typeof(object), "visibleorhidden(x)", CultureInfo.GetCultureInfo("de")));
                     Assert.AreEqual(Visibility.Collapsed, _converter.Convert(new object[] { arg }, typeof(object), "visibleorcollapsed(x)", CultureInfo.GetCultureInfo("de")));
                 }
+#endif
 
                 Assert.AreEqual(null, _converter.Convert(new object[] { null, 3, 5 }, typeof(object), "TryParseDouble(null)", CultureInfo.GetCultureInfo("de")));
                 Assert.AreEqual(null, _converter.Convert(new object[] { null, 3, 5 }, typeof(object), "TryParseDouble(` `)", CultureInfo.GetCultureInfo("de")));
