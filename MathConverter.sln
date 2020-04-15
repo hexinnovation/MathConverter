@@ -4,7 +4,7 @@ VisualStudioVersion = 16.0.29728.190
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MathConverter", "MathConverter\MathConverter.csproj", "{C53EC42B-978E-4667-A9A9-6401793267B7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Demo", "Demo\Demo.csproj", "{7EF5718A-6F96-4680-A63A-F1778FD92092}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MathConverter.Demo", "Demo\MathConverter.Demo.csproj", "{7EF5718A-6F96-4680-A63A-F1778FD92092}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MathConverter.UnitTests", "UnitTests\MathConverter.UnitTests.csproj", "{490F8728-751D-4B98-8786-1F9D737E84BA}"
 EndProject
