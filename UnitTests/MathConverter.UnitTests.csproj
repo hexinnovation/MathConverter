@@ -14,7 +14,13 @@
     <PackageReference Include="MSTest.TestFramework" Version="2.1.0" />
   </ItemGroup>
 
+  <Import Project="..\MathConverter.UnitTests.Shared\MathConverter.UnitTests.Shared.projitems" Label="Shared" />
+
   <ItemGroup>
     <ProjectReference Include="..\MathConverter\MathConverter.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Properties\" />
   </ItemGroup>
 </Project>

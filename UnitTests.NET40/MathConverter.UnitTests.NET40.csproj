@@ -53,10 +53,7 @@
       </ItemGroup>
     </Otherwise>
   </Choose>
-  <ItemGroup>
-    <Compile Include="..\UnitTests\UnitTests.cs" />
-    <Compile Include="..\UnitTests\Properties\AssemblyInfo.cs" />
-  </ItemGroup>
+  <Import Project="..\MathConverter.UnitTests.Shared\MathConverter.UnitTests.Shared.projitems" Label="Shared" />
   <ItemGroup>
     <ProjectReference Include="..\MathConverter\MathConverter.csproj">
       <Project>{c53ec42b-978e-4667-a9a9-6401793267b7}</Project>
