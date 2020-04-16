@@ -158,13 +158,13 @@
     <Content Include="Properties\Default.rd.xml" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MathConverter\MathConverter.csproj">
+    <ProjectReference Include="..\..\MathConverter\MathConverter.csproj">
       <Project>{c53ec42b-978e-4667-a9a9-6401793267b7}</Project>
       <Name>MathConverter</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />
-  <Import Project="..\MathConverter.UnitTests.Shared\MathConverter.UnitTests.Shared.projitems" Label="Shared" />
+  <Import Project="..\MathConverter.UnitTests.Shared.projitems" Label="Shared" />
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>

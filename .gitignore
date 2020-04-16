@@ -3,5 +3,5 @@ bin/
 MathConverter.v12.suo
 *.csproj.user
 .vs/
-/MathConverter.UnitTests.Android/Resources/Resource.designer.cs
+/MathConverter.UnitTests/Android/Resources/Resource.designer.cs
 *.DotSettings.user

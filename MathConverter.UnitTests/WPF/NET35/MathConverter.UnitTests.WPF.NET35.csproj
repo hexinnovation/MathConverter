@@ -3,12 +3,12 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{90489DB2-DB02-4B48-B41C-0D454D01FE24}</ProjectGuid>
+    <ProjectGuid>{65C1CC79-D72E-4A08-A1F9-B3BD3E030C39}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>HexInnovation</RootNamespace>
     <AssemblyName>MathConverter.UnitTests</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
@@ -53,9 +53,9 @@
       </ItemGroup>
     </Otherwise>
   </Choose>
-  <Import Project="..\MathConverter.UnitTests.Shared\MathConverter.UnitTests.Shared.projitems" Label="Shared" />
+  <Import Project="..\..\MathConverter.UnitTests.Shared.projitems" Label="Shared" />
   <ItemGroup>
-    <ProjectReference Include="..\MathConverter\MathConverter.csproj">
+    <ProjectReference Include="..\..\..\MathConverter\MathConverter.csproj">
       <Project>{c53ec42b-978e-4667-a9a9-6401793267b7}</Project>
       <Name>MathConverter</Name>
     </ProjectReference>
