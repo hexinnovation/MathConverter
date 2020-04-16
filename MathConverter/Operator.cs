@@ -182,12 +182,19 @@ namespace HexInnovation
 
             yield return type;
 
-            if (type.IsEnum)
+            var typeInfo =
+#if WINDOWS_UWP
+                type.GetTypeInfo();
+#else
+                type;
+#endif
+
+            if (typeInfo.IsEnum)
             {
                 yield return typeof(Enum);
             }
 
-            if (type.IsValueType)
+            if (typeInfo.IsValueType)
             {
                 yield return typeof(ValueType);
                 yield return typeof(object);
@@ -204,7 +211,11 @@ namespace HexInnovation
             // Not sure what to do about delegate types.
 
             // Interface and classes...
-            while ((type = type.BaseType) != null)
+            while ((type = type
+#if WINDOWS_UWP
+                .GetTypeInfo()
+#endif
+                .BaseType) != null)
             {
                 yield return type;
             }
@@ -356,12 +367,21 @@ namespace HexInnovation
             if (GetTypeAndSubtypes(typeFrom).Contains(typeTo))
                 return true;
 
-            if (typeTo.IsInterface && typeFrom.GetInterfaces().Contains(typeTo))
+#if WINDOWS_UWP
+            var typeToInfo = typeTo.GetTypeInfo();
+#else
+            var typeToInfo = typeTo;
+#endif
+            if (typeToInfo.IsInterface && typeFrom.GetInterfaces().Contains(typeTo))
                 return true;
 
             if (typeFrom.IsArray && typeTo.IsArray && typeFrom.GetArrayRank() == typeTo.GetArrayRank())
             {
-                return !typeFrom.IsValueType && !typeTo.IsValueType && DoesImplicitConversionExist(typeFrom.GetElementType(), typeTo.GetElementType(), true);
+                return !typeFrom
+#if WINDOWS_UWP
+                    .GetTypeInfo()
+#endif
+                    .IsValueType && !typeToInfo.IsValueType && DoesImplicitConversionExist(typeFrom.GetElementType(), typeTo.GetElementType(), true);
             }
             if (typeFrom.IsArray && GetTypeAndSubtypes(typeof(Array)).Contains(typeTo))
             {
@@ -393,10 +413,20 @@ namespace HexInnovation
         }
         protected internal static object DoImplicitConversion(object from, Type typeTo)
         {
+            var typeToIsValueType = typeTo
+#if WINDOWS_UWP
+                .GetTypeInfo()
+#endif
+                .IsValueType;
+
             // If we're trying to convert null to a nullable type, let's just return null.
-            if (from == null && (!typeTo.IsValueType || Nullable.GetUnderlyingType(typeTo)?.IsValueType == true))
+            if (from == null && (!typeToIsValueType || Nullable.GetUnderlyingType(typeTo)?
+#if WINDOWS_UWP
+                .GetTypeInfo()
+#endif
+                .IsValueType == true))
             {
-                if (typeTo.IsValueType)
+                if (typeToIsValueType)
                 {
                     // Nullable<T>.
                     return Activator.CreateInstance(typeTo);

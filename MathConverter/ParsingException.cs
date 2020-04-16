@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Runtime.Serialization;
 
 namespace HexInnovation
 {
-    [Serializable]
     public class ParsingException : Exception
     {
         public ParsingException(int position)
@@ -15,11 +13,6 @@ namespace HexInnovation
             Position = position;
         }
         public ParsingException(int position, string message, Exception inner) : base(message, inner)
-        {
-            Position = position;
-        }
-        protected ParsingException(int position, SerializationInfo info, StreamingContext context)
-            : base(info, context)
         {
             Position = position;
         }

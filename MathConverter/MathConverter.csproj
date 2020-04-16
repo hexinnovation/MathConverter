@@ -1,6 +1,6 @@
 ﻿<Project Sdk="MSBuild.Sdk.Extras/2.0.54">
   <PropertyGroup>
-    <TargetFrameworks>monoandroid90;net35;net40;net45;netcoreapp3.0;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>monoandroid90;uap10.0;net35;net40;net45;netcoreapp3.0;netcoreapp3.1</TargetFrameworks>
     <UseWPF Condition="$(TargetFramework.StartsWith('netcoreapp3'))">true</UseWPF>
     <AssemblyName>MathConverter</AssemblyName>
     <RootNamespace>HexInnovation</RootNamespace>
@@ -27,6 +27,8 @@
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <TargetFrameworkMonikerAssemblyAttributesPath>$([System.IO.Path]::Combine('$(BaseIntermediateOutputPath)', '$(Configuration)', '$(TargetFramework)', '$(AssemblyName).GeneratedAssemblyAttributes.cs'))</TargetFrameworkMonikerAssemblyAttributesPath>
     <DeterministicSourcePaths Condition="'$(EnableSourceLink)' == ''">false</DeterministicSourcePaths>
+	  <TargetPlatformVersion Condition="$(TargetFramework.StartsWith('uap'))">10.0.18362.0</TargetPlatformVersion>
+    <TargetPlatformMinVersion Condition="$(TargetFramework.StartsWith('uap'))">10.0.14393.0</TargetPlatformMinVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)'=='net35'">
@@ -37,7 +39,11 @@
     <DefineConstants>XAMARIN</DefineConstants>
   </PropertyGroup>
 
-  <ItemGroup Condition="$(TargetFramework.StartsWith('monoandroid'))">
+  <PropertyGroup Condition="$(TargetFramework.StartsWith('uap'))">
+    <DefineConstants>XAMARIN;WINDOWS_UWP</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup Condition="$(TargetFramework.StartsWith('uap')) Or $(TargetFramework.StartsWith('monoandroid'))">
     <PackageReference Include="Xamarin.Forms" Version="4.5.0.530" />
   </ItemGroup>
 

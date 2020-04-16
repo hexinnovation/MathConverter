@@ -434,7 +434,7 @@ namespace HexInnovation
             }
             else
             {
-                throw new InvalidEnumArgumentException("format() function must be called with a string as the first argument.");
+                throw new ArgumentException("format() function must be called with a string as the first argument.");
             }
         }
         public static string Concat(CultureInfo cultureInfo, IEnumerable<object> args)
@@ -456,7 +456,7 @@ namespace HexInnovation
             }
             else
             {
-                throw new InvalidEnumArgumentException("join() function must be called with a string as the first argument.");
+                throw new ArgumentException("join() function must be called with a string as the first argument.");
             }
         }
         public static object Average(CultureInfo cultureInfo, IEnumerable<object> args)

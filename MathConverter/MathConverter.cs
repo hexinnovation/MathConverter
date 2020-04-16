@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
-#if XAMARIN
 using System.Reflection;
+#if XAMARIN
 using Xamarin.Forms;
 using TypeConverterAttribute = Xamarin.Forms.TypeConverterAttribute;
 using XamarinTypeConverter = Xamarin.Forms.TypeConverter;
@@ -175,8 +175,9 @@ namespace HexInnovation
                 return finalAnswerToConvert;
             }
 
-            // We need to convert. Let's try the default TypeConverter.
-            // I'm not really sure why this doesn't work the same way in Xamarin.Forms.
+            // We need to convert the answer to the appropriate type.
+#if !WINDOWS_UWP
+            // Let's start with the default TypeConverter. I'm not really sure why this doesn't work the same way in Xamarin.Forms.
             var converter = TypeDescriptor.GetConverter(targetType);
 
             if (converter.CanConvertFrom(finalAnswerToConvert.GetType()))
@@ -185,6 +186,7 @@ namespace HexInnovation
                 // We'll keep this conversion working in InvariantCulture.
                 return converter.ConvertFrom(null, CultureInfo.InvariantCulture, finalAnswerToConvert);
             }
+#endif
 
             // We know we're not returning null... If we're trying to convert to a Nullable<SomeStruct>, let's just convert to SomeStruct instead.
             var newTarget = Nullable.GetUnderlyingType(targetType);
@@ -255,13 +257,25 @@ namespace HexInnovation
                 return XamarinTypeConverters[targetType];
             }
 
-            var converterAttributes = Attribute.GetCustomAttributes(targetType).OfType<TypeConverterAttribute>().ToList();
+            var converterAttributes =
+#if WINDOWS_UWP
+                targetType.GetTypeInfo().GetCustomAttributes()
+#else
+                Attribute.GetCustomAttributes(targetType)
+#endif
+                .OfType<TypeConverterAttribute>().ToList();
+
+
             foreach (var attribute in converterAttributes)
             {
                 var converterType = Type.GetType(attribute.ConverterTypeName, false);
                 if (converterType != null)
                 {
+#if WINDOWS_UWP
+                    var ctor = converterType.GetConstructor(new Type[0]);
+#else
                     var ctor = converterType.GetConstructor(BindingFlags.Public | BindingFlags.Instance, null, new Type[0], new ParameterModifier[0]);
+#endif
                     return XamarinTypeConverters[targetType] = ctor?.Invoke(null) as XamarinTypeConverter;
                 }
             }
