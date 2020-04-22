@@ -13,7 +13,7 @@ using System.Windows.Markup;
 [assembly: ComVisible(false)]
 
 [assembly: XmlnsPrefix("http://hexinnovation.com/math", "math")]
-#if !WINDOWS_UWP
+#if !WINDOWS_UWP && !NETSTANDARD1_0 && !NETSTANDARD1_3
 [assembly: XmlnsDefinition("http://hexinnovation.com/math", "HexInnovation")]
 #endif
 

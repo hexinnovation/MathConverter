@@ -4,6 +4,10 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 
+#if NETSTANDARD1_0 || NETSTANDARD1_3
+using Xamarin.Forms.Internals;
+#endif
+
 namespace HexInnovation
 {
     internal abstract class Operator
@@ -183,7 +187,7 @@ namespace HexInnovation
             yield return type;
 
             var typeInfo =
-#if WINDOWS_UWP
+#if WINDOWS_UWP || NETSTANDARD1_0 || NETSTANDARD1_3
                 type.GetTypeInfo();
 #else
                 type;
@@ -212,7 +216,7 @@ namespace HexInnovation
 
             // Interface and classes...
             while ((type = type
-#if WINDOWS_UWP
+#if WINDOWS_UWP || NETSTANDARD1_0 || NETSTANDARD1_3
                 .GetTypeInfo()
 #endif
                 .BaseType) != null)
@@ -229,7 +233,12 @@ namespace HexInnovation
         {
             // https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/expressions#candidate-user-defined-operators
             return GetTypeAndSubtypes(parameterTypes).SelectMany(type =>
+#if NETSTANDARD1_0 || NETSTANDARD1_3
+                    type.GetRuntimeMethods().Where(method => method.IsPublic && method.IsStatic)
+#else
                     type.GetMethods(BindingFlags.Public | BindingFlags.Static)
+#endif
+
                         .Where(method => method.Name == operatorName)
                         .Select(method => new OperatorInfo
                         {
@@ -367,18 +376,24 @@ namespace HexInnovation
             if (GetTypeAndSubtypes(typeFrom).Contains(typeTo))
                 return true;
 
-#if WINDOWS_UWP
+#if WINDOWS_UWP || NETSTANDARD1_0 || NETSTANDARD1_3
             var typeToInfo = typeTo.GetTypeInfo();
 #else
             var typeToInfo = typeTo;
 #endif
-            if (typeToInfo.IsInterface && typeFrom.GetInterfaces().Contains(typeTo))
+            if (typeToInfo.IsInterface && typeFrom
+#if NETSTANDARD1_0 || NETSTANDARD1_3
+                .GetTypeInfo().ImplementedInterfaces
+#else
+                .GetInterfaces()
+#endif
+                .Contains(typeTo))
                 return true;
 
             if (typeFrom.IsArray && typeTo.IsArray && typeFrom.GetArrayRank() == typeTo.GetArrayRank())
             {
                 return !typeFrom
-#if WINDOWS_UWP
+#if WINDOWS_UWP || NETSTANDARD1_0 || NETSTANDARD1_3
                     .GetTypeInfo()
 #endif
                     .IsValueType && !typeToInfo.IsValueType && DoesImplicitConversionExist(typeFrom.GetElementType(), typeTo.GetElementType(), true);
@@ -389,7 +404,13 @@ namespace HexInnovation
             }
             if (typeFrom.IsArray && typeFrom.GetArrayRank() == 1 && GetTypeAndSubtypes(typeof(IList<>)).Contains(typeTo))
             {
-                return DoesImplicitConversionExist(typeFrom.GetElementType(), typeTo.GetGenericArguments()[0], true);
+                return DoesImplicitConversionExist(typeFrom.GetElementType(), typeTo
+#if NETSTANDARD1_0 || NETSTANDARD1_3
+                    .GenericTypeArguments
+#else
+                    .GetGenericArguments()
+#endif
+                    [0], true);
             }
             // MathConverter doesn't support delegates.
 
@@ -414,14 +435,14 @@ namespace HexInnovation
         protected internal static object DoImplicitConversion(object from, Type typeTo)
         {
             var typeToIsValueType = typeTo
-#if WINDOWS_UWP
+#if WINDOWS_UWP || NETSTANDARD1_0 || NETSTANDARD1_3
                 .GetTypeInfo()
 #endif
                 .IsValueType;
 
             // If we're trying to convert null to a nullable type, let's just return null.
             if (from == null && (!typeToIsValueType || Nullable.GetUnderlyingType(typeTo)?
-#if WINDOWS_UWP
+#if WINDOWS_UWP || NETSTANDARD1_0 || NETSTANDARD1_3
                 .GetTypeInfo()
 #endif
                 .IsValueType == true))

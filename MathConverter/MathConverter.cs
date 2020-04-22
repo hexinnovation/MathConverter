@@ -13,6 +13,9 @@ using System.Diagnostics;
 using System.Windows;
 using System.Windows.Data;
 #endif
+#if NETSTANDARD1_0 || NETSTANDARD1_3
+using Xamarin.Forms.Internals;
+#endif
 
 namespace HexInnovation
 {
@@ -176,7 +179,7 @@ namespace HexInnovation
             }
 
             // We need to convert the answer to the appropriate type.
-#if !WINDOWS_UWP
+#if !WINDOWS_UWP && !NETSTANDARD1_0 && !NETSTANDARD1_3
             // Let's start with the default TypeConverter. I'm not really sure why this doesn't work the same way in Xamarin.Forms.
             var converter = TypeDescriptor.GetConverter(targetType);
 
@@ -214,7 +217,15 @@ namespace HexInnovation
                     // The default TypeConverter doesn't support this conversion. Let's try an implicit conversion.
                     return Operator.DoImplicitConversion(finalAnswerToConvert, targetType);
                 }
-                else if (finalAnswerToConvert is IConvertible)
+                else if
+#if NETSTANDARD1_0
+                    // I can't figure out how to see if an object is an IConvertible in .NET Standard 1.0, so we'll just let an InvalidCastException
+                    // occur if it's not an IConvertible. We'll swallow that exception and return an unconverted value.
+                    // This totally sucks, so it'd be nice if we could not do that, but I don't really know a workaround.
+                    (true)
+#else
+                    (finalAnswerToConvert is IConvertible)
+#endif
                 {
                     if (targetType == typeof(char))
                     {
@@ -258,7 +269,7 @@ namespace HexInnovation
             }
 
             var converterAttributes =
-#if WINDOWS_UWP
+#if WINDOWS_UWP || NETSTANDARD1_0 || NETSTANDARD1_3
                 targetType.GetTypeInfo().GetCustomAttributes()
 #else
                 Attribute.GetCustomAttributes(targetType)
@@ -271,8 +282,8 @@ namespace HexInnovation
                 var converterType = Type.GetType(attribute.ConverterTypeName, false);
                 if (converterType != null)
                 {
-#if WINDOWS_UWP
-                    var ctor = converterType.GetConstructor(new Type[0]);
+#if WINDOWS_UWP || NETSTANDARD1_0 || NETSTANDARD1_3
+                    var ctor = converterType.GetTypeInfo().DeclaredConstructors.Single(p => p.GetParameters().Length == 0);
 #else
                     var ctor = converterType.GetConstructor(BindingFlags.Public | BindingFlags.Instance, null, new Type[0], new ParameterModifier[0]);
 #endif

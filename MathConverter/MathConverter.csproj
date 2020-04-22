@@ -1,6 +1,6 @@
 ﻿<Project Sdk="MSBuild.Sdk.Extras/2.0.54">
   <PropertyGroup>
-    <TargetFrameworks>monoandroid90;uap10.0;net35;net40;net45;netcoreapp3.0;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>monoandroid90;uap10.0;netstandard1.0;netstandard1.3;netstandard2.0;net35;net40;net45;netcoreapp3.0;netcoreapp3.1</TargetFrameworks>
     <UseWPF Condition="$(TargetFramework.StartsWith('netcoreapp3'))">true</UseWPF>
     <AssemblyName>MathConverter</AssemblyName>
     <RootNamespace>HexInnovation</RootNamespace>
@@ -29,13 +29,14 @@
     <DeterministicSourcePaths Condition="'$(EnableSourceLink)' == ''">false</DeterministicSourcePaths>
 	  <TargetPlatformVersion Condition="$(TargetFramework.StartsWith('uap'))">10.0.18362.0</TargetPlatformVersion>
     <TargetPlatformMinVersion Condition="$(TargetFramework.StartsWith('uap'))">10.0.14393.0</TargetPlatformMinVersion>
+    <XamarinAndroidSupportSkipVerifyVersions>true</XamarinAndroidSupportSkipVerifyVersions>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)'=='net35'">
     <DefineConstants>NET35</DefineConstants>
   </PropertyGroup>
 
-  <PropertyGroup Condition="$(TargetFramework.StartsWith('monoandroid'))">
+  <PropertyGroup Condition="$(TargetFramework.StartsWith('monoandroid')) Or $(TargetFramework.StartsWith('netstandard'))">
     <DefineConstants>XAMARIN</DefineConstants>
   </PropertyGroup>
 
@@ -43,18 +44,15 @@
     <DefineConstants>XAMARIN;WINDOWS_UWP</DefineConstants>
   </PropertyGroup>
 
-  <ItemGroup Condition="$(TargetFramework.StartsWith('uap')) Or $(TargetFramework.StartsWith('monoandroid'))">
-    <PackageReference Include="Xamarin.Forms" Version="4.5.0.530" />
+  <ItemGroup Condition="$(TargetFramework.StartsWith('uap')) Or $(TargetFramework.StartsWith('monoandroid')) Or $(TargetFramework.StartsWith('netstandard'))">
+    <PackageReference Include="Xamarin.Forms" Version="4.5.0.617" />
   </ItemGroup>
 
   <ItemGroup Condition="$(TargetFramework.StartsWith('net3')) Or $(TargetFramework.StartsWith('net4'))">
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="WindowsBase" />
-  </ItemGroup>
-
-  <ItemGroup Condition="$(TargetFramework.StartsWith('net4'))">
-    <Reference Include="System.Xaml" />
+    <Reference Condition="$(TargetFramework.StartsWith('net4'))" Include="System.Xaml" />
   </ItemGroup>
 
   <ItemGroup>
