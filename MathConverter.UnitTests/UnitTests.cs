@@ -20,6 +20,11 @@ using System.Threading;
 
 namespace HexInnovation
 {
+#pragma warning disable CS1718 // Comparison made to same variable
+#pragma warning disable CS0458 // Warning CS0458  The result of the expression is always 'null' of type 'double?'
+#pragma warning disable CS0464 // Comparing with null of type 'double?' always produces 'false'
+
+
     [TestClass]
     public class MathConverterTests
     {
@@ -341,7 +346,6 @@ namespace HexInnovation
             const double x = 4;
             const double y = 3;
 
-#pragma warning disable CS1718 // Comparison made to same variable
             Assert.AreEqual(x<x, (bool)_converter.Convert(new object[] { x, y }, typeof(bool), "x<x", new CultureInfo("de")));
             Assert.AreEqual(x<=x, (bool)_converter.Convert(new object[] { x, y }, typeof(bool), "x<=x", new CultureInfo("de")));
             Assert.AreEqual(x>x, (bool)_converter.Convert(new object[] { x, y }, typeof(bool), "x>x", new CultureInfo("de")));
@@ -354,7 +358,6 @@ namespace HexInnovation
             Assert.AreEqual(y<=y, (bool)_converter.Convert(new object[] { x, y }, typeof(bool), "y<=y", new CultureInfo("de")));
             Assert.AreEqual(y>y, (bool)_converter.Convert(new object[] { x, y }, typeof(bool), "y>y", new CultureInfo("de")));
             Assert.AreEqual(y>=y, (bool)_converter.Convert(new object[] { x, y }, typeof(bool), "y>=y", new CultureInfo("de")));
-#pragma warning restore CS1718 // Comparison made to same variable
         }
         [TestMethod]
         public void TestEquality()
@@ -362,7 +365,6 @@ namespace HexInnovation
             object x = 4;
             object y = 3;
 
-#pragma warning disable CS1718 // Comparison made to same variable
             Assert.AreEqual(x==x, (bool)_converter.Convert(new object[] { x, y }, typeof(bool), "x==x", new CultureInfo("de")));
             Assert.AreEqual(x!=x, (bool)_converter.Convert(new object[] { x, y }, typeof(bool), "x!=x", new CultureInfo("de")));
             Assert.AreEqual(x==y, (bool)_converter.Convert(new object[] { x, y }, typeof(bool), "x==y", new CultureInfo("de")));
@@ -379,7 +381,6 @@ namespace HexInnovation
             Assert.AreEqual(x!=y, (bool)_converter.Convert(new object[] { x, y }, typeof(bool), "x!=y", new CultureInfo("de")));
             Assert.AreEqual(y==y, (bool)_converter.Convert(new object[] { x, y }, typeof(bool), "y==y", new CultureInfo("de")));
             Assert.AreEqual(y!=y, (bool)_converter.Convert(new object[] { x, y }, typeof(bool), "y!=y", new CultureInfo("de")));
-#pragma warning restore CS1718 // Comparison made to same variable
         }
         [TestMethod]
         public void TestAnd()
@@ -481,8 +482,6 @@ namespace HexInnovation
                 // And we test to make sure they're evaluated the same way as C#.
 
                 var args = new object[] { x, y, z };
-
-#pragma warning disable CS1718 // Comparison made to same variable
 
                 // ?? applied before ?:
                 Assert.AreEqual(x.Value ? y ?? x : z ?? (object)3.0, _converter.Convert(args, typeof(object), "x ? y ?? x : z ?? 3.0", new CultureInfo("de")));
@@ -729,7 +728,6 @@ namespace HexInnovation
                 Assert.AreEqual((true ? false : true) ? false : true, _converter.Convert(args, typeof(object), "(true ? false : true) ? false : true", new CultureInfo("de")));
                 Assert.AreEqual(true ? false : (true ? false : true), _converter.Convert(args, typeof(object), "true ? false : (true ? false : true)", new CultureInfo("de")));
             }
-#pragma warning restore CS1718 // Comparison made to same variable
         }
         [TestMethod]
         public void TestInterpolatedStrings()
@@ -2019,6 +2017,10 @@ namespace HexInnovation
             Assert.AreEqual(-new ArithmeticOperatorTester(-3), Operator.UnaryNegation.Evaluate(new ArithmeticOperatorTester(-3)));
         }
     }
+
+#pragma warning restore CS1718 // Comparison made to same variable
+#pragma warning restore CS0458 // Warning CS0458  The result of the expression is always 'null' of type 'double?'
+#pragma warning restore CS0464 // Comparing with null of type 'double?' always produces 'false'
 
     internal static class ExtensionMethods
     {
