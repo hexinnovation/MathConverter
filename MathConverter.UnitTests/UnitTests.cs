@@ -1,4 +1,12 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿#if NUNIT
+using TestClassAttribute = NUnit.Framework.TestFixtureAttribute;
+using TestInitializeAttribute = NUnit.Framework.SetUpAttribute;
+using TestMethodAttribute = NUnit.Framework.TestAttribute;
+using Assert = HexInnovation.MyAssert;
+using NUnitAssert = NUnit.Framework.Assert;
+#else
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+#endif
 using System;
 using System.Globalization;
 using System.Reflection;
@@ -20,6 +28,19 @@ using System.Threading;
 
 namespace HexInnovation
 {
+#if NUNIT
+    class MyAssert
+    {
+        public static void AreEqual(object expected, object actual) => NUnitAssert.AreEqual(expected, actual);
+        public static void Fail(string message) => NUnitAssert.Fail(message);
+        public static void IsInstanceOfType(object actual, Type expected) => NUnitAssert.IsInstanceOf(expected, actual);
+        public static void IsTrue(bool condition) => NUnitAssert.IsTrue(condition);
+        public static void IsFalse(bool condition) => NUnitAssert.IsFalse(condition);
+        public static void IsNull(object anObject) => NUnitAssert.IsNull(anObject);
+        public static void AreEqual(double expected, double actual, double delta) => NUnitAssert.AreEqual(expected, actual, delta);
+    }
+#endif
+
 #pragma warning disable CS1718 // Comparison made to same variable
 #pragma warning disable CS0458 // Warning CS0458  The result of the expression is always 'null' of type 'double?'
 #pragma warning disable CS0464 // Comparing with null of type 'double?' always produces 'false'
