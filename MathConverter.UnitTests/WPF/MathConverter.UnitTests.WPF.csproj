@@ -1,0 +1,22 @@
+﻿<Project Sdk="MSBuild.Sdk.Extras/2.0.54">
+
+  <PropertyGroup>
+    <TargetFrameworks>net35;net40;net45;netcoreapp3.0;netcoreapp3.1</TargetFrameworks>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>HexInnovation</RootNamespace>
+    <AssemblyName>MathConverter.UnitTests</AssemblyName>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <IsPackable>false</IsPackable>
+    <DefineConstants>NUNIT</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\MathConverter\MathConverter.csproj" />
+    <PackageReference Include="NUnit" Version="3.12.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.16.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.6.0" />
+  </ItemGroup>
+
+  <Import Project="..\MathConverter.UnitTests.Shared.projitems" Label="Shared" />
+
+</Project>
