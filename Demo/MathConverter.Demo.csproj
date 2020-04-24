@@ -16,6 +16,6 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MathConverter\MathConverter.csproj" />
+    <ProjectReference Include="..\MathConverter\WPF\MathConverter.WPF.csproj" />
   </ItemGroup>
 </Project>

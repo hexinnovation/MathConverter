@@ -135,7 +135,6 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.6.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="2.1.1" />
     <PackageReference Include="MSTest.TestFramework" Version="2.1.1" />
-    <PackageReference Include="Xamarin.Forms" Version="4.5.0.617" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="UnitTestApp.xaml.cs">
@@ -158,12 +157,11 @@
     <Content Include="Properties\Default.rd.xml" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\MathConverter\MathConverter.csproj">
-      <Project>{c53ec42b-978e-4667-a9a9-6401793267b7}</Project>
-      <Name>MathConverter</Name>
+    <ProjectReference Include="..\..\MathConverter\Xamarin\MathConverter.XamarinForms.csproj">
+      <Project>{de6cbd5e-c31a-4907-9ac8-610484ef6e2a}</Project>
+      <Name>MathConverter.XamarinForms</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="..\MathConverter.UnitTests.Shared.projitems" Label="Shared" />
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
