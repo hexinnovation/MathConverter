@@ -13,7 +13,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MathConverter.UnitTests.XamarinForms.Android", "MathConverter.UnitTests\Android\MathConverter.UnitTests.XamarinForms.Android.csproj", "{839D01A1-DFFF-4333-AD35-6E27015069B6}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "MathConverter.UnitTests.Shared", "MathConverter.UnitTests\MathConverter.UnitTests.Shared.shproj", "{10CC73E2-0490-41C2-A610-355BF1014EF1}"
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "MathConverter.UnitTests.Core", "MathConverter.UnitTests\MathConverter.UnitTests.Core.shproj", "{10CC73E2-0490-41C2-A610-355BF1014EF1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MathConverter.UnitTests.XamarinForms.UWP", "MathConverter.UnitTests\UWP\MathConverter.UnitTests.XamarinForms.UWP.csproj", "{DC7EE031-CA2E-4963-8E49-CEB08A787AF7}"
 EndProject
@@ -27,12 +27,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MathConverter.UnitTests.Xam
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		MathConverter.UnitTests\MathConverter.UnitTests.Shared.projitems*{10cc73e2-0490-41c2-a610-355bf1014ef1}*SharedItemsImports = 13
-		MathConverter.UnitTests\MathConverter.UnitTests.Shared.projitems*{3d26fb71-d207-4e56-8afb-67a9eac87c7c}*SharedItemsImports = 5
-		MathConverter.UnitTests\MathConverter.UnitTests.Shared.projitems*{839d01a1-dfff-4333-ad35-6e27015069b6}*SharedItemsImports = 4
-		MathConverter.UnitTests\MathConverter.UnitTests.Shared.projitems*{ab427469-4b24-4e95-a534-66b33088d038}*SharedItemsImports = 5
+		MathConverter.UnitTests\MathConverter.UnitTests.Core.projitems*{10cc73e2-0490-41c2-a610-355bf1014ef1}*SharedItemsImports = 13
+		MathConverter.UnitTests\MathConverter.UnitTests.Core.projitems*{3d26fb71-d207-4e56-8afb-67a9eac87c7c}*SharedItemsImports = 5
+		MathConverter.UnitTests\MathConverter.UnitTests.Core.projitems*{839d01a1-dfff-4333-ad35-6e27015069b6}*SharedItemsImports = 4
+		MathConverter.UnitTests\MathConverter.UnitTests.Core.projitems*{ab427469-4b24-4e95-a534-66b33088d038}*SharedItemsImports = 5
 		MathConverter\MathConverter.Core.projitems*{b0807516-574b-4ff3-9ce0-b66ae38be713}*SharedItemsImports = 13
-		MathConverter.UnitTests\MathConverter.UnitTests.Shared.projitems*{dc7ee031-ca2e-4963-8e49-ceb08a787af7}*SharedItemsImports = 4
+		MathConverter.UnitTests\MathConverter.UnitTests.Core.projitems*{dc7ee031-ca2e-4963-8e49-ceb08a787af7}*SharedItemsImports = 4
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

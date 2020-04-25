@@ -162,7 +162,7 @@
       <Name>MathConverter.XamarinForms</Name>
     </ProjectReference>
   </ItemGroup>
-  <Import Project="..\MathConverter.UnitTests.Shared.projitems" Label="Shared" />
+  <Import Project="..\MathConverter.UnitTests.Core.projitems" Label="Shared" />
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>

@@ -17,6 +17,6 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.6.0" />
   </ItemGroup>
 
-  <Import Project="..\MathConverter.UnitTests.Shared.projitems" Label="Shared" />
+  <Import Project="..\MathConverter.UnitTests.Core.projitems" Label="Shared" />
 
 </Project>
