@@ -19,6 +19,10 @@
     <PackageReference Include="System.ComponentModel.TypeConverter" Version="4.3.0" />
   </ItemGroup>
 
+  <ItemGroup Condition="$(TargetFramework.StartsWith('xamarin.mac'))">
+    <Reference Include="netstandard" />
+  </ItemGroup>
+
   <Import Project="..\MathConverter.Core.props" />
 
   <ItemGroup>
