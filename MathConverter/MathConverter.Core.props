@@ -9,7 +9,7 @@
     <Company>Hex Innovation</Company>
     <Copyright>Copyright © 2015-$([System.DateTime]::Now.ToString(`yyyy`)) $(Company)</Copyright>
     <Product>$(AssemblyName)</Product>
-    <Version>2.0-alpha0005</Version>
+    <Version>2.0-alpha0006</Version>
     <AssemblyVersion>2.0.0.0</AssemblyVersion>
     <FileVersion>$(AssemblyVersion)</FileVersion>
     <ApplicationVersion>$(AssemblyVersion)</ApplicationVersion>
