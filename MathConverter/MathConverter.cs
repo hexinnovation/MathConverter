@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+
 #if XAMARIN
 using Xamarin.Forms;
 using TypeConverterAttribute = Xamarin.Forms.TypeConverterAttribute;
@@ -12,9 +13,6 @@ using XamarinTypeConverter = Xamarin.Forms.TypeConverter;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Data;
-#endif
-#if NETSTANDARD1_0 || NETSTANDARD1_3
-using Xamarin.Forms.Internals;
 #endif
 
 namespace HexInnovation
@@ -25,6 +23,7 @@ namespace HexInnovation
     public class MathConverter : IValueConverter
 #if !XAMARIN
         , IMultiValueConverter
+        // IMultiValueConverter not yet supported officially in XAMARIN.
 #endif
     {
         /// <summary>
@@ -62,6 +61,7 @@ namespace HexInnovation
         private static object SanitizeBinding(object arg, int argIndex, int totalBinding, object parameter, Type targetType)
         {
 #if !XAMARIN
+            // UnsetValue is not yet supported officially in XAMARIN.
             if (arg == DependencyProperty.UnsetValue)
             {
                 Debug.Print($"Encountered {nameof(DependencyProperty.UnsetValue)} in the {(totalBinding > 1 ? $"{ComputeOrdinal(argIndex + 1)} " : "")}argument while trying to convert to type \"{targetType.FullName}\" using the ConverterParameter {(parameter == null ? "'null'" : $"\"{parameter}\"")}. Double-check that your binding is correct.");
@@ -214,15 +214,7 @@ namespace HexInnovation
                     // The default TypeConverter doesn't support this conversion. Let's try an implicit conversion.
                     return Operator.DoImplicitConversion(finalAnswerToConvert, targetType);
                 }
-                else if
-#if NETSTANDARD1_0
-                    // I can't figure out how to see if an object is an IConvertible in .NET Standard 1.0, so we'll just let an InvalidCastException
-                    // occur if it's not an IConvertible. We'll swallow that exception and return an unconverted value.
-                    // This totally sucks, so it'd be nice if we could not do that, but I don't really know a workaround.
-                    (true)
-#else
-                    (finalAnswerToConvert is IConvertible)
-#endif
+                else if (CompatibilityExtensions.IsIConvertible(finalAnswerToConvert))
                 {
                     if (targetType == typeof(char))
                     {
@@ -265,26 +257,12 @@ namespace HexInnovation
                 return XamarinTypeConverters[targetType];
             }
 
-            var converterAttributes =
-#if WINDOWS_UWP || NETSTANDARD1_0 || NETSTANDARD1_3
-                targetType.GetTypeInfo().GetCustomAttributes()
-#else
-                Attribute.GetCustomAttributes(targetType)
-#endif
-                .OfType<TypeConverterAttribute>().ToList();
-
-
-            foreach (var attribute in converterAttributes)
+            foreach (var attribute in targetType.GetCustomAttributes<TypeConverterAttribute>())
             {
                 var converterType = Type.GetType(attribute.ConverterTypeName, false);
                 if (converterType != null)
                 {
-#if WINDOWS_UWP || NETSTANDARD1_0 || NETSTANDARD1_3
-                    var ctor = converterType.GetTypeInfo().DeclaredConstructors.Single(p => p.GetParameters().Length == 0);
-#else
-                    var ctor = converterType.GetConstructor(BindingFlags.Public | BindingFlags.Instance, null, new Type[0], new ParameterModifier[0]);
-#endif
-                    return XamarinTypeConverters[targetType] = ctor?.Invoke(null) as XamarinTypeConverter;
+                    return XamarinTypeConverters[targetType] = (XamarinTypeConverter)Activator.CreateInstance(converterType);
                 }
             }
 

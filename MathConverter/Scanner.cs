@@ -232,16 +232,14 @@ namespace HexInnovation
                             }
                             else
                             {
+                                var number = sb.ToString();
+
                                 if (ch == '.')
                                     throw new ParsingException(Position, $"Found second decimal in number {sb}");
-                                else if (sb.ToString()
-#if NETSTANDARD1_0
-                                    .ToCharArray()
-#endif
-                                    .Last() == '.')
+                                else if (number.Last() == '.')
                                     throw new ParsingException(Position, $"A number cannot end in a decimal. The number was {sb}");
 
-                                return new LexicalToken(TokenType.Number, sb.ToString());
+                                return new LexicalToken(TokenType.Number, number);
                             }
                         }
                     case ScannerState.Lexical:

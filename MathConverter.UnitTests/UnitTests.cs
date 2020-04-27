@@ -1,4 +1,9 @@
-﻿#if NUNIT
+﻿using System;
+using System.Globalization;
+using System.Reflection;
+using System.Text;
+
+#if NUNIT
 using TestClassAttribute = NUnit.Framework.TestFixtureAttribute;
 using TestInitializeAttribute = NUnit.Framework.SetUpAttribute;
 using TestMethodAttribute = NUnit.Framework.TestAttribute;
@@ -7,29 +12,19 @@ using NUnitAssert = NUnit.Framework.Assert;
 #else
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 #endif
-using System;
-using System.Globalization;
-using System.Reflection;
-using System.Text;
+
 #if XAMARIN
 using Xamarin.Forms;
 using Rect = Xamarin.Forms.Rectangle;
 #else
 using System.Windows;
 using System.Windows.Media;
-using Point = System.Windows.Point;
-using Size = System.Windows.Size;
-#endif
-#if WINDOWS_UWP
-using System.Threading.Tasks;
-#else
-using System.Threading;
 #endif
 
 namespace HexInnovation
 {
 #if NUNIT
-    class MyAssert
+    static class MyAssert
     {
         public static void AreEqual(object expected, object actual) => NUnitAssert.AreEqual(expected, actual);
         public static void Fail(string message) => NUnitAssert.Fail(message);
@@ -56,11 +51,7 @@ namespace HexInnovation
         public void Initialize()
         {
             // Set the current culture to Japanese. Most of our tests occur in de culture.
-#if WINDOWS_UWP
-            CultureInfo.CurrentCulture = CultureInfo.CurrentUICulture = new CultureInfo("ja-JP");
-#else
-            Thread.CurrentThread.CurrentCulture = Thread.CurrentThread.CurrentUICulture = new CultureInfo("ja-JP");
-#endif
+            UnitTestCompatibilityExtensions.SetCurrentCulture(new CultureInfo("ja-JP"));
 
             _converter = new MathConverter();
             _converterNoCache = new MathConverter { UseCache = false };
@@ -450,6 +441,7 @@ namespace HexInnovation
 #if !XAMARIN
             try
             {
+                // UnsetValue is not yet available in Xamarin.Forms
                 _converter.Convert(new object[] { DependencyProperty.UnsetValue }, typeof(int?), "x ? true : false", new CultureInfo("de"));
                 Assert.Fail("This should have thrown an exception. We should evaluate DependencyProperty.UnsetValue as null, which fails as the first operand of the Ternary operator.");
             }
@@ -796,11 +788,7 @@ namespace HexInnovation
 
             // Assert that the now function returns within 3ms of DateTime.Now (100ms is the time between evaluating the AbstractSyntaxTree [The FormulaNode0] and getting the DateTime.Now property).
             Assert.AreEqual(0, ((DateTime)_converter.Convert(null, typeof(object), "now()", new CultureInfo("de")) - DateTime.Now).TotalMilliseconds, allowWithinMillis);
-#if WINDOWS_UWP
-            Task.WaitAll(Task.Delay(allowWithinMillis * 2));
-#else
-            Thread.Sleep(allowWithinMillis * 2);
-#endif
+            UnitTestCompatibilityExtensions.Sleep(allowWithinMillis * 2);
 
             // We evaluate this again 8ms later, knowing that the same [cached] AbstractSyntaxTree [FormulaNode0] gave a different value 6ms later when it was evaluated a second time.
             Assert.AreEqual(0, ((DateTime)_converter.Convert(null, typeof(object), "now()", new CultureInfo("de")) - DateTime.Now).TotalMilliseconds, allowWithinMillis);
@@ -1339,9 +1327,9 @@ namespace HexInnovation
             var twoDays = TimeSpan.FromDays(2);
 
             // Make sure it works in a class with a custom "&" operation and no implicit bool conversion.
-            Assert.AreEqual((new HaveValueClass1(3) && new HaveValueClass1(2)) ? true : false, ExtensionMethods.TernaryEvaluate(Operator.And.Evaluate(new HaveValueClass1(3), new HaveValueClass1(2)), true, false));
-            Assert.AreEqual((new HaveValueClass1(0) && new HaveValueClass1(2)) ? true : false, ExtensionMethods.TernaryEvaluate(Operator.And.Evaluate(new HaveValueClass1(0), new HaveValueClass1(2)), true, false));
-            Assert.AreEqual((new HaveValueClass1(1) && new HaveValueClass1(0)) ? true : false, ExtensionMethods.TernaryEvaluate(Operator.And.Evaluate(new HaveValueClass1(1), new HaveValueClass1(0)), true, false));
+            Assert.AreEqual((new HaveValueClass1(3) && new HaveValueClass1(2)) ? true : false, UnitTestCompatibilityExtensions.TernaryEvaluate(Operator.And.Evaluate(new HaveValueClass1(3), new HaveValueClass1(2)), true, false));
+            Assert.AreEqual((new HaveValueClass1(0) && new HaveValueClass1(2)) ? true : false, UnitTestCompatibilityExtensions.TernaryEvaluate(Operator.And.Evaluate(new HaveValueClass1(0), new HaveValueClass1(2)), true, false));
+            Assert.AreEqual((new HaveValueClass1(1) && new HaveValueClass1(0)) ? true : false, UnitTestCompatibilityExtensions.TernaryEvaluate(Operator.And.Evaluate(new HaveValueClass1(1), new HaveValueClass1(0)), true, false));
             Assert.AreEqual(new HaveValueClass1(1) && null, Operator.And.Evaluate(new HaveValueClass1(1), null));
             Assert.AreEqual(null && new HaveValueClass1(1), Operator.And.Evaluate(null, new HaveValueClass1(1)));
             Assert.IsInstanceOfType(Operator.And.Evaluate(new HaveValueClass1(0), new HaveValueClass1(0)), typeof(HaveValueClass1));
@@ -1352,9 +1340,9 @@ namespace HexInnovation
             Assert.IsNull(Operator.And.Evaluate(null, new HaveValueClass1(1)));
 
             // Make sure it works in a class with a custom "&" operation and an implicit bool conversion.
-            Assert.AreEqual((new ArithmeticOperatorTester(3) && new ArithmeticOperatorTester(2)) ? true : false, ExtensionMethods.TernaryEvaluate(Operator.And.Evaluate(new ArithmeticOperatorTester(3), new ArithmeticOperatorTester(2)), true, false));
-            Assert.AreEqual((new ArithmeticOperatorTester(0) && new ArithmeticOperatorTester(2)) ? true : false, ExtensionMethods.TernaryEvaluate(Operator.And.Evaluate(new ArithmeticOperatorTester(0), new ArithmeticOperatorTester(2)), true, false));
-            Assert.AreEqual((new ArithmeticOperatorTester(1) && new ArithmeticOperatorTester(0)) ? true : false, ExtensionMethods.TernaryEvaluate(Operator.And.Evaluate(new ArithmeticOperatorTester(1), new ArithmeticOperatorTester(0)), true, false));
+            Assert.AreEqual((new ArithmeticOperatorTester(3) && new ArithmeticOperatorTester(2)) ? true : false, UnitTestCompatibilityExtensions.TernaryEvaluate(Operator.And.Evaluate(new ArithmeticOperatorTester(3), new ArithmeticOperatorTester(2)), true, false));
+            Assert.AreEqual((new ArithmeticOperatorTester(0) && new ArithmeticOperatorTester(2)) ? true : false, UnitTestCompatibilityExtensions.TernaryEvaluate(Operator.And.Evaluate(new ArithmeticOperatorTester(0), new ArithmeticOperatorTester(2)), true, false));
+            Assert.AreEqual((new ArithmeticOperatorTester(1) && new ArithmeticOperatorTester(0)) ? true : false, UnitTestCompatibilityExtensions.TernaryEvaluate(Operator.And.Evaluate(new ArithmeticOperatorTester(1), new ArithmeticOperatorTester(0)), true, false));
             Assert.AreEqual(new ArithmeticOperatorTester(1) && null, Operator.And.Evaluate(new ArithmeticOperatorTester(1), null));
             Assert.AreEqual(null && new ArithmeticOperatorTester(1), Operator.And.Evaluate(null, new ArithmeticOperatorTester(1)));
             Assert.IsInstanceOfType(Operator.And.Evaluate(new ArithmeticOperatorTester(0), new ArithmeticOperatorTester(0)), typeof(ArithmeticOperatorTester));
@@ -1420,11 +1408,11 @@ namespace HexInnovation
             var twoDays = TimeSpan.FromDays(2);
 
             // Make sure it works in a class with a custom "|" operation and no implicit bool conversion.
-            Assert.AreEqual((new HaveValueClass1(3) || new HaveValueClass1(2)) ? true : false, ExtensionMethods.TernaryEvaluate(Operator.Or.Evaluate(new HaveValueClass1(3), new HaveValueClass1(2)), true, false));
-            Assert.AreEqual((new HaveValueClass1(0) || new HaveValueClass1(2)) ? true : false, ExtensionMethods.TernaryEvaluate(Operator.Or.Evaluate(new HaveValueClass1(0), new HaveValueClass1(2)), true, false));
-            Assert.AreEqual((new HaveValueClass1(1) || new HaveValueClass1(0)) ? true : false, ExtensionMethods.TernaryEvaluate(Operator.Or.Evaluate(new HaveValueClass1(1), new HaveValueClass1(0)), true, false));
-            Assert.AreEqual((new HaveValueClass1(1) || null) ? true : false, ExtensionMethods.TernaryEvaluate(Operator.Or.Evaluate(new HaveValueClass1(1), null), true, false));
-            Assert.AreEqual((null || new HaveValueClass1(1)) ? true : false, ExtensionMethods.TernaryEvaluate(Operator.Or.Evaluate(null, new HaveValueClass1(1)), true, false));
+            Assert.AreEqual((new HaveValueClass1(3) || new HaveValueClass1(2)) ? true : false, UnitTestCompatibilityExtensions.TernaryEvaluate(Operator.Or.Evaluate(new HaveValueClass1(3), new HaveValueClass1(2)), true, false));
+            Assert.AreEqual((new HaveValueClass1(0) || new HaveValueClass1(2)) ? true : false, UnitTestCompatibilityExtensions.TernaryEvaluate(Operator.Or.Evaluate(new HaveValueClass1(0), new HaveValueClass1(2)), true, false));
+            Assert.AreEqual((new HaveValueClass1(1) || new HaveValueClass1(0)) ? true : false, UnitTestCompatibilityExtensions.TernaryEvaluate(Operator.Or.Evaluate(new HaveValueClass1(1), new HaveValueClass1(0)), true, false));
+            Assert.AreEqual((new HaveValueClass1(1) || null) ? true : false, UnitTestCompatibilityExtensions.TernaryEvaluate(Operator.Or.Evaluate(new HaveValueClass1(1), null), true, false));
+            Assert.AreEqual((null || new HaveValueClass1(1)) ? true : false, UnitTestCompatibilityExtensions.TernaryEvaluate(Operator.Or.Evaluate(null, new HaveValueClass1(1)), true, false));
             Assert.IsInstanceOfType(Operator.Or.Evaluate(new HaveValueClass1(0), new HaveValueClass1(0)), typeof(HaveValueClass1));
             Assert.IsInstanceOfType(Operator.Or.Evaluate(new HaveValueClass1(1), new HaveValueClass1(1)), typeof(HaveValueClass1));
             Assert.IsInstanceOfType(Operator.Or.Evaluate(new HaveValueClass1(1), null), typeof(HaveValueClass1));
@@ -1433,11 +1421,11 @@ namespace HexInnovation
             Assert.IsNull(Operator.Or.Evaluate(null, new HaveValueClass1(0)));
 
             // Make sure it works in a class with a custom "&" operation and an implicit bool conversion.
-            Assert.AreEqual((new ArithmeticOperatorTester(3) || new ArithmeticOperatorTester(2)) ? true : false, ExtensionMethods.TernaryEvaluate(Operator.Or.Evaluate(new ArithmeticOperatorTester(3), new ArithmeticOperatorTester(2)), true, false));
-            Assert.AreEqual((new ArithmeticOperatorTester(0) || new ArithmeticOperatorTester(2)) ? true : false, ExtensionMethods.TernaryEvaluate(Operator.Or.Evaluate(new ArithmeticOperatorTester(0), new ArithmeticOperatorTester(2)), true, false));
-            Assert.AreEqual((new ArithmeticOperatorTester(1) || new ArithmeticOperatorTester(0)) ? true : false, ExtensionMethods.TernaryEvaluate(Operator.Or.Evaluate(new ArithmeticOperatorTester(1), new ArithmeticOperatorTester(0)), true, false));
-            Assert.AreEqual((new ArithmeticOperatorTester(1) || null) ? true : false, ExtensionMethods.TernaryEvaluate(Operator.Or.Evaluate(new ArithmeticOperatorTester(1), null), true, false));
-            Assert.AreEqual((null || new ArithmeticOperatorTester(1)) ? true : false, ExtensionMethods.TernaryEvaluate(Operator.Or.Evaluate(null, new ArithmeticOperatorTester(1)), true, false));
+            Assert.AreEqual((new ArithmeticOperatorTester(3) || new ArithmeticOperatorTester(2)) ? true : false, UnitTestCompatibilityExtensions.TernaryEvaluate(Operator.Or.Evaluate(new ArithmeticOperatorTester(3), new ArithmeticOperatorTester(2)), true, false));
+            Assert.AreEqual((new ArithmeticOperatorTester(0) || new ArithmeticOperatorTester(2)) ? true : false, UnitTestCompatibilityExtensions.TernaryEvaluate(Operator.Or.Evaluate(new ArithmeticOperatorTester(0), new ArithmeticOperatorTester(2)), true, false));
+            Assert.AreEqual((new ArithmeticOperatorTester(1) || new ArithmeticOperatorTester(0)) ? true : false, UnitTestCompatibilityExtensions.TernaryEvaluate(Operator.Or.Evaluate(new ArithmeticOperatorTester(1), new ArithmeticOperatorTester(0)), true, false));
+            Assert.AreEqual((new ArithmeticOperatorTester(1) || null) ? true : false, UnitTestCompatibilityExtensions.TernaryEvaluate(Operator.Or.Evaluate(new ArithmeticOperatorTester(1), null), true, false));
+            Assert.AreEqual((null || new ArithmeticOperatorTester(1)) ? true : false, UnitTestCompatibilityExtensions.TernaryEvaluate(Operator.Or.Evaluate(null, new ArithmeticOperatorTester(1)), true, false));
             Assert.IsInstanceOfType(Operator.Or.Evaluate(new ArithmeticOperatorTester(0), new ArithmeticOperatorTester(0)), typeof(ArithmeticOperatorTester));
             Assert.IsInstanceOfType(Operator.Or.Evaluate(new ArithmeticOperatorTester(1), new ArithmeticOperatorTester(1)), typeof(ArithmeticOperatorTester));
             Assert.IsInstanceOfType(Operator.Or.Evaluate(new ArithmeticOperatorTester(1), null), typeof(ArithmeticOperatorTester));
@@ -1958,10 +1946,10 @@ namespace HexInnovation
             Assert.AreEqual(true, TernaryOperator.Evaluate(new ValueNode(false), positiveShouldntBeEvaluated, new ValueNode(true), new CultureInfo("de"), new object[0]));
 
             // There are no mathematical operations or operators being called (ternary is just syntactic sugar, not a real operator), so we shouldn't evaluate the operands as a double.
-            Assert.AreEqual(1, ExtensionMethods.TernaryEvaluate(true, 1, null));
-            Assert.AreEqual('\0', ExtensionMethods.TernaryEvaluate(true, '\0', null));
-            Assert.AreEqual(1, ExtensionMethods.TernaryEvaluate(false, null, 1));
-            Assert.AreEqual('\0', ExtensionMethods.TernaryEvaluate(false, null, '\0'));
+            Assert.AreEqual(1, UnitTestCompatibilityExtensions.TernaryEvaluate(true, 1, null));
+            Assert.AreEqual('\0', UnitTestCompatibilityExtensions.TernaryEvaluate(true, '\0', null));
+            Assert.AreEqual(1, UnitTestCompatibilityExtensions.TernaryEvaluate(false, null, 1));
+            Assert.AreEqual('\0', UnitTestCompatibilityExtensions.TernaryEvaluate(false, null, '\0'));
 
             // The condition should implicitly convert to boolean if there is a false operator and/or an implicit bool operator
             Assert.AreEqual(true, TernaryOperator.Evaluate(new ValueNode(new HaveValueClass1(1)), new ValueNode(true), negativeShouldntBeEvaluated, new CultureInfo("de"), new object[0]));
@@ -1971,14 +1959,14 @@ namespace HexInnovation
 
             try
             {
-                Assert.AreEqual(null, ExtensionMethods.TernaryEvaluate(null, true, false));
+                Assert.AreEqual(null, UnitTestCompatibilityExtensions.TernaryEvaluate(null, true, false));
                 Assert.Fail("The operator should fail if the condition is null");
             }
             catch (InvalidOperationException ex) when (ex.Message == "Cannot apply operator '?:' when the first operand is null") { }
 
             try
             {
-                Assert.AreEqual(null, ExtensionMethods.TernaryEvaluate(0, true, false));
+                Assert.AreEqual(null, UnitTestCompatibilityExtensions.TernaryEvaluate(0, true, false));
                 Assert.Fail("The operator should fail if the condition is an integer");
             }
             catch (InvalidOperationException ex) when (ex.Message == "Cannot apply operator '?:' when the first operand is of type 'System.Int32'") { }
@@ -2043,8 +2031,24 @@ namespace HexInnovation
 #pragma warning restore CS0458 // Warning CS0458  The result of the expression is always 'null' of type 'double?'
 #pragma warning restore CS0464 // Comparing with null of type 'double?' always produces 'false'
 
-    internal static class ExtensionMethods
+    internal static class UnitTestCompatibilityExtensions
     {
+        public static void SetCurrentCulture(CultureInfo culture)
+        {
+#if WINDOWS_UWP
+            CultureInfo.CurrentCulture = CultureInfo.CurrentUICulture = culture;
+#else
+            System.Threading.Thread.CurrentThread.CurrentCulture = System.Threading.Thread.CurrentThread.CurrentUICulture = culture;
+#endif
+        }
+        public static void Sleep(int milliseconds)
+        {
+#if WINDOWS_UWP
+            System.Threading.Tasks.Task.WaitAll(System.Threading.Tasks.Task.Delay(milliseconds));
+#else
+            System.Threading.Thread.Sleep(milliseconds);
+#endif
+        }
         internal static object Evaluate(this BinaryOperator @operator, object x, Func<object> y)
         {
             return @operator.Evaluate(new ValueNode(x), new FormulaNode0("throw", y), CultureInfo.InvariantCulture, new[] { x, y });
