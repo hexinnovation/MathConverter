@@ -15,6 +15,10 @@
     <DefineConstants>XAMARIN;WINDOWS_UWP</DefineConstants>
   </PropertyGroup>
 
+  <ItemGroup Condition="$(TargetFramework.StartsWith('uap')) Or $(TargetFramework.StartsWith('netstandard1'))">
+    <PackageReference Include="System.ComponentModel.TypeConverter" Version="4.3.0" />
+  </ItemGroup>
+
   <Import Project="..\MathConverter.Core.props" />
 
   <ItemGroup>

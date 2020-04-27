@@ -178,18 +178,15 @@ namespace HexInnovation
                 return finalAnswerToConvert;
             }
 
-            // We need to convert the answer to the appropriate type.
-#if !WINDOWS_UWP && !NETSTANDARD1_0 && !NETSTANDARD1_3
-            // Let's start with the default TypeConverter. I'm not really sure why this doesn't work the same way in Xamarin.Forms.
+            // We need to convert the answer to the appropriate type. Let's start with the default TypeConverter.
             var converter = TypeDescriptor.GetConverter(targetType);
 
             if (converter.CanConvertFrom(finalAnswerToConvert.GetType()))
             {
                 // We don't want to use the CultureInfo here when converting, because Rect conversion is broken in some cultures.
-                // We'll keep this conversion working in InvariantCulture.
+                // We'll keep these conversions working in InvariantCulture.
                 return converter.ConvertFrom(null, CultureInfo.InvariantCulture, finalAnswerToConvert);
             }
-#endif
 
             // We know we're not returning null... If we're trying to convert to a Nullable<SomeStruct>, let's just convert to SomeStruct instead.
             var newTarget = Nullable.GetUnderlyingType(targetType);
