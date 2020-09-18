@@ -1,15 +1,11 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text;
 
 namespace HexInnovation
 {
-    abstract class AbstractSyntaxTree
+    public abstract class AbstractSyntaxTree
     {
         public object Evaluate(CultureInfo cultureInfo, object[] parameters)
         {
@@ -242,253 +238,121 @@ namespace HexInnovation
             }
         }
     }
-    sealed class FormulaNode0 : AbstractSyntaxTree
+
+    public abstract class CustomFunction : AbstractSyntaxTree
     {
-        public FormulaNode0(string formulaName, Func<object> formula)
+        public string FunctionName { get; internal set; }
+
+        protected bool TryConvertStruct<T>(object argument, out T value)
+            where T : struct
         {
-            _formulaName = formulaName;
-            _formula = formula;
+            if (Operator.DoesImplicitConversionExist(argument?.GetType(), typeof(T), true) && Operator.DoImplicitConversion(argument, typeof(T?)) is T a)
+            {
+                value = a;
+                return true;
+            }
+            else
+            {
+                value = default;
+                return false;
+            }
         }
-        private readonly string _formulaName;
-        private readonly Func<object> _formula;
-        public override object DoEvaluate(CultureInfo cultureInfo, object[] parameters)
+        protected bool TryConvert<T>(object argument, out T value)
+            where T : class
         {
-            return _formula();
-        }
-        public override string ToString()
-        {
-            return $"{_formulaName}()";
+            if (Operator.DoesImplicitConversionExist(argument?.GetType(), typeof(T), true) && Operator.DoImplicitConversion(argument, typeof(T)) is T a)
+            {
+                value = a;
+                return true;
+            }
+            else
+            {
+                value = default;
+                return false;
+            }
         }
     }
+
+    public abstract class ZeroArgFunction : CustomFunction
+    {
+        public sealed override object DoEvaluate(CultureInfo cultureInfo, object[] parameters)
+        {
+            return Evaluate(cultureInfo);
+        }
+        public abstract object Evaluate(CultureInfo cultureInfo);
+
+        public override string ToString()
+        {
+            return $"{FunctionName}()";
+        }
+    }
+
+
     /// <summary>
     /// A formula that takes one input
     /// </summary>
-    sealed class FormulaNode1 : AbstractSyntaxTree
+    public abstract class OneArgFunction : CustomFunction
     {
-        public FormulaNode1(string formulaName, Func<object, object> formula, AbstractSyntaxTree input)
+        internal AbstractSyntaxTree Argument { get; set; }
+        public sealed override object DoEvaluate(CultureInfo cultureInfo, object[] parameters)
         {
-            _formulaName = formulaName;
-            _formula = formula;
-            _input = input;
-
-            switch (formulaName.ToLower())
-            {
-                case "visibleorhidden":
-                case "visibleorcollapsed":
-                    Debug.WriteLine($"Warning: Function {formulaName} is deprecated and will be removed in a later release of MathConverter. You should instead use code like \"{input}\" ? `Visible` : `{(formulaName.ToLower().EndsWith("hidden") ? "Hidden" : "Collapsed")}`");
-                    break;
-            }
-
+            return Evaluate(cultureInfo, Argument.Evaluate(cultureInfo, parameters));
         }
-        private readonly string _formulaName;
-        private readonly Func<object, object> _formula;
-        private readonly AbstractSyntaxTree _input;
-        public override object DoEvaluate(CultureInfo cultureInfo, object[] parameters)
-        {
-            return _formula(_input.Evaluate(cultureInfo, parameters));
-        }
+        public abstract object Evaluate(CultureInfo cultureInfo, object parameter);
         public override string ToString()
         {
-            return $"{_formulaName}({_input})";
+            return $"{FunctionName}({Argument})";
+        }
+    }
+    public abstract class OneDoubleFunction : OneArgFunction
+    {
+        public sealed override object Evaluate(CultureInfo cultureInfo, object parameter)
+        {
+            if (TryConvertStruct<double>(parameter, out var x))
+                return Evaluate(cultureInfo, x);
+            else if (parameter == null)
+                return EvaluateNullArgument(cultureInfo);
+            else
+                throw new ArgumentException($"{FunctionName} accepts only a numeric input or null.");
+        }
+        public abstract double? Evaluate(CultureInfo cultureInfo, double parameter);
+        public virtual double? EvaluateNullArgument(CultureInfo cultureInfo)
+        {
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// A function that takes two arguments
+    /// </summary>
+    public abstract class TwoArgFunction : CustomFunction
+    {
+        internal AbstractSyntaxTree Argument1 { get; set; }
+        internal AbstractSyntaxTree Argument2 { get; set; }
+        public sealed override object DoEvaluate(CultureInfo cultureInfo, object[] parameters)
+        {
+            return Evaluate(cultureInfo, Argument1.Evaluate(cultureInfo, parameters), Argument2.Evaluate(cultureInfo, parameters));
+        }
+        public abstract object Evaluate(CultureInfo cultureInfo, object x, object y);
+        public override string ToString()
+        {
+            return $"{FunctionName}({Argument1}, {Argument2})";
         }
     }
     /// <summary>
-    /// A formula that takes two arguments
+    /// A formula that takes anywhere from zero to infinity arguments.
     /// </summary>
-    sealed class FormulaNode2 : AbstractSyntaxTree
+    public abstract class ArbitraryArgFunction : CustomFunction
     {
-        public FormulaNode2(string formulaName, Func<object, object, object> formula, AbstractSyntaxTree arg1, AbstractSyntaxTree arg2)
+        internal AbstractSyntaxTree[] Arguments { get; set; }
+        public sealed override object DoEvaluate(CultureInfo cultureInfo, object[] parameters)
         {
-            _formulaName = formulaName;
-            _formula = formula;
-            _arg1 = arg1;
-            _arg2 = arg2;
+            return Evaluate(cultureInfo, Arguments.Select(x => new Func<object>(() => x.Evaluate(cultureInfo, parameters))).ToArray());
         }
-        private readonly string _formulaName;
-        private readonly Func<object, object, object> _formula;
-        private readonly AbstractSyntaxTree _arg1, _arg2;
-        public override object DoEvaluate(CultureInfo cultureInfo, object[] parameters)
-        {
-            var val1 = _arg1.Evaluate(cultureInfo, parameters);
-            var val2 = _arg2.Evaluate(cultureInfo, parameters);
-            return _formula(val1, val2);
-        }
+        public abstract object Evaluate(CultureInfo cultureInfo, Func<object>[] parameters);
         public override string ToString()
         {
-            return $"{_formulaName}({_arg1}, {_arg2})";
-        }
-    }
-    /// <summary>
-    /// A formula that takes anywhere from one to infinity arguments.
-    /// </summary>
-    sealed class FormulaNodeN : AbstractSyntaxTree
-    {
-        public static object And(CultureInfo cultureInfo, IEnumerable<object> args)
-        {
-            var currentValueIsDefined = false;
-            object currentValue = null;
-
-            foreach (var arg in args)
-            {
-                if (currentValueIsDefined)
-                {
-                    currentValue = Operator.And.Evaluate(currentValue, arg);
-                }
-                else
-                {
-                    currentValue = arg;
-                    currentValueIsDefined = true;
-                }
-
-                if (Operator.TryConvertToBool(currentValue) == false)
-                {
-                    return currentValue;
-                }
-            }
-
-            return currentValue;
-        }
-        public static object Or(CultureInfo cultureInfo, IEnumerable<object> args)
-        {
-            var currentValueIsDefined = false;
-            object currentValue = null;
-
-            foreach (var arg in args)
-            {
-                if (currentValueIsDefined)
-                {
-                    currentValue = Operator.Or.Evaluate(currentValue, arg);
-                }
-                else
-                {
-                    currentValue = arg;
-                    currentValueIsDefined = true;
-                }
-
-                if (Operator.TryConvertToBool(currentValue) == true)
-                {
-                    return currentValue;
-                }
-            }
-
-            return false;
-        }
-        public static object Nor(CultureInfo cultureInfo, IEnumerable<object> args)
-        {
-            return Operator.LogicalNot.Evaluate(Or(cultureInfo, args));
-        }
-        public static object Max(CultureInfo cultureInfo, IEnumerable<object> args)
-        {
-            var currentValueIsDefined = false;
-            object max = null;
-
-            foreach (var arg in args)
-            {
-                if (currentValueIsDefined)
-                {
-                    if (Operator.TryConvertToBool(Operator.GreaterThan.Evaluate(arg, max)) == true)
-                    {
-                        max = arg;
-                    }
-                }
-                else
-                {
-                    max = arg;
-                    currentValueIsDefined = arg != null;
-                }
-            }
-
-            return max;
-        }
-        public static object Min(CultureInfo cultureInfo, IEnumerable<object> args)
-        {
-            var currentValueIsDefined = false;
-            object min = null;
-
-            foreach (var arg in args)
-            {
-                if (currentValueIsDefined)
-                {
-                    if (Operator.TryConvertToBool(Operator.LessThan.Evaluate(arg, min)) == true)
-                    {
-                        min = arg;
-                    }
-                }
-                else
-                {
-                    min = arg;
-                    currentValueIsDefined = arg != null;
-                }
-            }
-
-            return min;
-        }
-        public static object Format(CultureInfo cultureInfo, IEnumerable<object> args)
-        {
-            // Make sure we don't evaluate any of the arguments twice.
-            var argsList = args.ToList();
-
-            if (argsList.Count > 0 && argsList[0] is string format)
-            {
-                return string.Format(cultureInfo, format, argsList.Skip(1).ToArray());
-            }
-            else
-            {
-                throw new ArgumentException("format() function must be called with a string as the first argument.");
-            }
-        }
-        public static string Concat(CultureInfo cultureInfo, IEnumerable<object> args)
-        {
-            var argsList = args.ToList();
-
-            return string.Concat((argsList.Count == 1 && argsList[0] is IEnumerable enumerable ? enumerable.Cast<object>() : argsList).MyToArray());
-        }
-        public static string Join(CultureInfo cultureInfo, IEnumerable<object> args)
-        {
-            var argsList = args.ToList();
-
-            if (argsList[0] is string separator)
-            {
-                var argVals = argsList.Skip(1).ToArray();
-
-                return string.Join(separator, (argVals.Length == 1 && argVals[0] is IEnumerable enumerable ? enumerable.Cast<object>() : argVals).MyToArray());
-
-            }
-            else
-            {
-                throw new ArgumentException("join() function must be called with a string as the first argument.");
-            }
-        }
-        public static object Average(CultureInfo cultureInfo, IEnumerable<object> args)
-        {
-            var arguments = args.Select(p => (double?)Operator.DoImplicitConversion(p, typeof(double?)))
-                .Where(p => p.HasValue).Select(p => p.Value).ToList();
-
-            switch (arguments.Count)
-            {
-                case 0:
-                    return null;
-                default:
-                    return arguments.Average();
-            }
-        }
-
-        public FormulaNodeN(string formulaName, Func<CultureInfo, IEnumerable<object>, object> formula, IEnumerable<AbstractSyntaxTree> args)
-        {
-            _formulaName = formulaName;
-            _formula = formula;
-            _args = args;
-        }
-        private readonly string _formulaName;
-        private readonly Func<CultureInfo, IEnumerable<object>, object> _formula;
-        private readonly IEnumerable<AbstractSyntaxTree> _args;
-        public override object DoEvaluate(CultureInfo cultureInfo, object[] parameters)
-        {
-            return _formula(cultureInfo, _args.Select(p => p.Evaluate(cultureInfo, parameters)));
-        }
-        public override string ToString()
-        {
-            return $"{_formulaName}({string.Join(", ", _args.MyToArray())})";
+            return $"{FunctionName}({string.Join(", ", Arguments.OfType<object>().MyToArray())})";
         }
     }
 }

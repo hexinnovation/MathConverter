@@ -8,6 +8,8 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)AssemblyInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CompatibilityExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CustomFunctionCollection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CustomFunctions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)EvaluationException.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MathConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Operator.cs" />

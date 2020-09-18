@@ -89,7 +89,12 @@ namespace HexInnovation
         }
 #endif
 
-#if !WINDOWS_UWP && !NETSTANDARD1_0 && !NETSTANDARD1_3
+#if WINDOWS_UWP || NETSTANDARD1_0 || NETSTANDARD1_3
+        public static bool IsAssignableFrom(this Type self, Type o)
+        {
+            return Xamarin.Forms.Internals.ReflectionExtensions.IsAssignableFrom(self, o);
+        }
+#else
         public static Type GetTypeInfo(this Type self)
         {
             return self;

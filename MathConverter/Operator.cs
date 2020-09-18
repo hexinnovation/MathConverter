@@ -6,7 +6,7 @@ using System.Reflection;
 
 namespace HexInnovation
 {
-    internal abstract class Operator
+    public abstract class Operator
     {
         /// <summary>
         /// The binary "^" operator. This operator returns the first operand raised to the power of the second.
@@ -579,13 +579,14 @@ namespace HexInnovation
                         }
                     }
 
-                    switch (candidateUserDefinedOperators.Count)
+                    if (candidateUserDefinedOperators.Count == 1)
                     {
-                        case 1:
-                            return candidateUserDefinedOperators[0].Method;
-                        default:
-                            throw new AmbiguousMatchException(
-                                $"Could not identify which {OperatorType} operator to apply to type{(parameters.Length == 1 ? "" : "s")} {string.Join(" and ", parameters.Select(p => p.GetType().FullName ?? "null").MyToArray())} between the following options:{string.Concat(candidateUserDefinedOperators.Select(p => $"{Environment.NewLine}{p}").MyToArray())}");
+                        return candidateUserDefinedOperators[0].Method;
+                    }
+                    else
+                    {
+                        throw new AmbiguousMatchException(
+                            $"Could not identify which {OperatorType} operator to apply to type{(parameters.Length == 1 ? "" : "s")} {string.Join(" and ", parameters.Select(p => p.GetType().FullName ?? "null").MyToArray())} between the following options:{string.Concat(candidateUserDefinedOperators.Select(p => $"{Environment.NewLine}{p}").MyToArray())}");
                     }
             }
         }
@@ -754,7 +755,7 @@ namespace HexInnovation
             }
         }
 
-        protected object EvaluateWithNullArguments()
+        public object EvaluateWithNullArguments()
         {
             switch (OperatorType)
             {
@@ -784,7 +785,7 @@ namespace HexInnovation
 
         public sealed override string ToString() => OperatorSymbols;
     }
-    internal sealed class UnaryOperator : Operator
+    public sealed class UnaryOperator : Operator
     {
         private UnaryOperator(OperationType operatorType) : base(operatorType) { }
 
@@ -812,7 +813,7 @@ namespace HexInnovation
 
         }
 
-        internal object Evaluate(object operand)
+        public object Evaluate(object operand)
         {
             if (operand == null)
             {
@@ -855,7 +856,7 @@ namespace HexInnovation
             }
         }
     }
-    internal sealed class BinaryOperator : Operator
+    public sealed class BinaryOperator : Operator
     {
         private BinaryOperator(OperationType operatorType) : base(operatorType) { }
 
@@ -897,7 +898,7 @@ namespace HexInnovation
                             var r = evaluateRight();
 
                             // Is there an "&" operator? If l is null, we'll check for an "&" operator between r & r.
-                            var @operator = GetUserDefinedOperator(out bool convertToDoubles, l ?? r, r);
+                            var @operator = GetUserDefinedOperator(out _, l ?? r, r);
 
                             if (@operator != null)
                             {
@@ -1125,7 +1126,7 @@ namespace HexInnovation
     /// It is designed to work like the "?:" operator.
     /// <see cref="https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/expressions#conditional-operator"/>
     /// </summary>
-    internal static class TernaryOperator
+    public static class TernaryOperator
     {
         public static object Evaluate(AbstractSyntaxTree condition, AbstractSyntaxTree positive, AbstractSyntaxTree negative, CultureInfo cultureInfo, object[] parameters)
         {
@@ -1142,7 +1143,7 @@ namespace HexInnovation
             }
         }
     }
-    internal enum OperationType
+    public enum OperationType
     {
         Exponentiation,
         Addition,
