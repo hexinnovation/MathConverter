@@ -1,4 +1,4 @@
-﻿<Project Sdk="MSBuild.Sdk.Extras/2.0.54">
+﻿<Project Sdk="MSBuild.Sdk.Extras/2.1.2">
 
   <PropertyGroup>
     <TargetFrameworks>net35;net40;net45;netcoreapp3.0;netcoreapp3.1</TargetFrameworks>
@@ -13,8 +13,8 @@
   <ItemGroup>
     <ProjectReference Include="..\..\MathConverter\WPF\MathConverter.WPF.csproj" />
     <PackageReference Include="NUnit" Version="3.12.0" />
-    <PackageReference Include="NUnit3TestAdapter" Version="3.16.1" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.6.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.1" />
   </ItemGroup>
 
   <Import Project="..\MathConverter.UnitTests.Core.projitems" Label="Shared" />

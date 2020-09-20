@@ -1,4 +1,4 @@
-﻿<Project Sdk="MSBuild.Sdk.Extras/2.0.54">
+﻿<Project Sdk="MSBuild.Sdk.Extras/2.1.2">
   <PropertyGroup>
     <TargetFrameworks>netcoreapp2.0;netcoreapp3.0;netcoreapp3.1</TargetFrameworks>
     <RootNamespace>HexInnovation</RootNamespace>
@@ -23,8 +23,8 @@
 
     <Otherwise>
       <ItemGroup>
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.6.1" />
-        <PackageReference Include="NUnit3TestAdapter" Version="3.16.1" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.1" />
+        <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" />
       </ItemGroup>
     </Otherwise>
   </Choose>

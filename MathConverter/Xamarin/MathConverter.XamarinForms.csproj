@@ -1,4 +1,4 @@
-﻿<Project Sdk="MSBuild.Sdk.Extras/2.0.54">
+﻿<Project Sdk="MSBuild.Sdk.Extras/2.1.2">
   <PropertyGroup>
     <TargetFrameworks>monoandroid90;netstandard1.0;netstandard1.3;netstandard2.0;netcoreapp2.0;netcoreapp3.0;netcoreapp3.1;xamarin.mac20;xamarin.ios10</TargetFrameworks>
     <TargetFrameworks Condition="'$(OS)' == 'Windows_NT'">$(TargetFrameworks);uap10.0</TargetFrameworks>
@@ -26,6 +26,6 @@
   <Import Project="..\MathConverter.Core.props" />
 
   <ItemGroup>
-    <PackageReference Include="Xamarin.Forms" Version="4.5.0.657" />
+    <PackageReference Include="Xamarin.Forms" Version="4.8.0.1451" />
   </ItemGroup>
 </Project>
