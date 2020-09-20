@@ -16,6 +16,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 #if XAMARIN
 using Xamarin.Forms;
 using Rect = Xamarin.Forms.Rectangle;
+using DependencyProperty = Xamarin.Forms.BindableProperty;
 #else
 using System.Windows;
 using System.Windows.Media;
@@ -438,15 +439,20 @@ namespace HexInnovation
             Assert.AreEqual(true ? y : x, (int?)_converter.Convert(new object[] { x, y }, typeof(int?), "true ? y : x", new CultureInfo("de")));
             Assert.AreEqual(false ? y : x, (int?)_converter.Convert(new object[] { x, y }, typeof(int?), "false ? y : x", new CultureInfo("de")));
 
-#if !XAMARIN
             try
             {
                 // UnsetValue is not yet available in Xamarin.Forms
                 _converter.Convert(new object[] { DependencyProperty.UnsetValue }, typeof(int?), "x ? true : false", new CultureInfo("de"));
-                Assert.Fail("This should have thrown an exception. We should evaluate DependencyProperty.UnsetValue as null, which fails as the first operand of the Ternary operator.");
-            }
-            catch (EvaluationException ex) when (ex.Message == $"MathConverter threw an exception while performing a conversion.{Environment.NewLine}{Environment.NewLine}ConverterParameter:{Environment.NewLine}x ? true : false{Environment.NewLine}{Environment.NewLine}BindingValues:{Environment.NewLine}[0]: ({DependencyProperty.UnsetValue.GetType().FullName}):  {{DependencyProperty.UnsetValue}}" && ex.InnerException.Message == $"A System.InvalidOperationException was thrown while evaluating the TernaryNode:{Environment.NewLine}(x ? True : False)" && ex.InnerException.InnerException.Message == "Cannot apply operator '?:' when the first operand is null") { }
+
+#if XAMARIN
+                var dependencyPropertyClass = nameof(BindableProperty);
+#else
+                var dependencyPropertyClass = nameof(DependencyProperty);
 #endif
+
+                Assert.Fail($"This should have thrown an exception. We should evaluate {dependencyPropertyClass}.{nameof(DependencyProperty.UnsetValue)} as null, which fails as the first operand of the Ternary operator.");
+            }
+            catch (EvaluationException ex) when (ex.Message == $"MathConverter threw an exception while performing a conversion.{Environment.NewLine}{Environment.NewLine}ConverterParameter:{Environment.NewLine}x ? true : false{Environment.NewLine}{Environment.NewLine}BindingValues:{Environment.NewLine}[0]: ({DependencyProperty.UnsetValue.GetType().FullName}):  {DependencyProperty.UnsetValue}" && ex.InnerException.Message == $"A System.InvalidOperationException was thrown while evaluating the TernaryNode:{Environment.NewLine}(x ? True : False)" && ex.InnerException.InnerException.Message == "Cannot apply operator '?:' when the first operand is null") { }
         }
         [TestMethod]
         public void TestNullTargetType()

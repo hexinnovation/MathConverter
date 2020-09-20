@@ -1,16 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
-using System.Reflection;
 
 #if XAMARIN
 using Xamarin.Forms;
 using TypeConverterAttribute = Xamarin.Forms.TypeConverterAttribute;
 using XamarinTypeConverter = Xamarin.Forms.TypeConverter;
+using DependencyProperty = Xamarin.Forms.BindableProperty;
 #else
-using System.Diagnostics;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Markup;
@@ -22,11 +22,7 @@ namespace HexInnovation
     /// MathConverter is a WPF Converter class that does it all.
     /// </summary>
     [ContentProperty(nameof(CustomFunctions))]
-    public class MathConverter : IValueConverter
-#if !XAMARIN
-        , IMultiValueConverter
-        // IMultiValueConverter not yet supported officially in XAMARIN.
-#endif
+    public class MathConverter : IValueConverter, IMultiValueConverter
     {
         /// <summary>
         /// Computes the ordinal number for an integer.
@@ -62,14 +58,11 @@ namespace HexInnovation
         /// <returns>The <paramref name="arg"/> passed in, or <code>null</code> if the <paramref name="arg"/> is equal to <see cref="DependencyProperty.UnsetValue"/></returns>
         private static object SanitizeBinding(object arg, int argIndex, int totalBinding, object parameter, Type targetType)
         {
-#if !XAMARIN
-            // UnsetValue is not yet supported officially in XAMARIN.
             if (arg == DependencyProperty.UnsetValue)
             {
-                Debug.Print($"Encountered {nameof(DependencyProperty.UnsetValue)} in the {(totalBinding > 1 ? $"{ComputeOrdinal(argIndex + 1)} " : "")}argument while trying to convert to type \"{targetType.FullName}\" using the ConverterParameter {(parameter == null ? "'null'" : $"\"{parameter}\"")}. Double-check that your binding is correct.");
+                Debug.WriteLine($"Encountered {nameof(DependencyProperty.UnsetValue)} in the {(totalBinding > 1 ? $"{ComputeOrdinal(argIndex + 1)} " : "")}argument while trying to convert to type \"{targetType.FullName}\" using the ConverterParameter {(parameter == null ? "'null'" : $"\"{parameter}\"")}. Double-check that your binding is correct.");
                 return null;
             }
-#endif
 
             return arg;
         }

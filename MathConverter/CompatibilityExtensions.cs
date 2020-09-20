@@ -71,10 +71,6 @@ namespace HexInnovation
 #endif
 
 #if NETSTANDARD1_0 || NETSTANDARD1_3
-        public static bool IsInstanceOfType(this Type self, object o)
-        {
-            return Xamarin.Forms.Internals.ReflectionExtensions.IsInstanceOfType(self, o);
-        }
         public static void ForEach<T>(this IEnumerable<T> enumeration, Action<T> action)
         {
             Xamarin.Forms.Internals.EnumerableExtensions.ForEach(enumeration, action);
@@ -90,6 +86,10 @@ namespace HexInnovation
 #endif
 
 #if WINDOWS_UWP || NETSTANDARD1_0 || NETSTANDARD1_3
+        public static bool IsInstanceOfType(this Type self, object o)
+        {
+            return Xamarin.Forms.Internals.ReflectionExtensions.IsInstanceOfType(self, o);
+        }
         public static bool IsAssignableFrom(this Type self, Type o)
         {
             return Xamarin.Forms.Internals.ReflectionExtensions.IsAssignableFrom(self, o);
