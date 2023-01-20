@@ -76,57 +76,8 @@ namespace HexInnovation
         /// </summary>
         public MathConverter()
         {
-            CustomFunctions = new CustomFunctionCollection
-            {
-                { new CustomFunctionDefinition { Name = "Now", Function = typeof(NowFunction) } },
-                { new CustomFunctionDefinition { Name = "Cos", Function = typeof(CosFunction) } },
-                { new CustomFunctionDefinition { Name = "Sin", Function = typeof(SinFunction) } },
-                { new CustomFunctionDefinition { Name = "Tan", Function = typeof(TanFunction) } },
-                { new CustomFunctionDefinition { Name = "Abs", Function = typeof(AbsFunction) } },
-                { new CustomFunctionDefinition { Name = "Acos", Function = typeof(AcosFunction) } },
-                { new CustomFunctionDefinition { Name = "ArcCos", Function = typeof(AcosFunction) } },
-                { new CustomFunctionDefinition { Name = "Asin", Function = typeof(AsinFunction) } },
-                { new CustomFunctionDefinition { Name = "ArcSin", Function = typeof(AsinFunction) } },
-                { new CustomFunctionDefinition { Name = "Atan", Function = typeof(AtanFunction) } },
-                { new CustomFunctionDefinition { Name = "ArcTan", Function = typeof(AtanFunction) } },
-                { new CustomFunctionDefinition { Name = "Ceil", Function = typeof(CeilingFunction) } },
-                { new CustomFunctionDefinition { Name = "Ceiling", Function = typeof(CeilingFunction) } },
-                { new CustomFunctionDefinition { Name = "Floor", Function = typeof(FloorFunction) } },
-                { new CustomFunctionDefinition { Name = "Sqrt", Function = typeof(SqrtFunction) } },
-                { new CustomFunctionDefinition { Name = "Deg", Function = typeof(DegreesFunction) } },
-                { new CustomFunctionDefinition { Name = "Degrees", Function = typeof(DegreesFunction) } },
-                { new CustomFunctionDefinition { Name = "Rad", Function = typeof(RadiansFunction) } },
-                { new CustomFunctionDefinition { Name = "Radians", Function = typeof(RadiansFunction) } },
-                { new CustomFunctionDefinition { Name = "ToLower", Function = typeof(ToLowerFunction) } },
-                { new CustomFunctionDefinition { Name = "LCase", Function = typeof(ToLowerFunction) } },
-                { new CustomFunctionDefinition { Name = "ToUpper", Function = typeof(ToUpperFunction) } },
-                { new CustomFunctionDefinition { Name = "UCase", Function = typeof(ToUpperFunction) } },
-#if !XAMARIN
-                { new CustomFunctionDefinition { Name = "VisibleOrCollapsed", Function = typeof(VisibleOrCollapsedFunction) } },
-                { new CustomFunctionDefinition { Name = "VisibleOrHidden", Function = typeof(VisibleOrHiddenFunction) } },
-#endif
-                { new CustomFunctionDefinition { Name = "TryParseDouble", Function = typeof(TryParseDoubleFunction) } },
-                { new CustomFunctionDefinition { Name = "StartsWith", Function = typeof(StartsWithFunction) } },
-                { new CustomFunctionDefinition { Name = "Contains", Function = typeof(ContainsFunction) } },
-                { new CustomFunctionDefinition { Name = "EndsWith", Function = typeof(EndsWithFunction) } },
-                { new CustomFunctionDefinition { Name = "Log", Function = typeof(LogFunction) } },
-                { new CustomFunctionDefinition { Name = "Atan2", Function = typeof(Atan2Function) } },
-                { new CustomFunctionDefinition { Name = "ArcTan2", Function = typeof(Atan2Function) } },
-                { new CustomFunctionDefinition { Name = "IsNull", Function = typeof(IsNullFunction) } },
-                { new CustomFunctionDefinition { Name = "IfNull", Function = typeof(IsNullFunction) } },
-                { new CustomFunctionDefinition { Name = "Round", Function = typeof(RoundFunction) } },
-                { new CustomFunctionDefinition { Name = "And", Function = typeof(AndFunction) } },
-                { new CustomFunctionDefinition { Name = "Nor", Function = typeof(NorFunction) } },
-                { new CustomFunctionDefinition { Name = "Or", Function = typeof(OrFunction) } },
-                { new CustomFunctionDefinition { Name = "Max", Function = typeof(MaxFunction) } },
-                { new CustomFunctionDefinition { Name = "Min", Function = typeof(MinFunction) } },
-                { new CustomFunctionDefinition { Name = "Avg", Function = typeof(AverageFunction) } },
-                { new CustomFunctionDefinition { Name = "Average", Function = typeof(AverageFunction) } },
-                { new CustomFunctionDefinition { Name = "Format", Function = typeof(FormatFunction) } },
-                { new CustomFunctionDefinition { Name = "Concat", Function = typeof(ConcatFunction) } },
-                { new CustomFunctionDefinition { Name = "Join", Function = typeof(JoinFunction) } },
-                { new CustomFunctionDefinition { Name = "Throw", Function = typeof(ThrowFunction) } },
-            };
+            CustomFunctions = new CustomFunctionCollection();
+            CustomFunctions.RegisterDefaultFunctions();
         }
 
         /// <summary>

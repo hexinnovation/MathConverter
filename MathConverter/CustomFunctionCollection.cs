@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 
 namespace HexInnovation
@@ -40,6 +41,64 @@ namespace HexInnovation
         public void Clear()
         {
             _functions.Clear();
+            
+            if (LicenseManager.UsageMode == LicenseUsageMode.Designtime)
+            {
+                // If we create a MathConverter in XAML where we add a CustomFunctionDefinition to the MathConverter, then the designer calls Clear(), and then
+                // we get design-time exceptions any time we reference any default function. So if the designer calls Clear(), we will register the default functions again.
+                RegisterDefaultFunctions();
+            }
+        }
+        public void RegisterDefaultFunctions()
+        {
+            Add(new CustomFunctionDefinition { Name = "Now", Function = typeof(NowFunction) });
+            Add(new CustomFunctionDefinition { Name = "Cos", Function = typeof(CosFunction) });
+            Add(new CustomFunctionDefinition { Name = "Sin", Function = typeof(SinFunction) });
+            Add(new CustomFunctionDefinition { Name = "Tan", Function = typeof(TanFunction) });
+            Add(new CustomFunctionDefinition { Name = "Abs", Function = typeof(AbsFunction) });
+            Add(new CustomFunctionDefinition { Name = "Acos", Function = typeof(AcosFunction) });
+            Add(new CustomFunctionDefinition { Name = "ArcCos", Function = typeof(AcosFunction) });
+            Add(new CustomFunctionDefinition { Name = "Asin", Function = typeof(AsinFunction) });
+            Add(new CustomFunctionDefinition { Name = "ArcSin", Function = typeof(AsinFunction) });
+            Add(new CustomFunctionDefinition { Name = "Atan", Function = typeof(AtanFunction) });
+            Add(new CustomFunctionDefinition { Name = "ArcTan", Function = typeof(AtanFunction) });
+            Add(new CustomFunctionDefinition { Name = "Ceil", Function = typeof(CeilingFunction) });
+            Add(new CustomFunctionDefinition { Name = "Ceiling", Function = typeof(CeilingFunction) });
+            Add(new CustomFunctionDefinition { Name = "Floor", Function = typeof(FloorFunction) });
+            Add(new CustomFunctionDefinition { Name = "Sqrt", Function = typeof(SqrtFunction) });
+            Add(new CustomFunctionDefinition { Name = "Deg", Function = typeof(DegreesFunction) });
+            Add(new CustomFunctionDefinition { Name = "Degrees", Function = typeof(DegreesFunction) });
+            Add(new CustomFunctionDefinition { Name = "Rad", Function = typeof(RadiansFunction) });
+            Add(new CustomFunctionDefinition { Name = "Radians", Function = typeof(RadiansFunction) });
+            Add(new CustomFunctionDefinition { Name = "ToLower", Function = typeof(ToLowerFunction) });
+            Add(new CustomFunctionDefinition { Name = "LCase", Function = typeof(ToLowerFunction) });
+            Add(new CustomFunctionDefinition { Name = "ToUpper", Function = typeof(ToUpperFunction) });
+            Add(new CustomFunctionDefinition { Name = "UCase", Function = typeof(ToUpperFunction) });
+#if !XAMARIN
+            Add(new CustomFunctionDefinition { Name = "VisibleOrCollapsed", Function = typeof(VisibleOrCollapsedFunction) });
+            Add(new CustomFunctionDefinition { Name = "VisibleOrHidden", Function = typeof(VisibleOrHiddenFunction) });
+#endif
+            Add(new CustomFunctionDefinition { Name = "TryParseDouble", Function = typeof(TryParseDoubleFunction) });
+            Add(new CustomFunctionDefinition { Name = "StartsWith", Function = typeof(StartsWithFunction) });
+            Add(new CustomFunctionDefinition { Name = "Contains", Function = typeof(ContainsFunction) });
+            Add(new CustomFunctionDefinition { Name = "EndsWith", Function = typeof(EndsWithFunction) });
+            Add(new CustomFunctionDefinition { Name = "Log", Function = typeof(LogFunction) });
+            Add(new CustomFunctionDefinition { Name = "Atan2", Function = typeof(Atan2Function) });
+            Add(new CustomFunctionDefinition { Name = "ArcTan2", Function = typeof(Atan2Function) });
+            Add(new CustomFunctionDefinition { Name = "IsNull", Function = typeof(IsNullFunction) });
+            Add(new CustomFunctionDefinition { Name = "IfNull", Function = typeof(IsNullFunction) });
+            Add(new CustomFunctionDefinition { Name = "Round", Function = typeof(RoundFunction) });
+            Add(new CustomFunctionDefinition { Name = "And", Function = typeof(AndFunction) });
+            Add(new CustomFunctionDefinition { Name = "Nor", Function = typeof(NorFunction) });
+            Add(new CustomFunctionDefinition { Name = "Or", Function = typeof(OrFunction) });
+            Add(new CustomFunctionDefinition { Name = "Max", Function = typeof(MaxFunction) });
+            Add(new CustomFunctionDefinition { Name = "Min", Function = typeof(MinFunction) });
+            Add(new CustomFunctionDefinition { Name = "Avg", Function = typeof(AverageFunction) });
+            Add(new CustomFunctionDefinition { Name = "Average", Function = typeof(AverageFunction) });
+            Add(new CustomFunctionDefinition { Name = "Format", Function = typeof(FormatFunction) });
+            Add(new CustomFunctionDefinition { Name = "Concat", Function = typeof(ConcatFunction) });
+            Add(new CustomFunctionDefinition { Name = "Join", Function = typeof(JoinFunction) });
+            Add(new CustomFunctionDefinition { Name = "Throw", Function = typeof(ThrowFunction) });
         }
         public bool Contains(CustomFunctionDefinition item)
         {
