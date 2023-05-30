@@ -41,12 +41,19 @@ namespace HexInnovation
         public void Clear()
         {
             _functions.Clear();
-            
+
+#if WINDOWS_UWP
+            if (Windows.ApplicationModel.DesignMode.DesignModeEnabled)
+#elif !NETSTANDARD1_0 && !NETSTANDARD1_3
             if (LicenseManager.UsageMode == LicenseUsageMode.Designtime)
+#endif
             {
                 // If we create a MathConverter in XAML where we add a CustomFunctionDefinition to the MathConverter, then the designer calls Clear(), and then
                 // we get design-time exceptions any time we reference any default function. So if the designer calls Clear(), we will register the default functions again.
+#if !NETSTANDARD1_0 && !NETSTANDARD1_3
+
                 RegisterDefaultFunctions();
+#endif
             }
         }
         public void RegisterDefaultFunctions()
