@@ -163,6 +163,6 @@
       <Name>MathConverter.XamarinForms</Name>
     </ProjectReference>
   </ItemGroup>
-  <Import Project="..\MathConverter.UnitTests.Core.projitems" Label="Shared" />
+  <Import Project="..\MathConverter.UnitTests.Core.props" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
 </Project>

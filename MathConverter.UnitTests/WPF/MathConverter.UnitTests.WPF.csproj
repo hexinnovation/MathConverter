@@ -36,6 +36,6 @@
     </PackageReference>
   </ItemGroup>
 
-  <Import Project="..\MathConverter.UnitTests.Core.projitems" Label="Shared" />
+  <Import Project="..\MathConverter.UnitTests.Core.props" />
 
 </Project>

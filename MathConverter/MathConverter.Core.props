@@ -29,6 +29,7 @@
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <TargetFrameworkMonikerAssemblyAttributesPath>$([System.IO.Path]::Combine('$(BaseIntermediateOutputPath)', '$(Configuration)', '$(TargetFramework)', '$(AssemblyName).GeneratedAssemblyAttributes.cs'))</TargetFrameworkMonikerAssemblyAttributesPath>
     <DeterministicSourcePaths Condition="'$(EnableSourceLink)' == ''">false</DeterministicSourcePaths>
+    <LangVersion>9.0</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
