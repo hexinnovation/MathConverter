@@ -1,9 +1,9 @@
-﻿<Project Sdk="MSBuild.Sdk.Extras/2.1.2">
+﻿<Project Sdk="MSBuild.Sdk.Extras/3.0.44">
   <PropertyGroup>
-    <TargetFrameworks>monoandroid90;netstandard1.0;netstandard1.3;netstandard2.0;netcoreapp2.0;netcoreapp3.0;netcoreapp3.1;xamarin.mac20;xamarin.ios10</TargetFrameworks>
+    <TargetFrameworks>monoandroid10.0;netstandard1.0;netstandard1.3;netstandard2.0;netcoreapp2.0;netcoreapp3.0;netcoreapp3.1;xamarin.mac20;xamarin.ios10</TargetFrameworks>
     <TargetFrameworks Condition="'$(OS)' == 'Windows_NT'">$(TargetFrameworks);uap10.0</TargetFrameworks>
-    <TargetPlatformVersion Condition="$(TargetFramework.StartsWith('uap'))">10.0.18362.0</TargetPlatformVersion>
-    <TargetPlatformMinVersion Condition="$(TargetFramework.StartsWith('uap'))">10.0.14393.0</TargetPlatformMinVersion>
+    <TargetPlatformVersion Condition="$(TargetFramework.StartsWith('uap'))">10.0.22621.0</TargetPlatformVersion>
+    <TargetPlatformMinVersion Condition="$(TargetFramework.StartsWith('uap'))">10.0.15063.0</TargetPlatformMinVersion>
     <XamarinAndroidSupportSkipVerifyVersions>true</XamarinAndroidSupportSkipVerifyVersions>
     <AssemblyName>MathConverter.XamarinForms</AssemblyName>
     <MathConverterTarget>XamarinForms</MathConverterTarget>
@@ -23,9 +23,13 @@
     <Reference Include="netstandard" />
   </ItemGroup>
 
+  <ItemGroup Condition="$(TargetFramework.StartsWith('netstandard1')) Or $(TargetFramework.StartsWith('uap10'))">
+    <PackageReference Include="NETStandard.Library" Version="2.0.3" />
+  </ItemGroup>
+
   <Import Project="..\MathConverter.Core.props" />
 
   <ItemGroup>
-    <PackageReference Include="Xamarin.Forms" Version="4.8.0.1451" />
+    <PackageReference Include="Xamarin.Forms" Version="5.0.0.2578" />
   </ItemGroup>
 </Project>

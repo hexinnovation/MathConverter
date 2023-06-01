@@ -12,6 +12,13 @@
     <Description>A sample WPF application built to showcase a few of the features of MathConverter</Description>
     <PackageProjectUrl>https://github.com/hexinnovation/MathConverter</PackageProjectUrl>
   </PropertyGroup>
+
+  <ItemGroup Condition="$(TargetFramework.StartsWith('net4'))">
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies.$(TargetFramework)" Version="1.0.3" PrivateAssets="All">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
     <DefineConstants>DEBUG;TRACE</DefineConstants>
   </PropertyGroup>

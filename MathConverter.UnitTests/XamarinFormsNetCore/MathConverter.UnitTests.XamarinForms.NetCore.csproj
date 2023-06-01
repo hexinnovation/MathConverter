@@ -1,4 +1,4 @@
-﻿<Project Sdk="MSBuild.Sdk.Extras/2.1.2">
+﻿<Project Sdk="MSBuild.Sdk.Extras/3.0.44">
   <PropertyGroup>
     <TargetFrameworks>netcoreapp2.0;netcoreapp3.0;netcoreapp3.1</TargetFrameworks>
     <RootNamespace>HexInnovation</RootNamespace>
@@ -10,7 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\MathConverter\Xamarin\MathConverter.XamarinForms.csproj" />
-    <PackageReference Include="NUnit" Version="3.12.0" />
+    <PackageReference Include="NUnit" Version="3.13.3" />
   </ItemGroup>
   
   <Choose>
@@ -20,11 +20,16 @@
         <PackageReference Include="NUnit3TestAdapter" Version="3.15.1" />
       </ItemGroup>
     </When>
-
+    <When Condition="'$(TargetFramework)' == 'netcoreapp3.0'">
+      <ItemGroup>
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.3.3" />
+        <PackageReference Include="NUnit3TestAdapter" Version="4.3.0" />
+      </ItemGroup>
+    </When>
     <Otherwise>
       <ItemGroup>
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.1" />
-        <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.0" />
+        <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
       </ItemGroup>
     </Otherwise>
   </Choose>
