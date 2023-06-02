@@ -140,18 +140,18 @@ namespace HexInnovation
             public MethodInfo Method { get; set; }
             public ParameterInfo[] Parameters { get; set; }
 
-            public bool IsApplicable(Type[] parameters)
+            public bool IsApplicable(Type[] operandTypes)
             {
                 // https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/expressions#applicable-function-member
 
                 // This logic is simplified because operators cannot be called with ref/out or optional parameters.
-                if (Parameters.Length != parameters.Length)
+                if (Parameters.Length != operandTypes.Length)
                     return false;
 
                 // Can we implicitly convert the parameters to the necessary type?
                 for (int i = 0; i < Parameters.Length; i++)
                 {
-                    if (!DoesImplicitConversionExist(parameters[i], Parameters[i].ParameterType, false))
+                    if (!DoesImplicitConversionExist(operandTypes[i], Parameters[i].ParameterType, false))
                         return false;
                 }
 
@@ -209,15 +209,15 @@ namespace HexInnovation
                 yield return type;
             }
         }
-        private static IEnumerable<Type> GetTypeAndSubtypes(params Type[] parameters)
+        private static IEnumerable<Type> GetTypeAndSubtypes(params Type[] types)
         {
-            return parameters.SelectMany(GetTypeAndSubtypes).Distinct();
+            return types.SelectMany(GetTypeAndSubtypes).Distinct();
         }
 
-        private static List<OperatorInfo> GetPossibleOperators(string operatorName, params Type[] parameterTypes)
+        private static List<OperatorInfo> GetPossibleOperators(string operatorName, params Type[] operandTypes)
         {
             // https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/expressions#candidate-user-defined-operators
-            return GetTypeAndSubtypes(parameterTypes).SelectMany(type =>
+            return GetTypeAndSubtypes(operandTypes).SelectMany(type =>
                     type.GetPublicStaticMethods()
                         .Where(method => method.Name == operatorName)
                         .Select(method => new OperatorInfo
@@ -225,13 +225,13 @@ namespace HexInnovation
                             Method = method,
                             Parameters = method.GetParameters()
                         })
-                        .Where(p => p.IsApplicable(parameterTypes))
+                        .Where(p => p.IsApplicable(operandTypes))
                 )
                 .ToList();
         }
-        private static List<OperatorInfo> GetPossibleOperators(string operatorName, params object[] parameters)
+        private static List<OperatorInfo> GetPossibleOperators(string operatorName, params object[] operands)
         {
-            return GetPossibleOperators(operatorName, parameters.Select(p => p?.GetType() ?? typeof(object)).ToArray());
+            return GetPossibleOperators(operatorName, operands.Select(p => p?.GetType() ?? typeof(object)).ToArray());
         }
 
         protected internal static List<MethodInfo> GetImplicitOperatorPath(string operatorName, Type typeFrom, Type typeTo)
@@ -378,7 +378,7 @@ namespace HexInnovation
                 return true;
             }
 
-            // Check To/False operators.
+            // Check True/False operators.
             if (typeTo == typeof(bool) || typeTo == typeof(bool?))
             {
                 var operators = GetImplicitOperatorPath("op_True", typeFrom, typeTo);
@@ -409,6 +409,7 @@ namespace HexInnovation
                 }
             }
 
+            // If we're trying to convert from T to Nullable<T>, just return the T.
             var structTypeTo = Nullable.GetUnderlyingType(typeTo);
             if (structTypeTo != null && from != null && from.GetType() == structTypeTo)
             {
@@ -422,7 +423,7 @@ namespace HexInnovation
             {
                 implicitCasts.ForEach(cast => from = cast.Invoke(null, new[] { from }));
 
-                // After we finish the implicit operator(s), we may need to do another implicit conversion.
+                // After we finish the implicit operator(s), we may need to do another implicit conversion (e.g. to go from int to Nullable<int>).
                 return DoImplicitConversion(from, typeTo);
             }
 
@@ -469,20 +470,20 @@ namespace HexInnovation
 
             return null;
         }
-        protected static InvalidOperationException InvalidOperator(string operatorSymbols, params object[] arguments)
+        protected static InvalidOperationException InvalidOperator(string operatorSymbols, params object[] operands)
         {
-            var argTypes = arguments.Select(x => x == null ? "null" : $"'{x.GetType().FullName}'").ToList();
+            var argTypes = operands.Select(x => x == null ? "null" : $"'{x.GetType().FullName}'").ToList();
 
-            return new InvalidOperationException($"Cannot apply operator '{operatorSymbols}' to operand{(arguments.Length == 1 ? "" : "s")} of type {string.Join(" ", argTypes.Take(argTypes.Count - 1).MyToArray())}{(argTypes.Count == 1 ? "" : " and ")}{argTypes.Last()}");
+            return new InvalidOperationException($"Cannot apply operator '{operatorSymbols}' to operand{(operands.Length == 1 ? "" : "s")} of type {string.Join(" ", argTypes.Take(argTypes.Count - 1).MyToArray())}{(argTypes.Count == 1 ? "" : " and ")}{argTypes.Last()}");
         }
-        protected MethodInfo GetUserDefinedOperator(out bool convertToDoubles, params object[] parameters)
+        protected MethodInfo GetUserDefinedOperator(out bool convertToDoubles, params object[] operands)
         {
-            if ((SupportedOperands & Operands.Number) == Operands.Number && parameters.All(p => DoesImplicitConversionExist(p?.GetType(), typeof(double), false)))
+            if ((SupportedOperands & Operands.Number) == Operands.Number && operands.All(p => DoesImplicitConversionExist(p?.GetType(), typeof(double), false)))
             // Without implicit operators, the only types that will convert to double are built-in numeric structs (char, byte, sbyte, int, long, float, decimal, etc.)
             {
                 // If we're trying to compare int < decimal, we might run in to problems where it picks the wrong operator.
                 // Here, we'll force any operand resolutions to be in the double class.
-                parameters = parameters.Select(p => DoImplicitConversion(p, typeof(double?))).ToArray();
+                operands = operands.Select(p => DoImplicitConversion(p, typeof(double?))).ToArray();
                 convertToDoubles = true;
             }
             else
@@ -490,7 +491,7 @@ namespace HexInnovation
                 convertToDoubles = false;
             }
 
-            var candidateUserDefinedOperators = GetPossibleOperators(OperatorName, parameters);
+            var candidateUserDefinedOperators = GetPossibleOperators(OperatorName, operands);
             // https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/expressions#binary-operator-overload-resolution
 
             switch (candidateUserDefinedOperators.Count)
@@ -586,7 +587,7 @@ namespace HexInnovation
                     else
                     {
                         throw new AmbiguousMatchException(
-                            $"Could not identify which {OperatorType} operator to apply to type{(parameters.Length == 1 ? "" : "s")} {string.Join(" and ", parameters.Select(p => p.GetType().FullName ?? "null").MyToArray())} between the following options:{string.Concat(candidateUserDefinedOperators.Select(p => $"{Environment.NewLine}{p}").MyToArray())}");
+                            $"Could not identify which {OperatorType} operator to apply to type{(operands.Length == 1 ? "" : "s")} {string.Join(" and ", operands.Select(p => p.GetType().FullName ?? "null").MyToArray())} between the following options:{string.Concat(candidateUserDefinedOperators.Select(p => $"{Environment.NewLine}{p}").MyToArray())}");
                     }
             }
         }
@@ -755,7 +756,7 @@ namespace HexInnovation
             }
         }
 
-        public object EvaluateWithNullArguments()
+        public object EvaluateWithNullOperands()
         {
             switch (OperatorType)
             {
@@ -817,7 +818,7 @@ namespace HexInnovation
         {
             if (operand == null)
             {
-                return EvaluateWithNullArguments();
+                return EvaluateWithNullOperands();
             }
 
             var @operator = GetUserDefinedOperator(out var convertToDoubles, operand);
@@ -828,7 +829,7 @@ namespace HexInnovation
                 // We simply apply any numeric operations with values converted to doubles.
                 if ((SupportedOperands & Operands.Number) == Operands.Number)
                 {
-                    // This operator supports two numeric arguments.
+                    // This operator supports one numeric operand.
                     if (DoesImplicitConversionExist(operand.GetType(), typeof(double), true))
                     {
                         return ApplyDefaultOperator((double)DoImplicitConversion(operand, typeof(double)));
@@ -837,7 +838,7 @@ namespace HexInnovation
 
                 if ((SupportedOperands & Operands.Boolean) == Operands.Boolean)
                 {
-                    // This operator supports two boolean arguments.
+                    // This operator supports one boolean operand.
                     if (operand is bool boolean)
                     {
                         return ApplyDefaultOperator(boolean);
@@ -862,13 +863,13 @@ namespace HexInnovation
 
         public static implicit operator BinaryOperator(OperationType operatorType) => new BinaryOperator(operatorType);
 
-        private object ApplyCustomOperator(object l, Func<object> evaluateRight)
+        private object ApplyCustomOperator(object l, Func<object> evaluateRightOperand)
         {
             switch (OperatorType)
             {
                 case OperationType.NullCoalescing:
                     // There's really nothing special going on here with type conversion. This way we only evaluate the right syntax tree if the left returns null.
-                    return l ?? evaluateRight();
+                    return l ?? evaluateRightOperand();
                 case OperationType.And:
                 case OperationType.Or:
                     // "&" and "|" operators are special, because we're trying to evaluate them as though they were "&&" and "||" Operators.
@@ -877,7 +878,7 @@ namespace HexInnovation
 
                     object EvaluateRightAsBool(bool convertToBool)
                     {
-                        var r = evaluateRight();
+                        var r = evaluateRightOperand();
                         var tryConvert = TryConvertToBool(r);
 
                         if (tryConvert == null && r != null)
@@ -895,7 +896,7 @@ namespace HexInnovation
                         // We might need to evaluate the right operand.
                         if (l == null || x.Value == (OperatorType == OperationType.And))
                         {
-                            var r = evaluateRight();
+                            var r = evaluateRightOperand();
 
                             // Is there an "&" operator? If l is null, we'll check for an "&" operator between r & r.
                             var @operator = GetUserDefinedOperator(out _, l ?? r, r);
@@ -937,7 +938,7 @@ namespace HexInnovation
                     else
                     {
                         // The first operand doesn't convert to a boolean. We can't use "&&" on it.
-                        throw InvalidOperator(OperatorSymbols, l, evaluateRight());
+                        throw InvalidOperator(OperatorSymbols, l, evaluateRightOperand());
                     }
                 default:
                     throw new NotSupportedException();
@@ -1034,18 +1035,18 @@ namespace HexInnovation
             }
         }
 
-        private object Evaluate(object x, Func<object> evaluateRight)
+        private object Evaluate(object x, Func<object> evaluateRightOperand)
         {
             if (SupportedOperands == Operands.CompletelyCustom)
             {
-                return ApplyCustomOperator(x, evaluateRight);
+                return ApplyCustomOperator(x, evaluateRightOperand);
             }
 
-            var y = evaluateRight();
+            var y = evaluateRightOperand();
 
             if (x == null && y == null)
             {
-                return EvaluateWithNullArguments();
+                return EvaluateWithNullOperands();
             }
 
             var @operator = GetUserDefinedOperator(out bool convertToDoubles, x, y);
