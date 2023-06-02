@@ -58,7 +58,7 @@ namespace HexInnovation
                 case TokenType.Colon:
                     return result;
                 default:
-                    throw new ParsingException(_scanner.Position, "Error parsing interpolated string. Could not find closing curly bracket (or a colon, comma, or semicolon) after the argument.");
+                    throw new ParsingException(_scanner, "Error parsing interpolated string. Could not find closing curly bracket (or a colon, comma, or semicolon) after the argument.");
             }
         }
         private IEnumerable<AbstractSyntaxTree> ConverterParameter()
@@ -77,7 +77,7 @@ namespace HexInnovation
                         yield return result;
                         break;
                     default:
-                        throw new ParsingException(_scanner.Position, "The conversion parameter could not be parsed to a valid string.");
+                        throw new ParsingException(_scanner, "The conversion parameter could not be parsed to a valid string.");
                 }
             }
         }
@@ -99,7 +99,7 @@ namespace HexInnovation
                         case TokenType.Colon:
                             return Conditional(new TernaryNode(e, then, Conditional()));
                         default:
-                            throw new ParsingException(_scanner.Position, "Could not find the ':' to terminate the ternary ('?:') statement");
+                            throw new ParsingException(_scanner, "Could not find the ':' to terminate the ternary ('?:') statement");
                     }
                 default:
                     _scanner.PutBackToken();
@@ -329,7 +329,7 @@ namespace HexInnovation
                             if (_customFunctions.TryGetFunction(lex, out var function))
                             {
                                 if (_scanner.GetToken().TokenType != TokenType.LParen)
-                                    throw new ParsingException(_scanner.Position, $"You must specify arguments for {lex} function. Those arguments must be enclosed in parentheses.");
+                                    throw new ParsingException(_scanner, $"You must specify arguments for {lex} function. Those arguments must be enclosed in parentheses.");
 
                                 function.Parameters = new List<AbstractSyntaxTree>();
 
@@ -344,7 +344,7 @@ namespace HexInnovation
                                         }
                                         catch (Exception e)
                                         {
-                                            throw new ParsingException(_scanner.Position, $"Error parsing arguments for {lex} function.", e);
+                                            throw new ParsingException(_scanner, $"Error parsing arguments for {lex} function.", e);
                                         }
 
                                         var type = _scanner.GetToken().TokenType;
@@ -357,13 +357,13 @@ namespace HexInnovation
                                             case TokenType.Semicolon:
                                                 break;
                                             default:
-                                                throw new ParsingException(_scanner.Position, $"Error parsing arguments for {lex} function. Invalid character: {type}. Expected either a comma, semicolon, or right parenthesis.");
+                                                throw new ParsingException(_scanner, $"Error parsing arguments for {lex} function. Invalid character: {type}. Expected either a comma, semicolon, or right parenthesis.");
                                         }
                                     }
                                 }
 
                                 if (!function.IsValidNumberOfParameters(function.Parameters.Count))
-                                    throw new ParsingException(_scanner.Position, $"The {lex} function cannot accept {function.Parameters.Count} parameter{(function.Parameters.Count == 1 ? "" : "s")}.");
+                                    throw new ParsingException(_scanner, $"The {lex} function cannot accept {function.Parameters.Count} parameter{(function.Parameters.Count == 1 ? "" : "s")}.");
 
                                 return function;
                             }
@@ -385,7 +385,7 @@ namespace HexInnovation
                                         break;
                                 }
 
-                                throw new ParsingException(_scanner.Position, err, new NotSupportedException(err));
+                                throw new ParsingException(_scanner, err, new NotSupportedException(err));
                             }
                     }
                 case TokenType.LBracket:
@@ -401,18 +401,18 @@ namespace HexInnovation
                         finally
                         {
                             if (_scanner.GetToken().TokenType != TokenType.RBracket)
-                                throw new ParsingException(_scanner.Position, exc.Message, exc);
+                                throw new ParsingException(_scanner, exc.Message, exc);
                         }
                     }
                     throw exc;
                 case TokenType.LParen:
                     var cond = Conditional();
                     if (_scanner.GetToken().TokenType != TokenType.RParen)
-                        throw new ParsingException(_scanner.Position, "Mismatching parentheses");
+                        throw new ParsingException(_scanner, "Mismatching parentheses");
 
                     return cond;
                 default:
-                    throw new ParsingException(_scanner.Position, "Invalid conversion string.");
+                    throw new ParsingException(_scanner, "Invalid conversion string.");
             }
         }
 

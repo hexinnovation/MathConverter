@@ -79,7 +79,7 @@ namespace HexInnovation
                 _converter.Convert(new object[0], typeof(object), "x++x", new CultureInfo("de"));
                 Assert.Fail("The ++ operator should is not supported, so this statement should throw an exception.");
             }
-            catch (ParsingException ex) when (ex.Message?.EndsWith("The ++ operator is not supported.") == true) { }
+            catch (ParsingException ex) when (ex.Message?.Contains("The ++ operator is not supported.") == true) { }
 
             Assert.AreEqual(-4*-x, _converter.Convert(args, typeof(object), "-4*-x", new CultureInfo("de")));
             Assert.AreEqual(-4*(-x), _converter.Convert(args, typeof(object), "-4(-x)", new CultureInfo("de")));
@@ -96,7 +96,7 @@ namespace HexInnovation
                 _converter.Convert(new object[0], typeof(object), "4--x", new CultureInfo("de"));
                 Assert.Fail("The -- operator should is not supported, so this statement should throw an exception.");
             }
-            catch (ParsingException ex) when (ex.Message?.EndsWith("The -- operator is not supported.") == true) { }
+            catch (ParsingException ex) when (ex.Message?.Contains("The -- operator is not supported.") == true) { }
 
             Assert.AreEqual(+4 -+x+-+-+-+ +-x, _converter.Convert(args, typeof(object), "+4 -+x+-+-+-+ +-x", new CultureInfo("de")));
             Assert.AreEqual(+4+ +-+x+-+-+-+ +-x, _converter.Convert(args, typeof(object), "+4+ +-+x+-+-+-+ +-x", new CultureInfo("de")));

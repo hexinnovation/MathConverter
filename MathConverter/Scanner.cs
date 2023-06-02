@@ -9,7 +9,10 @@ namespace HexInnovation
     internal class Scanner : IDisposable
     {
         public Scanner(Parser parser, string expression)
-            : this(parser, new StringReader(expression)) { }
+            : this(parser, new StringReader(expression))
+        {
+            Expression = expression;
+        }
         private Scanner(Parser parser, StringReader reader)
         {
             _parser = parser;
@@ -21,6 +24,7 @@ namespace HexInnovation
         private readonly TextReader _reader;
         private Token _lastToken;
         private bool _needsToken;
+        internal string Expression { get; }
         public int Position { get; private set; }
 
 
@@ -67,11 +71,11 @@ namespace HexInnovation
                                 return new Token(TokenType.EOF);
                             case '+':
                                 if (_reader.Peek() == '+')
-                                    throw new ParsingException(Position, "The ++ operator is not supported.");
+                                    throw new ParsingException(this, "The ++ operator is not supported.");
                                 return new Token(TokenType.Plus);
                             case '-':
                                 if (_reader.Peek() == '-')
-                                    throw new ParsingException(Position, "The -- operator is not supported.");
+                                    throw new ParsingException(this, "The -- operator is not supported.");
                                 return new Token(TokenType.Minus);
                             case '*':
                                 return new Token(TokenType.Times);
@@ -140,7 +144,7 @@ namespace HexInnovation
                                         state = ScannerState.InterpolatedString | ScannerState.SingleQuoteString;
                                         break;
                                     default:
-                                        throw new ParsingException(Position, "A '$' character must be proceeded by a caret (`), double-quote (\"), or single-quote (') character.");
+                                        throw new ParsingException(this, "A '$' character must be proceeded by a caret (`), double-quote (\"), or single-quote (') character.");
                                 }
                                 break;
                             case '!':
@@ -156,7 +160,7 @@ namespace HexInnovation
                             case '=':
                                 Position++;
                                 if (_reader.Read() != '=')
-                                    throw new ParsingException(Position, "'=' signs are only valid after as part of one of the following two operators: '!=', '==', '<=', and '>='");
+                                    throw new ParsingException(this, "'=' signs are only valid after as part of one of the following two operators: '!=', '==', '<=', and '>='");
                                 return new Token(TokenType.DoubleEqual);
                             case '<':
                                 switch (_reader.Peek())
@@ -181,12 +185,12 @@ namespace HexInnovation
                             case '|':
                                 Position++;
                                 if (_reader.Read() != '|')
-                                    throw new ParsingException(Position, "'|' signs are only valid in pairs of two.");
+                                    throw new ParsingException(this, "'|' signs are only valid in pairs of two.");
                                 return new Token(TokenType.Or);
                             case '&':
                                 Position++;
                                 if (_reader.Read() != '&')
-                                    throw new ParsingException(Position, "'&' signs are only valid in pairs of two.");
+                                    throw new ParsingException(this, "'&' signs are only valid in pairs of two.");
                                 return new Token(TokenType.And);
                             default:
                                 if (char.IsDigit((char)ch))
@@ -207,7 +211,7 @@ namespace HexInnovation
                                 }
                                 else
                                 {
-                                    throw new ParsingException(Position, $"Found invalid token '{(char)ch}'");
+                                    throw new ParsingException(this, $"Found invalid token '{(char)ch}'");
                                 }
                                 break;
                         }
@@ -232,9 +236,9 @@ namespace HexInnovation
                                 var number = sb.ToString();
 
                                 if (ch == '.')
-                                    throw new ParsingException(Position, $"Found second decimal in number {sb}");
+                                    throw new ParsingException(this, $"Found second decimal in number {sb}");
                                 else if (number.Last() == '.')
-                                    throw new ParsingException(Position, $"A number cannot end in a decimal. The number was {sb}");
+                                    throw new ParsingException(this, $"A number cannot end in a decimal. The number was {sb}");
 
                                 return new LexicalToken(TokenType.Number, number);
                             }
@@ -320,7 +324,7 @@ namespace HexInnovation
                                                             switch (ch)
                                                             {
                                                                 case -1:
-                                                                    throw new ParsingException(Position, "Missing close delimiter '}' for interpolated expression started with '{'.");
+                                                                    throw new ParsingException(this, "Missing close delimiter '}' for interpolated expression started with '{'.");
                                                                 default:
                                                                     sb.Append((char)ch);
                                                                     break;
@@ -340,7 +344,7 @@ namespace HexInnovation
                                                                     Position++;
                                                                     if (_reader.Read() != ch)
                                                                     {
-                                                                        throw new ParsingException(Position, "A '{' character must be escaped (by doubling) in an interpolated string's argument.");
+                                                                        throw new ParsingException(this, "A '{' character must be escaped (by doubling) in an interpolated string's argument.");
                                                                     }
                                                                     break;
 
@@ -382,22 +386,22 @@ namespace HexInnovation
                                                                             sb.Append('\'');
                                                                             break;
                                                                         default:
-                                                                            throw new ParsingException(Position, $"The character \'\\{(char)ch}\' is not a valid backslash-escaped character.");
+                                                                            throw new ParsingException(this, $"The character \'\\{(char)ch}\' is not a valid backslash-escaped character.");
                                                                     }
                                                                     break;
                                                                 case '`':
                                                                     if ((state & ~ScannerState.InterpolatedString) == ScannerState.CaretString)
-                                                                        throw new ParsingException(Position, "Missing close delimiter '}' for interpolated expression started with '{'.");
+                                                                        throw new ParsingException(this, "Missing close delimiter '}' for interpolated expression started with '{'.");
                                                                     sb.Append('`');
                                                                     break;
                                                                 case '"':
                                                                     if ((state & ~ScannerState.InterpolatedString) == ScannerState.DoubleQuoteString)
-                                                                        throw new ParsingException(Position, "Missing close delimiter '}' for interpolated expression started with '{'.");
+                                                                        throw new ParsingException(this, "Missing close delimiter '}' for interpolated expression started with '{'.");
                                                                     sb.Append('"');
                                                                     break;
                                                                 case '\'':
                                                                     if ((state & ~ScannerState.InterpolatedString) == ScannerState.SingleQuoteString)
-                                                                        throw new ParsingException(Position, "Missing close delimiter '}' for interpolated expression started with '{'.");
+                                                                        throw new ParsingException(this, "Missing close delimiter '}' for interpolated expression started with '{'.");
                                                                     sb.Append('`');
                                                                     break;
                                                             }
@@ -419,7 +423,7 @@ namespace HexInnovation
 #pragma warning restore CS7095 // Filter expression is a constant
 #endif
                                             {
-                                                throw new ParsingException(Position, "Failed to parse the interpolated string to a call to String.Format. See the inner exception.", e);
+                                                throw new ParsingException(this, "Failed to parse the interpolated string to a call to String.Format. See the inner exception.", e);
                                             }
                                         }
                                     }
@@ -462,7 +466,7 @@ namespace HexInnovation
                                             sb.Append('\'');
                                             break;
                                         default:
-                                            throw new ParsingException(Position, $"The character \'\\{(char)ch}\' is not a valid backslash-escaped character.");
+                                            throw new ParsingException(this, $"The character \'\\{(char)ch}\' is not a valid backslash-escaped character.");
                                     }
                                     break;
                                 case '"':
@@ -514,7 +518,7 @@ namespace HexInnovation
                                     }
                                     break;
                                 case -1:
-                                    throw new ParsingException(Position, $"Could not find the end of the {(isInterpolatedString ? "interpolated " : "")}string.");
+                                    throw new ParsingException(this, $"Could not find the end of the {(isInterpolatedString ? "interpolated " : "")}string.");
 
                             }
                         }
