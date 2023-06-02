@@ -219,15 +219,9 @@ namespace HexInnovation
     {
         public override object Evaluate(CultureInfo cultureInfo, Func<object>[] parameters)
         {
-            if (parameters.Length == 2)
-            {
-                return parameters[0]() ?? parameters[1]();
-            }
-            else
-            {
-                throw new Exception($"The function {FunctionName} only accepts two arguments. It should be called like \"{FunctionName}(3.45;1)\".");
-            }
+            return parameters[0]() ?? parameters[1]();
         }
+        public override bool IsValidNumberOfParameters(int numParams) => numParams == 2;
     }
     sealed class RoundFunction : ArbitraryArgFunction
     {
@@ -254,6 +248,7 @@ namespace HexInnovation
                     throw new Exception($"The function {FunctionName} only accepts one or two arguments. It should be called like \"{FunctionName}(3.4)\" or \"{FunctionName}(3.45;1)\".");
             }
         }
+        public override bool IsValidNumberOfParameters(int numParams) => numParams is 1 or 2;
     }
     sealed class AndFunction : ArbitraryArgFunction
     {
@@ -282,6 +277,7 @@ namespace HexInnovation
 
             return currentValue;
         }
+        public override bool IsValidNumberOfParameters(int numParams) => numParams > 0;
     }
     sealed class OrFunction : ArbitraryArgFunction
     {
@@ -310,6 +306,7 @@ namespace HexInnovation
 
             return false;
         }
+        public override bool IsValidNumberOfParameters(int numParams) => numParams > 0;
     }
     sealed class NorFunction : ArbitraryArgFunction
     {
@@ -317,6 +314,7 @@ namespace HexInnovation
         {
             return Operator.LogicalNot.Evaluate(new OrFunction().Evaluate(cultureInfo, parameters));
         }
+        public override bool IsValidNumberOfParameters(int numParams) => numParams > 0;
     }
     sealed class MaxFunction : ArbitraryArgFunction
     {
@@ -384,6 +382,7 @@ namespace HexInnovation
                 throw new ArgumentException($"The {FunctionName} function must be called with a string as the first argument.");
             }
         }
+        public override bool IsValidNumberOfParameters(int numParams) => numParams > 0;
     }
     sealed class ConcatFunction : ArbitraryArgFunction
     {
@@ -407,6 +406,7 @@ namespace HexInnovation
                 throw new ArgumentException($"{FunctionName}() function must be called with a string as the first argument.");
             }
         }
+        public override bool IsValidNumberOfParameters(int numParams) => numParams > 0;
     }
     sealed class AverageFunction : ArbitraryArgFunction
     {

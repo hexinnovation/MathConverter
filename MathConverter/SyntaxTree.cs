@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -226,9 +227,29 @@ namespace HexInnovation
         }
     }
 
+    /// <summary>
+    /// A custom function used by MathConverter.
+    /// Register the function with the <see cref="MathConverter" /> to use it.
+    /// </summary>
+    /// <seealso cref="ZeroArgFunction"/>
+    /// <seealso cref="OneArgFunction"/>
+    /// <seealso cref="OneDoubleFunction"/>
+    /// <seealso cref="TwoArgFunction"/>
+    /// <seealso cref="ArbitraryArgFunction"/>
     public abstract class CustomFunction : AbstractSyntaxTree
     {
+        /// <summary>
+        /// The name of the function.
+        /// There could potentially be multiple names for same function.
+        /// </summary>
         public string FunctionName { get; internal set; }
+        /// <summary>
+        /// Converts an object to a specified type. Returns true if the conversion was successful; otherwise false.
+        /// </summary>
+        /// <typeparam name="T">The type to convert the specified value to.</typeparam>
+        /// <param name="value">The value to convert.</param>
+        /// <param name="convertedValue">The value, casted to the specified type, or the default value, if the conversion was unsuccessful.</param>
+        /// <returns>True if the conversion was successful; otherwise false.</returns>
         protected bool TryConvert<T>(object value, out T convertedValue)
         {
             var convertToType = typeof(T);
@@ -244,88 +265,140 @@ namespace HexInnovation
                 return false;
             }
         }
+
+        /// <summary>
+        /// The actual parameters passed to this function.
+        /// </summary>
+        internal List<AbstractSyntaxTree> Parameters { get; set; }
+        /// <summary>
+        /// Gets the number of parameters passed to the function.
+        /// </summary>
+        protected int NumParameters => Parameters.Count;
+        /// <summary>
+        /// Evaluates a specific parameter passed into the function.
+        /// </summary>
+        /// <param name="whichParameter">The zero-based index of the argument to evaluate.</param>
+        /// <param name="cultureInfo">The CultureInfo to use when evaluating the parameter.</param>
+        /// <param name="bindingValues">The values being converted by MathConverter.</param>
+        /// <returns></returns>
+        protected object EvaluateParameter(int whichParameter, CultureInfo cultureInfo, object[] bindingValues)
+        {
+            return Parameters[whichParameter].Evaluate(cultureInfo, bindingValues);
+        }
+        /// <summary>
+        /// A method that can be overridden in base classes that specifies if a ParsingException should be thrown while parsing the parameters to this function.
+        /// </summary>
+        /// <param name="numParams">The number of parameters parsed.</param>
+        /// <returns>True if the number of parameters is valid; otherwise false.</returns>
+        public virtual bool IsValidNumberOfParameters(int numParams)
+        {
+            return true;
+        }
+        public override sealed string ToString()
+        {
+            return $"{FunctionName}({string.Join(", ", Parameters.MyToArray())})";
+        }
     }
 
+    /// <summary>
+    /// A function that takes no arguments and returns an object.
+    /// </summary>
     public abstract class ZeroArgFunction : CustomFunction
     {
         public sealed override object DoEvaluate(CultureInfo cultureInfo, object[] bindingValues)
         {
             return Evaluate(cultureInfo);
         }
+        /// <summary>
+        /// The actual function.
+        /// </summary>
+        /// <param name="cultureInfo">The culture to evaluate with.</param>
         public abstract object Evaluate(CultureInfo cultureInfo);
 
-        public override string ToString()
-        {
-            return $"{FunctionName}()";
-        }
+        /// <inheritdoc />
+        public sealed override bool IsValidNumberOfParameters(int numParams) => numParams == 0;
     }
 
 
     /// <summary>
-    /// A formula that takes one input
+    /// A function that takes a single parameter of type object that returns an object.
     /// </summary>
     public abstract class OneArgFunction : CustomFunction
     {
-        internal AbstractSyntaxTree Argument { get; set; }
         public sealed override object DoEvaluate(CultureInfo cultureInfo, object[] bindingValues)
         {
-            return Evaluate(cultureInfo, Argument.Evaluate(cultureInfo, bindingValues));
+            return Evaluate(cultureInfo, Parameters[0].Evaluate(cultureInfo, bindingValues));
         }
-        public abstract object Evaluate(CultureInfo cultureInfo, object parameter);
-        public override string ToString()
-        {
-            return $"{FunctionName}({Argument})";
-        }
+        /// <summary>
+        /// The actual function.
+        /// </summary>
+        /// <param name="cultureInfo">The culture to evaluate with.</param>
+        /// <param name="argument">The argument passed to the function.</param>
+        public abstract object Evaluate(CultureInfo cultureInfo, object argument);
+        /// <inheritdoc />
+        public override bool IsValidNumberOfParameters(int numParams) => numParams == 1;
     }
+    /// <summary>
+    /// A function that takes a single parameter of type double that returns a double.
+    /// </summary>
     public abstract class OneDoubleFunction : OneArgFunction
     {
-        public sealed override object Evaluate(CultureInfo cultureInfo, object parameter)
+        /// <inheritdoc />
+        public sealed override object Evaluate(CultureInfo cultureInfo, object argument)
         {
             if (TryConvert<double>(argument, out var x))
                 return Evaluate(cultureInfo, x);
-            else if (parameter == null)
+            else if (argument == null)
                 return EvaluateNullArgument(cultureInfo);
             else
                 throw new ArgumentException($"{FunctionName} accepts only a numeric input or null.");
         }
+        /// <summary>
+        /// The actual function.
+        /// </summary>
+        /// <param name="cultureInfo">The culture to evaluate with.</param>
+        /// <param name="argument">The argument passed to the function.</param>
         public abstract double? Evaluate(CultureInfo cultureInfo, double parameter);
-        public virtual double? EvaluateNullArgument(CultureInfo cultureInfo)
-        {
-            return null;
-        }
+        /// <summary>
+        /// What the function should return when the argument is null: defaults to null.
+        /// </summary>
+        /// <param name="cultureInfo">The culture to evaluate with.</param>
+        public virtual double? EvaluateNullArgument(CultureInfo cultureInfo) => null;
     }
 
     /// <summary>
-    /// A function that takes two arguments
+    /// A function that takes two parameters.
     /// </summary>
     public abstract class TwoArgFunction : CustomFunction
     {
-        internal AbstractSyntaxTree Argument1 { get; set; }
-        internal AbstractSyntaxTree Argument2 { get; set; }
         public sealed override object DoEvaluate(CultureInfo cultureInfo, object[] bindingValues)
         {
-            return Evaluate(cultureInfo, Argument1.Evaluate(cultureInfo, bindingValues), Argument2.Evaluate(cultureInfo, bindingValues));
+            return Evaluate(cultureInfo, Parameters[0].Evaluate(cultureInfo, bindingValues), Parameters[1].Evaluate(cultureInfo, bindingValues));
         }
+        /// <summary>
+        /// The actual function.
+        /// </summary>
+        /// <param name="cultureInfo">The culture to evaluate with.</param>
+        /// <param name="x">The first argument passed to the function.</param>
+        /// <param name="y">The second argument passed to the function.</param>
         public abstract object Evaluate(CultureInfo cultureInfo, object x, object y);
-        public override string ToString()
-        {
-            return $"{FunctionName}({Argument1}, {Argument2})";
-        }
+        /// <inheritdoc/>
+        public sealed override bool IsValidNumberOfParameters(int numParams) => numParams == 2;
     }
     /// <summary>
     /// A formula that takes anywhere from zero to infinity arguments.
     /// </summary>
     public abstract class ArbitraryArgFunction : CustomFunction
     {
-        internal AbstractSyntaxTree[] Arguments { get; set; }
         public sealed override object DoEvaluate(CultureInfo cultureInfo, object[] bindingValues)
         {
-            return Evaluate(cultureInfo, Arguments.Select(x => new Func<object>(() => x.Evaluate(cultureInfo, bindingValues))).ToArray());
+            return Evaluate(cultureInfo, Enumerable.Range(0, NumParameters).Select(i => new Func<object>(() => EvaluateParameter(i, cultureInfo, bindingValues))).ToArray());
         }
-        public abstract object Evaluate(CultureInfo cultureInfo, Func<object>[] parameters);
-        public override string ToString()
-        {
-            return $"{FunctionName}({string.Join(", ", Arguments.OfType<object>().MyToArray())})";
-        }
+        /// <summary>
+        /// The actual function.
+        /// </summary>
+        /// <param name="cultureInfo">The culture to evaluate with.</param>
+        /// <param name="getArgument">A function that can be used to get arbitrary arguments passed to the function.</param>
+        public abstract object Evaluate(CultureInfo cultureInfo, Func<object>[] getArgument);
     }
 }

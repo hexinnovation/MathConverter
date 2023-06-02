@@ -307,7 +307,7 @@ namespace HexInnovation
                 case TokenType.InterpolatedString:
                     if (!(t is InterpolatedStringToken token))
                         throw new ArgumentException(ErrorWrongTokenType(t.TokenType));
-                    return new FormatFunction { FunctionName = "Format", Arguments = new AbstractSyntaxTree[] { new StringNode(token.Lex) }.Concat(token.Arguments).ToArray() };
+                    return new FormatFunction { FunctionName = "Format", Parameters = new AbstractSyntaxTree[] { new StringNode(token.Lex) }.Concat(token.Arguments).ToList() };
 
                 case TokenType.Lexical:
                     if (!(t is LexicalToken lexToken))
@@ -328,119 +328,44 @@ namespace HexInnovation
                         default:
                             if (_customFunctions.TryGetFunction(lex, out var function))
                             {
-                                if (function is ZeroArgFunction func0)
+                                if (_scanner.GetToken().TokenType != TokenType.LParen)
+                                    throw new ParsingException(_scanner.Position, $"You must specify arguments for {lex} function. Those arguments must be enclosed in parentheses.");
+
+                                function.Parameters = new List<AbstractSyntaxTree>();
+
+                                if (_scanner.GetToken().TokenType != TokenType.RParen)
                                 {
-                                    string ex() => $"{lex} is a function that takes zero arguments. You must call it like this: \"{lex}()\"";
-
-                                    if (_scanner.GetToken().TokenType != TokenType.LParen)
-                                        throw new ParsingException(_scanner.Position, ex());
-                                    if (_scanner.GetToken().TokenType != TokenType.RParen)
-                                        throw new ParsingException(_scanner.Position, ex());
-
-                                    return func0;
-                                }
-                                else if (function is OneArgFunction func1)
-                                {
-                                    // Create a formula1.
-                                    string ex () => $"{lex} is a formula that takes one argument. You must specify the arguments like this: \"{lex}(3)\"";
-
-                                    if (_scanner.GetToken().TokenType != TokenType.LParen)
-                                        throw new ParsingException(_scanner.Position, ex());
-
-                                    try
-                                    {
-                                        func1.Argument = Conditional();
-                                    }
-                                    catch (Exception e)
-                                    {
-                                        throw new ParsingException(_scanner.Position, ex(), new Exception(ex(), e));
-                                    }
-
-                                    if (_scanner.GetToken().TokenType != TokenType.RParen)
-                                        throw new ParsingException(_scanner.Position, ex());
-
-                                    return func1;
-                                }
-                                if (function is TwoArgFunction func2)
-                                {
-                                    // Create a formula2.
-                                    string ex() => $"{lex} is a formula that takes two arguments. You must specify the arguments like this: \"{lex}(3;2)\"";
-
-                                    if (_scanner.GetToken().TokenType != TokenType.LParen)
-                                        throw new ParsingException(_scanner.Position, ex());
-
-                                    try
-                                    {
-                                        func2.Argument1 = Conditional();
-                                    }
-                                    catch (Exception inner)
-                                    {
-                                        throw new ParsingException(_scanner.Position, ex(), inner);
-                                    }
-
-                                    if (_scanner.GetToken().TokenType == TokenType.Semicolon)
-                                    {
-                                        try
-                                        {
-                                            func2.Argument2 = Conditional();
-                                        }
-                                        catch (Exception inner)
-                                        {
-                                            throw new ParsingException(_scanner.Position, ex(), inner);
-                                        }
-
-                                        if (_scanner.GetToken().TokenType == TokenType.RParen)
-                                        {
-                                            return func2;
-                                        }
-                                    }
-                                    throw new ParsingException(_scanner.Position, ex());
-                                }
-                                else if (function is ArbitraryArgFunction funcN)
-                                {
-                                    if (_scanner.GetToken().TokenType != TokenType.LParen)
-                                        throw new ParsingException(_scanner.Position, $"You must specify arguments for {lex}. Those arguments must be enclosed in parentheses.");
-
-                                    var trees = new List<AbstractSyntaxTree>();
-
-                                    if (_scanner.GetToken().TokenType == TokenType.RParen)
-                                    {
-                                        funcN.Arguments = new AbstractSyntaxTree[0];
-                                        return funcN;
-                                    }
-                                    else
-                                    {
-                                        _scanner.PutBackToken();
-                                    }
-
+                                    _scanner.PutBackToken();
                                     while (true)
                                     {
                                         try
                                         {
-                                            trees.Add(Conditional());
+                                            function.Parameters.Add(Conditional());
                                         }
                                         catch (Exception e)
                                         {
-                                            throw new ParsingException(_scanner.Position, $"Error parsing arguments for {lex}.", e);
+                                            throw new ParsingException(_scanner.Position, $"Error parsing arguments for {lex} function.", e);
                                         }
 
                                         var type = _scanner.GetToken().TokenType;
+
+                                        if (type == TokenType.RParen)
+                                            break;
+
                                         switch (type)
                                         {
-                                            case TokenType.RParen:
-                                                funcN.Arguments = trees.ToArray();
-                                                return funcN;
                                             case TokenType.Semicolon:
                                                 break;
                                             default:
-                                                throw new ParsingException(_scanner.Position, $"Error parsing arguments for {lex}. Invalid character: {type}. Expected either a comma, semicolon, or right parenthesis.");
+                                                throw new ParsingException(_scanner.Position, $"Error parsing arguments for {lex} function. Invalid character: {type}. Expected either a comma, semicolon, or right parenthesis.");
                                         }
                                     }
                                 }
-                                else
-                                {
-                                    throw new ParsingException(_scanner.Position, $"{lex} is not a valid function. It must inherit from either {nameof(ZeroArgFunction)}, {nameof(OneArgFunction)}, {nameof(TwoArgFunction)}, or {nameof(ArbitraryArgFunction)}.");
-                                }
+
+                                if (!function.IsValidNumberOfParameters(function.Parameters.Count))
+                                    throw new ParsingException(_scanner.Position, $"The {lex} function cannot accept {function.Parameters.Count} parameter{(function.Parameters.Count == 1 ? "" : "s")}.");
+
+                                return function;
                             }
                             else
                             {
@@ -467,19 +392,16 @@ namespace HexInnovation
                     t = _scanner.GetToken();
                     var exc = new Exception("Variable accessors should come in the form [i], where i is an integer.");
                     int i;
-                    if (t is LexicalToken)
+                    if (t is LexicalToken lex2 && int.TryParse(lex2.Lex, out i))
                     {
-                        if (int.TryParse((t as LexicalToken).Lex, out i))
+                        try
                         {
-                            try
-                            {
-                                return new VariableNode(i);
-                            }
-                            finally
-                            {
-                                if (_scanner.GetToken().TokenType != TokenType.RBracket)
-                                    throw new ParsingException(_scanner.Position, exc.Message, exc);
-                            }
+                            return new VariableNode(i);
+                        }
+                        finally
+                        {
+                            if (_scanner.GetToken().TokenType != TokenType.RBracket)
+                                throw new ParsingException(_scanner.Position, exc.Message, exc);
                         }
                     }
                     throw exc;

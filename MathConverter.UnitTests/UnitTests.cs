@@ -1938,8 +1938,8 @@ namespace HexInnovation
         [TestMethod]
         public void TestTernaryOperator()
         {
-            AbstractSyntaxTree positiveShouldntBeEvaluated = new ThrowFunction() { FunctionName = "Throw", Arguments = new AbstractSyntaxTree[] { new StringNode("If the condition is false, the positive should not be evaluated.") } };
-            AbstractSyntaxTree negativeShouldntBeEvaluated = new ThrowFunction() { FunctionName = "Throw", Arguments = new AbstractSyntaxTree[] { new StringNode("If the condition is true, the negative should not be evaluated.") } };
+            AbstractSyntaxTree positiveShouldntBeEvaluated = new ThrowFunction() { FunctionName = "Throw", Parameters = new() { new StringNode("If the condition is false, the positive should not be evaluated.") } };
+            AbstractSyntaxTree negativeShouldntBeEvaluated = new ThrowFunction() { FunctionName = "Throw", Parameters = new() { new StringNode("If the condition is true, the negative should not be evaluated.") } };
 
             Assert.AreEqual(true, TernaryOperator.Evaluate(new ValueNode(true), new ValueNode(true), negativeShouldntBeEvaluated, new CultureInfo("de"), new object[0]));
             Assert.AreEqual(true, TernaryOperator.Evaluate(new ValueNode(false), positiveShouldntBeEvaluated, new ValueNode(true), new CultureInfo("de"), new object[0]));
@@ -2050,7 +2050,7 @@ namespace HexInnovation
         }
         internal static object EvaluateThrowException(this BinaryOperator @operator, object x, string errorMessage)
         {
-            return @operator.Evaluate(new ValueNode(x), new ThrowFunction() { FunctionName = "Throw", Arguments = new AbstractSyntaxTree[] { new StringNode(errorMessage) } }, CultureInfo.InvariantCulture, new[] { x });
+            return @operator.Evaluate(new ValueNode(x), new ThrowFunction() { FunctionName = "Throw", Parameters = new() { new StringNode(errorMessage) } }, CultureInfo.InvariantCulture, new[] { x });
         }
         internal static object TernaryEvaluate(object condition, object positive, object negative)
         {
