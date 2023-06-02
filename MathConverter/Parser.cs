@@ -266,7 +266,7 @@ namespace HexInnovation
                         if (!(t is LexicalToken lex))
                             throw new ArgumentException(ErrorWrongTokenType(t.TokenType));
                         
-                        return Exponent(new ExponentNode(e, new ConstantNumberNode(double.Parse(lex.Lex, NumberStyles.Number, CultureInfo.InvariantCulture))));
+                        return Exponent(new ExponentNode(e, new ValueNode(double.Parse(lex.Lex, NumberStyles.Number, CultureInfo.InvariantCulture))));
                     }
                     else
                     {
@@ -287,7 +287,7 @@ namespace HexInnovation
                 case TokenType.Number:
                     if (!(t is LexicalToken numToken))
                         throw new ArgumentException(ErrorWrongTokenType(t.TokenType));
-                    return new ConstantNumberNode(double.Parse(numToken.Lex, NumberStyles.Number, CultureInfo.InvariantCulture));
+                    return new ValueNode(double.Parse(numToken.Lex, NumberStyles.Number, CultureInfo.InvariantCulture));
                 case TokenType.Plus:
                     return Primary();
                 case TokenType.Minus:
@@ -318,9 +318,9 @@ namespace HexInnovation
                         case "null":
                             return new NullNode();
                         case "pi":
-                            return new ConstantNumberNode(Math.PI);
+                            return new ValueNode(Math.PI);
                         case "e":
-                            return new ConstantNumberNode(Math.E);
+                            return new ValueNode(Math.E);
                         case "true":
                             return new ValueNode(true);
                         case "false":

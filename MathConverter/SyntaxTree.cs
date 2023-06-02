@@ -176,14 +176,6 @@ namespace HexInnovation
         public sealed override object DoEvaluate(CultureInfo cultureInfo, object[] bindingValues) => Value;
         public override string ToString() => $"{Value}";
     }
-    /// <summary>
-    /// A constant, like e or pi, or any arbitrary number specified in the ConverterParameter
-    /// </summary>
-    sealed class ConstantNumberNode : ValueNode
-    {
-        public ConstantNumberNode(double value)
-            : base(value) { }
-    }
     sealed class StringNode : ValueNode
     {
         public StringNode(string value)
