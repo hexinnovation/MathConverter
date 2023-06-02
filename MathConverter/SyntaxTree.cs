@@ -136,16 +136,10 @@ namespace HexInnovation
             return $"({_condition} ? {_positive} : {_negative})";
         }
     }
-    sealed class NullNode : AbstractSyntaxTree
+    sealed class NullNode : ValueNode
     {
-        public override object DoEvaluate(CultureInfo cultureInfo, object[] bindingValues)
-        {
-            return null;
-        }
-        public override string ToString()
-        {
-            return "null";
-        }
+        public NullNode() : base(null) { }
+        public override string ToString() => "null";
     }
     abstract class UnaryNode : AbstractSyntaxTree
     {
