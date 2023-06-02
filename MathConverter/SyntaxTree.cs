@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 
 namespace HexInnovation
@@ -228,32 +229,18 @@ namespace HexInnovation
     public abstract class CustomFunction : AbstractSyntaxTree
     {
         public string FunctionName { get; internal set; }
+        protected bool TryConvert<T>(object value, out T convertedValue)
+        {
+            var convertToType = typeof(T);
 
-        protected bool TryConvertStruct<T>(object argument, out T value)
-            where T : struct
-        {
-            if (Operator.DoesImplicitConversionExist(argument?.GetType(), typeof(T), true) && Operator.DoImplicitConversion(argument, typeof(T?)) is T a)
+            if (Operator.DoesImplicitConversionExist(value?.GetType(), convertToType, true) && Operator.DoImplicitConversion(value, convertToType.GetTypeInfo().IsValueType ? typeof(Nullable<>).MakeGenericType(convertToType) : convertToType) is T a)
             {
-                value = a;
+                convertedValue = a;
                 return true;
             }
             else
             {
-                value = default;
-                return false;
-            }
-        }
-        protected bool TryConvert<T>(object argument, out T value)
-            where T : class
-        {
-            if (Operator.DoesImplicitConversionExist(argument?.GetType(), typeof(T), true) && Operator.DoImplicitConversion(argument, typeof(T)) is T a)
-            {
-                value = a;
-                return true;
-            }
-            else
-            {
-                value = default;
+                convertedValue = default;
                 return false;
             }
         }
@@ -294,7 +281,7 @@ namespace HexInnovation
     {
         public sealed override object Evaluate(CultureInfo cultureInfo, object parameter)
         {
-            if (TryConvertStruct<double>(parameter, out var x))
+            if (TryConvert<double>(argument, out var x))
                 return Evaluate(cultureInfo, x);
             else if (parameter == null)
                 return EvaluateNullArgument(cultureInfo);

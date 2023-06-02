@@ -116,14 +116,14 @@ namespace HexInnovation
     {
         public override object Evaluate(CultureInfo cultureInfo, object parameter)
         {
-            return TryConvertStruct<bool>(parameter, out var value) && value ? Visibility.Visible : Visibility.Collapsed;
+            return TryConvert<bool>(parameter, out var value) && value ? Visibility.Visible : Visibility.Collapsed;
         }
     }
     sealed class VisibleOrHiddenFunction : OneArgFunction
     {
         public override object Evaluate(CultureInfo cultureInfo, object parameter)
         {
-            return TryConvertStruct<bool>(parameter, out var value) && value ? Visibility.Visible : Visibility.Hidden;
+            return TryConvert<bool>(parameter, out var value) && value ? Visibility.Visible : Visibility.Hidden;
         }
     }
 #endif
@@ -131,7 +131,7 @@ namespace HexInnovation
     {
         public override object Evaluate(CultureInfo cultureInfo, object parameter)
         {
-            if (TryConvertStruct<double>(parameter, out var @double))
+            if (TryConvert<double>(parameter, out var @double))
                 return @double;
             else if (TryConvert<string>(parameter, out var @string) && double.TryParse(@string, NumberStyles.Number, cultureInfo, out @double))
                 return @double;
@@ -181,7 +181,7 @@ namespace HexInnovation
     {
         public override object Evaluate(CultureInfo cultureInfo, object x, object y)
         {
-            if (TryConvertStruct<double>(x, out var a) && TryConvertStruct<double>(y, out var b))
+            if (TryConvert<double>(x, out var a) && TryConvert<double>(y, out var b))
                 return Math.Atan2(a, b);
             else
                 return null;
@@ -191,7 +191,7 @@ namespace HexInnovation
     {
         public override object Evaluate(CultureInfo cultureInfo, object x, object y)
         {
-            if (TryConvertStruct<double>(x, out var a) && TryConvertStruct<double>(y, out var b))
+            if (TryConvert<double>(x, out var a) && TryConvert<double>(y, out var b))
                 return Math.Log(a, b);
             else
                 return null;
@@ -236,12 +236,12 @@ namespace HexInnovation
             switch (parameters.Length)
             {
                 case 1:
-                    if (TryConvertStruct<double>(parameters[0](), out var value))
+                    if (TryConvert<double>(parameters[0](), out var value))
                         return Math.Round(value);
                     else
                         return null;
                 case 2:
-                    if (TryConvertStruct<double>(parameters[0](), out var a) && TryConvertStruct<double>(parameters[1](), out var b))
+                    if (TryConvert<double>(parameters[0](), out var a) && TryConvert<double>(parameters[1](), out var b))
                     {
                         if (b == (int)b)
                             return Math.Round(a, (int)b);
@@ -412,7 +412,7 @@ namespace HexInnovation
     {
         public override object Evaluate(CultureInfo cultureInfo, Func<object>[] parameters)
         {
-            var arguments = parameters.Select(x => TryConvertStruct<double>(x(), out var d) ? d : new double?())
+            var arguments = parameters.Select(x => TryConvert<double>(x(), out var d) ? d : new double?())
                 .Where(x => x.HasValue).Select(x => x.Value).ToList();
 
             return arguments.Count == 0 ? new double?() : arguments.Average();
