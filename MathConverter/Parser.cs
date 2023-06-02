@@ -313,7 +313,7 @@ namespace HexInnovation
                     if (!(t is LexicalToken lexToken))
                         throw new ArgumentException(ErrorWrongTokenType(t.TokenType));
                     var lex = lexToken.Lex;
-                    switch (lex.ToLower())
+                    switch (lex)
                     {
                         case "null":
                             return new NullNode();

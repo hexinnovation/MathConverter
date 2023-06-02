@@ -34,6 +34,17 @@ namespace HexInnovation
                 }
                 else
                 {
+                    switch (item.Name)
+                    {
+                        case "e":
+                        case "pi":
+                        case "null":
+                        case "true":
+                        case "x":
+                        case "y":
+                        case "z":
+                            throw new ArgumentException($"\"{item.Name}\" is a reserved keyword. You cannot add a function with that name.");
+                    }
                     _functions[item.Name] = item.Function;
                 }
             }

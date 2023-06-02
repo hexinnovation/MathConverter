@@ -94,13 +94,10 @@ namespace HexInnovation
                             case ';':
                             case ',':
                                 return new Token(TokenType.Semicolon);
-                            case 'X':
                             case 'x':
                                 return new Token(TokenType.X);
-                            case 'Y':
                             case 'y':
                                 return new Token(TokenType.Y);
-                            case 'Z':
                             case 'z':
                                 return new Token(TokenType.Z);
                             case '?':

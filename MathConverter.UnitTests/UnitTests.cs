@@ -226,10 +226,8 @@ namespace HexInnovation
                 foreach (var args in new object[] { new object[0], new object[] { 3 }, new object[] { null, 7 } })
                 {
                     Assert.AreEqual(Math.E, _converter.Convert(args, typeof(object), "e", culture));
-                    Assert.AreEqual(Math.E, _converter.Convert(args, typeof(object), "E", culture));
 
                     Assert.AreEqual(Math.PI, _converter.Convert(args, typeof(object), "pi", culture));
-                    Assert.AreEqual(Math.PI, _converter.Convert(args, typeof(object), "PI", culture));
 
                     Assert.IsNull(_converter.Convert(args, typeof(object), "null", culture));
                     Assert.IsFalse((bool)_converter.Convert(args, typeof(object), "false", culture));
