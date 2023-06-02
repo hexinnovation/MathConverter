@@ -7,18 +7,18 @@ namespace HexInnovation
 {
     public abstract class AbstractSyntaxTree
     {
-        public object Evaluate(CultureInfo cultureInfo, object[] parameters)
+        public object Evaluate(CultureInfo cultureInfo, object[] bindingValues)
         {
             try
             {
-                return DoEvaluate(cultureInfo, parameters);
+                return DoEvaluate(cultureInfo, bindingValues);
             }
             catch (Exception ex) when (!(ex is NodeEvaluationException))
             {
                 throw new NodeEvaluationException(this, ex);
             }
         }
-        public abstract object DoEvaluate(CultureInfo cultureInfo, object[] parameters);
+        public abstract object DoEvaluate(CultureInfo cultureInfo, object[] bindingValues);
         public abstract override string ToString();
     }
     abstract class BinaryNode : AbstractSyntaxTree
@@ -31,9 +31,9 @@ namespace HexInnovation
         }
         private readonly AbstractSyntaxTree _left, _right;
         private readonly BinaryOperator _operator;
-        public sealed override object DoEvaluate(CultureInfo cultureInfo, object[] parameters)
+        public sealed override object DoEvaluate(CultureInfo cultureInfo, object[] bindingValues)
         {
-            return _operator.Evaluate(_left, _right, cultureInfo, parameters);
+            return _operator.Evaluate(_left, _right, cultureInfo, bindingValues);
         }
         public sealed override string ToString()
         {
@@ -127,9 +127,9 @@ namespace HexInnovation
         private readonly AbstractSyntaxTree _positive;
         private readonly AbstractSyntaxTree _negative;
 
-        public override object DoEvaluate(CultureInfo cultureInfo, object[] parameters)
+        public override object DoEvaluate(CultureInfo cultureInfo, object[] bindingValues)
         {
-            return TernaryOperator.Evaluate(_condition, _positive, _negative, cultureInfo, parameters);
+            return TernaryOperator.Evaluate(_condition, _positive, _negative, cultureInfo, bindingValues);
         }
         public override string ToString()
         {
@@ -138,7 +138,7 @@ namespace HexInnovation
     }
     sealed class NullNode : AbstractSyntaxTree
     {
-        public override object DoEvaluate(CultureInfo cultureInfo, object[] parameters)
+        public override object DoEvaluate(CultureInfo cultureInfo, object[] bindingValues)
         {
             return null;
         }
@@ -156,9 +156,9 @@ namespace HexInnovation
         }
         private readonly UnaryOperator _operator;
         private readonly AbstractSyntaxTree _node;
-        public sealed override object DoEvaluate(CultureInfo cultureInfo, object[] parameters)
+        public sealed override object DoEvaluate(CultureInfo cultureInfo, object[] bindingValues)
         {
-            return _operator.Evaluate(_node.Evaluate(cultureInfo, parameters));
+            return _operator.Evaluate(_node.Evaluate(cultureInfo, bindingValues));
         }
         public sealed override string ToString() => $"{_operator}({_node})";
     }
@@ -179,7 +179,7 @@ namespace HexInnovation
             Value = value;
         }
         protected object Value { get; }
-        public sealed override object DoEvaluate(CultureInfo cultureInfo, object[] parameters) => Value;
+        public sealed override object DoEvaluate(CultureInfo cultureInfo, object[] bindingValues) => Value;
         public override string ToString() => $"{Value}";
     }
     /// <summary>
@@ -206,22 +206,22 @@ namespace HexInnovation
         /// The index of the variable we want to get.
         /// </summary>
         private readonly int _index;
-        public override object DoEvaluate(CultureInfo cultureInfo, object[] parameters)
+        public override object DoEvaluate(CultureInfo cultureInfo, object[] bindingValues)
         {
-            if (parameters.Length <= _index)
+            if (bindingValues.Length <= _index)
             {
-                var error = new StringBuilder("Error accessing variable ").Append(this).Append(". ");
+                var error = new StringBuilder("Error accessing binding value ").Append(this).Append(". ");
 
-                if (parameters.Length == 0)
+                if (bindingValues.Length == 0)
                     error.Append("No");
                 else
-                    error.Append("Only ").Append(parameters.Length);
+                    error.Append("Only ").Append(bindingValues.Length);
 
-                throw new IndexOutOfRangeException(error.Append(" variable").Append(parameters.Length == 1 ? " was" : "s were")
+                throw new IndexOutOfRangeException(error.Append(" value").Append(bindingValues.Length == 1 ? " was" : "s were")
                     .Append(" specified.").ToString());
             }
 
-            return parameters[_index];
+            return bindingValues[_index];
         }
         public override string ToString()
         {
@@ -275,7 +275,7 @@ namespace HexInnovation
 
     public abstract class ZeroArgFunction : CustomFunction
     {
-        public sealed override object DoEvaluate(CultureInfo cultureInfo, object[] parameters)
+        public sealed override object DoEvaluate(CultureInfo cultureInfo, object[] bindingValues)
         {
             return Evaluate(cultureInfo);
         }
@@ -294,9 +294,9 @@ namespace HexInnovation
     public abstract class OneArgFunction : CustomFunction
     {
         internal AbstractSyntaxTree Argument { get; set; }
-        public sealed override object DoEvaluate(CultureInfo cultureInfo, object[] parameters)
+        public sealed override object DoEvaluate(CultureInfo cultureInfo, object[] bindingValues)
         {
-            return Evaluate(cultureInfo, Argument.Evaluate(cultureInfo, parameters));
+            return Evaluate(cultureInfo, Argument.Evaluate(cultureInfo, bindingValues));
         }
         public abstract object Evaluate(CultureInfo cultureInfo, object parameter);
         public override string ToString()
@@ -329,9 +329,9 @@ namespace HexInnovation
     {
         internal AbstractSyntaxTree Argument1 { get; set; }
         internal AbstractSyntaxTree Argument2 { get; set; }
-        public sealed override object DoEvaluate(CultureInfo cultureInfo, object[] parameters)
+        public sealed override object DoEvaluate(CultureInfo cultureInfo, object[] bindingValues)
         {
-            return Evaluate(cultureInfo, Argument1.Evaluate(cultureInfo, parameters), Argument2.Evaluate(cultureInfo, parameters));
+            return Evaluate(cultureInfo, Argument1.Evaluate(cultureInfo, bindingValues), Argument2.Evaluate(cultureInfo, bindingValues));
         }
         public abstract object Evaluate(CultureInfo cultureInfo, object x, object y);
         public override string ToString()
@@ -345,9 +345,9 @@ namespace HexInnovation
     public abstract class ArbitraryArgFunction : CustomFunction
     {
         internal AbstractSyntaxTree[] Arguments { get; set; }
-        public sealed override object DoEvaluate(CultureInfo cultureInfo, object[] parameters)
+        public sealed override object DoEvaluate(CultureInfo cultureInfo, object[] bindingValues)
         {
-            return Evaluate(cultureInfo, Arguments.Select(x => new Func<object>(() => x.Evaluate(cultureInfo, parameters))).ToArray());
+            return Evaluate(cultureInfo, Arguments.Select(x => new Func<object>(() => x.Evaluate(cultureInfo, bindingValues))).ToArray());
         }
         public abstract object Evaluate(CultureInfo cultureInfo, Func<object>[] parameters);
         public override string ToString()

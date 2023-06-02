@@ -1116,9 +1116,9 @@ namespace HexInnovation
             }
         }
         public object Evaluate(object x, object y) => Evaluate(x, () => y);
-        public object Evaluate(AbstractSyntaxTree left, AbstractSyntaxTree right, CultureInfo cultureInfo, object[] parameters)
+        public object Evaluate(AbstractSyntaxTree left, AbstractSyntaxTree right, CultureInfo cultureInfo, object[] bindingValues)
         {
-            return Evaluate(left.Evaluate(cultureInfo, parameters), () => right.Evaluate(cultureInfo, parameters));
+            return Evaluate(left.Evaluate(cultureInfo, bindingValues), () => right.Evaluate(cultureInfo, bindingValues));
         }
     }
     /// <summary>
@@ -1128,14 +1128,14 @@ namespace HexInnovation
     /// </summary>
     public static class TernaryOperator
     {
-        public static object Evaluate(AbstractSyntaxTree condition, AbstractSyntaxTree positive, AbstractSyntaxTree negative, CultureInfo cultureInfo, object[] parameters)
+        public static object Evaluate(AbstractSyntaxTree condition, AbstractSyntaxTree positive, AbstractSyntaxTree negative, CultureInfo cultureInfo, object[] bindingValues)
         {
-            var conditionObj = condition.Evaluate(cultureInfo, parameters);
+            var conditionObj = condition.Evaluate(cultureInfo, bindingValues);
             var conditionBool = Operator.TryConvertToBool(conditionObj);
 
             if (conditionBool.HasValue)
             {
-                return (conditionBool.Value ? positive : negative).Evaluate(cultureInfo, parameters);
+                return (conditionBool.Value ? positive : negative).Evaluate(cultureInfo, bindingValues);
             }
             else
             {
