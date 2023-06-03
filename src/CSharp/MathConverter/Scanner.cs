@@ -390,19 +390,12 @@ namespace HexInnovation
                                                                     }
                                                                     break;
                                                                 case '`':
-                                                                    if ((state & ~ScannerState.InterpolatedString) == ScannerState.CaretString)
-                                                                        throw new ParsingException(this, "Missing close delimiter '}' for interpolated expression started with '{'.");
-                                                                    sb.Append('`');
-                                                                    break;
                                                                 case '"':
-                                                                    if ((state & ~ScannerState.InterpolatedString) == ScannerState.DoubleQuoteString)
-                                                                        throw new ParsingException(this, "Missing close delimiter '}' for interpolated expression started with '{'.");
-                                                                    sb.Append('"');
-                                                                    break;
                                                                 case '\'':
-                                                                    if ((state & ~ScannerState.InterpolatedString) == ScannerState.SingleQuoteString)
+                                                                    var endOfStringState = ch switch { '`' => ScannerState.CaretString, '"' => ScannerState.DoubleQuoteString, '\'' => ScannerState.SingleQuoteString, _ => throw new Exception("MathConverter internal exception: Parser is in an invalid state.") };
+                                                                    if ((state & ~ScannerState.InterpolatedString) == endOfStringState)
                                                                         throw new ParsingException(this, "Missing close delimiter '}' for interpolated expression started with '{'.");
-                                                                    sb.Append('`');
+                                                                    sb.Append((char)ch);
                                                                     break;
                                                             }
                                                         }

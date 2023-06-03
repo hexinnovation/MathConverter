@@ -783,6 +783,12 @@ namespace HexInnovation
             Assert.AreEqual(string.Format(new CultureInfo("de"), "{0, 7: N2}", 30), _converter.Convert(args, typeof(object), "$\"{30; 7: N2}\"", new CultureInfo("de")));
             Assert.AreEqual(string.Format(new CultureInfo("de"), "{0,-7: N2}", 30), _converter.Convert(args, typeof(object), "$\"{30,-7: N2}\"", new CultureInfo("de")));
             Assert.AreEqual(string.Format(new CultureInfo("de"), "{0, 56: N2}", 30), _converter.Convert(args, typeof(object), "$\"{30, 56: N2}\"", new CultureInfo("de")));
+
+            // Make sure we properly parse escaped format string characters.
+            var timespan = new TimeSpan(0, 1, 2, 3, 4); // (1 hour, 2 minutes, 3 seconds, 4 milliseconds)
+            Assert.AreEqual(string.Format(new CultureInfo("de"), "{0:hh':'mm':'ss}", timespan), _converter.Convert(timespan, typeof(object), "$\"{x:hh':'mm':'ss}\"", new CultureInfo("de")));
+            Assert.AreEqual(string.Format(new CultureInfo("de"), "{0:hh':'mm':'ss}", timespan), _converter.Convert(timespan, typeof(object), "$`{x:hh':'mm':'ss}`", new CultureInfo("de")));
+            Assert.AreEqual(string.Format(new CultureInfo("de"), "{0:hh\\:mm\\:ss}", timespan), _converter.Convert(timespan, typeof(object), @"$`{x:hh\\:mm\\:ss}`", new CultureInfo("de")));
         }
         [TestMethod]
         public void TestBuiltInFunctions()
