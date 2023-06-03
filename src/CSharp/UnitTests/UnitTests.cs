@@ -785,7 +785,7 @@ namespace HexInnovation
             Assert.AreEqual(string.Format(new CultureInfo("de"), "{0, 56: N2}", 30), _converter.Convert(args, typeof(object), "$\"{30, 56: N2}\"", new CultureInfo("de")));
         }
         [TestMethod]
-        public void TestFunctions()
+        public void TestBuiltInFunctions()
         {
             const int allowWithinMillis = 4;
 
@@ -924,6 +924,62 @@ namespace HexInnovation
                 Assert.AreEqual(null, _converter.Convert(new object[] { TimeSpan.FromDays(3) }, typeof(object), "TryParseDouble(x)", new CultureInfo("de")));
 
                 Assert.AreEqual(DependencyProperty.UnsetValue, _converter.Convert(null, typeof(string), "UnsetValue()", new CultureInfo("de")));
+            }
+        }
+
+        [TestMethod]
+        public void TestCustomFunctions()
+        {
+            _converter.CustomFunctions.Add(new CustomFunctionDefinition { Function = typeof(ConstantValueFunction), Name = "ConstValue" });
+            Assert.IsTrue(ReferenceEquals(ConstantValueFunction.Value, _converter.Convert(null, typeof(object), "ConstValue()", CultureInfo.InvariantCulture)));
+            Assert.IsTrue(_converter.CustomFunctions.Remove("ConstValue"));
+
+            _converter.CustomFunctions.Add(new CustomFunctionDefinition { Function = typeof(ThreeArgFunction), Name = "ThreeArg" });
+
+            try
+            {
+                _converter.Convert(new object[0], typeof(object), "ThreeArg()", new CultureInfo("de"));
+                Assert.Fail("ThreeArg function should not parse when passed zero parameters.");
+            }
+            catch (ParsingException ex) when (ex.Message == "The parser threw an exception at the 9th character:\r\nThe ThreeArg function cannot accept 0 parameters.\r\n\r\nExpression: \"ThreeArg()\"") { }
+
+            try
+            {
+                _converter.Convert(new object[0], typeof(object), "ThreeArg(1, 2)", new CultureInfo("de"));
+                Assert.Fail("ThreeArg function should not parse when passed two parameters.");
+            }
+            catch (ParsingException ex) when (ex.Message == "The parser threw an exception at the 13th character:\r\nThe ThreeArg function cannot accept 2 parameters.\r\n\r\nExpression: \"ThreeArg(1, 2)\"") { }
+
+            try
+            {
+                _converter.Convert(new object[0], typeof(object), "ThreeArg(1, 2, 3, 4)", new CultureInfo("de"));
+                Assert.Fail("ThreeArg function should not parse when passed four parameters.");
+            }
+            catch (ParsingException ex) when (ex.Message == "The parser threw an exception at the 19th character:\r\nThe ThreeArg function cannot accept 4 parameters.\r\n\r\nExpression: \"ThreeArg(1, 2, 3, 4)\"") { }
+
+            Assert.AreEqual(1.0, _converter.Convert(new object[0], typeof(object), "ThreeArg(1, 2, 3)", new CultureInfo("de")));
+            Assert.AreEqual(true, _converter.Convert(new object[0], typeof(object), "ThreeArg(true, 2, 3)", new CultureInfo("de")));
+            Assert.IsTrue(_converter.CustomFunctions.Remove("ThreeArg"));
+        }
+
+        public class ConstantValueFunction : ZeroArgFunction
+        {
+            public static readonly object Value = new object();
+            public override object Evaluate(CultureInfo cultureInfo)
+            {
+                return Value;
+            }
+        }
+
+        public class ThreeArgFunction : CustomFunction
+        {
+            public override object DoEvaluate(CultureInfo cultureInfo, object[] bindingValues)
+            {
+                return EvaluateParameter(0, cultureInfo, bindingValues);
+            }
+            public override bool IsValidNumberOfParameters(int numParams)
+            {
+                return numParams == 3;
             }
         }
     }
