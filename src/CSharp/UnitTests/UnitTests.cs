@@ -439,7 +439,6 @@ namespace HexInnovation
 
             try
             {
-                // UnsetValue is not yet available in Xamarin.Forms
                 _converter.Convert(new object[] { DependencyProperty.UnsetValue }, typeof(int?), "x ? true : false", new CultureInfo("de"));
 
 #if XAMARIN
@@ -923,6 +922,8 @@ namespace HexInnovation
                 Assert.AreEqual(-3.425, _converter.Convert(new object[] { null, 3, 5 }, typeof(object), "TryParseDouble(`-3,425`)", new CultureInfo("de")));
                 Assert.AreEqual(null, _converter.Convert(new object[] { null, 3, 5 }, typeof(object), "TryParseDouble(`INVALID!`)", new CultureInfo("de")));
                 Assert.AreEqual(null, _converter.Convert(new object[] { TimeSpan.FromDays(3) }, typeof(object), "TryParseDouble(x)", new CultureInfo("de")));
+
+                Assert.AreEqual(DependencyProperty.UnsetValue, _converter.Convert(null, typeof(string), "UnsetValue()", new CultureInfo("de")));
             }
         }
     }

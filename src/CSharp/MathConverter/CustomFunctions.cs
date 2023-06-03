@@ -13,6 +13,17 @@ namespace HexInnovation
     {
         public override object Evaluate(CultureInfo cultureInfo) => DateTime.Now;
     }
+    sealed class UnsetValueFunction : ZeroArgFunction
+    {
+        public override object Evaluate(CultureInfo cultureInfo)
+        {
+#if XAMARIN
+            return Xamarin.Forms.BindableProperty.UnsetValue;
+#else
+            return DependencyProperty.UnsetValue;
+#endif
+        }
+    }
     sealed class CosFunction : OneDoubleFunction
     {
         public override double? Evaluate(CultureInfo cultureInfo, double x)

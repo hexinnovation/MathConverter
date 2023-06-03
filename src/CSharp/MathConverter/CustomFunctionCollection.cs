@@ -117,6 +117,7 @@ namespace HexInnovation
             Add(new CustomFunctionDefinition { Name = "Concat", Function = typeof(ConcatFunction) });
             Add(new CustomFunctionDefinition { Name = "Join", Function = typeof(JoinFunction) });
             Add(new CustomFunctionDefinition { Name = "Throw", Function = typeof(ThrowFunction) });
+            Add(new CustomFunctionDefinition { Name = "UnsetValue", Function = typeof(UnsetValueFunction) });
         }
         public bool Contains(CustomFunctionDefinition item)
         {
