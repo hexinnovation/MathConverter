@@ -1,0 +1,10 @@
+# Auto detect text files and perform LF normalization
+# See https://github.com/alexkaratarakis/gitattributes
+*          text=auto
+
+*.cs       text diff=csharp
+*.cshtml   text diff=html
+*.csx      text diff=csharp
+*.xml      text
+*.sln      text eol=crlf
+*.csproj   text eol=crlf
