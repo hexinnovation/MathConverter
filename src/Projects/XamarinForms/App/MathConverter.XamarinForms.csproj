@@ -1,0 +1,35 @@
+﻿<Project Sdk="MSBuild.Sdk.Extras/3.0.44">
+  <PropertyGroup>
+    <TargetFrameworks>monoandroid10.0;netstandard1.0;netstandard1.3;netstandard2.0;netcoreapp2.0;netcoreapp3.0;netcoreapp3.1;xamarin.mac20;xamarin.ios10</TargetFrameworks>
+    <TargetFrameworks Condition="'$(OS)' == 'Windows_NT'">$(TargetFrameworks);uap10.0</TargetFrameworks>
+    <TargetPlatformVersion Condition="$(TargetFramework.StartsWith('uap'))">10.0.22621.0</TargetPlatformVersion>
+    <TargetPlatformMinVersion Condition="$(TargetFramework.StartsWith('uap'))">10.0.15063.0</TargetPlatformMinVersion>
+    <XamarinAndroidSupportSkipVerifyVersions>true</XamarinAndroidSupportSkipVerifyVersions>
+    <AssemblyName>MathConverter.XamarinForms</AssemblyName>
+    <MathConverterTarget>XamarinForms</MathConverterTarget>
+    <PackageTags>Xamarin Xamarin.Forms XamarinForms</PackageTags>
+    <DefineConstants>XAMARIN</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="$(TargetFramework.StartsWith('uap'))">
+    <DefineConstants>XAMARIN;WINDOWS_UWP</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup Condition="$(TargetFramework.StartsWith('uap')) Or $(TargetFramework.StartsWith('netstandard1'))">
+    <PackageReference Include="System.ComponentModel.TypeConverter" Version="4.3.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition="$(TargetFramework.StartsWith('xamarin.mac'))">
+    <Reference Include="netstandard" />
+  </ItemGroup>
+
+  <ItemGroup Condition="$(TargetFramework.StartsWith('netstandard1')) Or $(TargetFramework.StartsWith('uap10'))">
+    <PackageReference Include="NETStandard.Library" Version="2.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Xamarin.Forms" Version="5.0.0.2578" />
+  </ItemGroup>
+
+  <Import Project="..\..\Common\App.props" />
+</Project>

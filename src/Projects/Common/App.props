@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Target Name="ValidateMathConverterTarget" BeforeTargets="Build">
+    <Error Text="The MathConverterTarget property must be either &quot;WPF&quot; or &quot;XamarinForms&quot;." Condition="'$(MathConverterTarget)' != 'WPF' And '$(MathConverterTarget)' != 'XamarinForms'" />
+  </Target>
+
+  <PropertyGroup>
+    <RootNamespace>HexInnovation</RootNamespace>
+    <Company>Hex Innovation</Company>
+    <Copyright>Copyright © 2015-$([System.DateTime]::Now.ToString(`yyyy`)) $(Company)</Copyright>
+    <Product>$(AssemblyName)</Product>
+    <Version>2.1-alpha0001</Version>
+    <AssemblyVersion>2.0.0.0</AssemblyVersion>
+    <FileVersion>$(AssemblyVersion)</FileVersion>
+    <ApplicationVersion>$(AssemblyVersion)</ApplicationVersion>
+    <Authors>$(Company)</Authors>
+    <Description>A $(MathConverterTarget) Converter class that does it all.</Description>
+    <PackageProjectUrl>https://github.com/hexinnovation/MathConverter</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/hexinnovation/MathConverter</RepositoryUrl>
+    <PackageIcon>smalllogo.png</PackageIcon>
+    <RepositoryType>GitHub</RepositoryType>
+    <PackageTags>$(PackageTags) Converter Math Arbitrary Expressions ConverterParameter IValueConverter IMultiValueConverter</PackageTags>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <Deterministic>true</Deterministic>
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <TargetFrameworkMonikerAssemblyAttributesPath>$([System.IO.Path]::Combine('$(BaseIntermediateOutputPath)', '$(Configuration)', '$(TargetFramework)', '$(AssemblyName).GeneratedAssemblyAttributes.cs'))</TargetFrameworkMonikerAssemblyAttributesPath>
+    <DeterministicSourcePaths Condition="'$(EnableSourceLink)' == ''">false</DeterministicSourcePaths>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0.0" PrivateAssets="All" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\..\ReadmeAssets\smalllogo.png" Pack="True" PackagePath="smalllogo.png" Link="Assets\smalllogo.png" />
+    <EmbeddedFiles Include="$(GeneratedAssemblyInfoFile)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileFullPath)" Link="Props\$(MSBuildThisFile)" />
+    <Compile Include="$(MSBuildThisFileDirectory)..\..\CSharp\MathConverter\**\*.cs" Link="src\%(RecursiveDir)%(FileName)%(Extension)" />
+  </ItemGroup>
+
+  <Import Project="$(MSBuildThisFileDirectory)Common.props" />
+</Project>
