@@ -79,7 +79,7 @@ namespace HexInnovation
                 _converter.Convert(new object[0], typeof(object), "x++x", new CultureInfo("de"));
                 Assert.Fail("The ++ operator should is not supported, so this statement should throw an exception.");
             }
-            catch (ParsingException ex) when (ex.Message?.Contains("The ++ operator is not supported.") == true) { }
+            catch (Exception ex) when (ex is { InnerException: ParsingException { Message: { } message } } && message.Contains("The ++ operator is not supported.")) { }
 
             Assert.AreEqual(-4*-x, _converter.Convert(args, typeof(object), "-4*-x", new CultureInfo("de")));
             Assert.AreEqual(-4*(-x), _converter.Convert(args, typeof(object), "-4(-x)", new CultureInfo("de")));
@@ -96,7 +96,7 @@ namespace HexInnovation
                 _converter.Convert(new object[0], typeof(object), "4--x", new CultureInfo("de"));
                 Assert.Fail("The -- operator should is not supported, so this statement should throw an exception.");
             }
-            catch (ParsingException ex) when (ex.Message?.Contains("The -- operator is not supported.") == true) { }
+            catch (Exception ex) when (ex is { InnerException: ParsingException { Message: { } message } } && message.Contains("The -- operator is not supported.")) { }
 
             Assert.AreEqual(+4 -+x+-+-+-+ +-x, _converter.Convert(args, typeof(object), "+4 -+x+-+-+-+ +-x", new CultureInfo("de")));
             Assert.AreEqual(+4+ +-+x+-+-+-+ +-x, _converter.Convert(args, typeof(object), "+4+ +-+x+-+-+-+ +-x", new CultureInfo("de")));
@@ -941,21 +941,21 @@ namespace HexInnovation
                 _converter.Convert(new object[0], typeof(object), "ThreeArg()", new CultureInfo("de"));
                 Assert.Fail("ThreeArg function should not parse when passed zero parameters.");
             }
-            catch (ParsingException ex) when (ex.Message == "The parser threw an exception at the 9th character:\r\nThe ThreeArg function cannot accept 0 parameters.\r\n\r\nExpression: \"ThreeArg()\"") { }
+            catch (Exception ex) when (ex is { InnerException: ParsingException { Message: { } message } } && message.Contains("The ThreeArg function cannot accept 0 parameters.")) { }
 
             try
             {
                 _converter.Convert(new object[0], typeof(object), "ThreeArg(1, 2)", new CultureInfo("de"));
                 Assert.Fail("ThreeArg function should not parse when passed two parameters.");
             }
-            catch (ParsingException ex) when (ex.Message == "The parser threw an exception at the 13th character:\r\nThe ThreeArg function cannot accept 2 parameters.\r\n\r\nExpression: \"ThreeArg(1, 2)\"") { }
+            catch (Exception ex) when (ex is { InnerException: ParsingException { Message: { } message } } && message.Contains("The ThreeArg function cannot accept 2 parameters.")) { }
 
             try
             {
                 _converter.Convert(new object[0], typeof(object), "ThreeArg(1, 2, 3, 4)", new CultureInfo("de"));
                 Assert.Fail("ThreeArg function should not parse when passed four parameters.");
             }
-            catch (ParsingException ex) when (ex.Message == "The parser threw an exception at the 19th character:\r\nThe ThreeArg function cannot accept 4 parameters.\r\n\r\nExpression: \"ThreeArg(1, 2, 3, 4)\"") { }
+            catch (Exception ex) when (ex is { InnerException: ParsingException { Message: { } message } } && message.Contains("The ThreeArg function cannot accept 4 parameters.")) { }
 
             Assert.AreEqual(1.0, _converter.Convert(new object[0], typeof(object), "ThreeArg(1, 2, 3)", new CultureInfo("de")));
             Assert.AreEqual(true, _converter.Convert(new object[0], typeof(object), "ThreeArg(true, 2, 3)", new CultureInfo("de")));

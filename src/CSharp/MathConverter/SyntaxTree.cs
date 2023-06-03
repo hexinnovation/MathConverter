@@ -15,7 +15,7 @@ namespace HexInnovation
             {
                 return DoEvaluate(cultureInfo, bindingValues);
             }
-            catch (Exception ex) when (!(ex is NodeEvaluationException))
+            catch (Exception ex) when (ex is not NodeEvaluationException)
             {
                 throw new NodeEvaluationException(this, ex);
             }

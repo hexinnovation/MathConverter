@@ -415,13 +415,6 @@ namespace HexInnovation
                                                 }
                                             }
                                             catch (Exception e)
-#if DEBUG
-#pragma warning disable CS7095 // Filter expression is a constant
-#pragma warning disable CS8360 // Filter expression is a constant 'false'. 
-                                            when (false)
-#pragma warning restore CS8360 // Filter expression is a constant 'false'. 
-#pragma warning restore CS7095 // Filter expression is a constant
-#endif
                                             {
                                                 throw new ParsingException(this, "Failed to parse the interpolated string to a call to String.Format. See the inner exception.", e);
                                             }
