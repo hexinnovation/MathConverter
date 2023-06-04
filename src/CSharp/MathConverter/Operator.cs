@@ -979,7 +979,7 @@ namespace HexInnovation
             };
         }
 
-        private object Evaluate(object x, Func<object> evaluateRightOperand)
+        public object DoEvaluate(object x, Func<object> evaluateRightOperand)
         {
             if (SupportedOperands == Operands.CompletelyCustom)
             {
@@ -1060,10 +1060,10 @@ namespace HexInnovation
                 return @operator.Invoke(null, new[] { x, y });
             }
         }
-        public object Evaluate(object x, object y) => Evaluate(x, () => y);
+        public object Evaluate(object x, object y) => DoEvaluate(x, () => y);
         public object Evaluate(AbstractSyntaxTree left, AbstractSyntaxTree right, CultureInfo cultureInfo, object[] bindingValues)
         {
-            return Evaluate(left.Evaluate(cultureInfo, bindingValues), () => right.Evaluate(cultureInfo, bindingValues));
+            return DoEvaluate(left.Evaluate(cultureInfo, bindingValues), () => right.Evaluate(cultureInfo, bindingValues));
         }
     }
     /// <summary>
