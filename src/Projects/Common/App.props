@@ -5,7 +5,6 @@
   </Target>
 
   <PropertyGroup>
-    <RootNamespace>HexInnovation</RootNamespace>
     <Company>Hex Innovation</Company>
     <Copyright>Copyright © 2015-$([System.DateTime]::Now.ToString(`yyyy`)) $(Company)</Copyright>
     <Product>$(AssemblyName)</Product>
@@ -15,8 +14,8 @@
     <ApplicationVersion>$(AssemblyVersion)</ApplicationVersion>
     <Authors>$(Company)</Authors>
     <Description>A $(MathConverterTarget) Converter class that does it all.</Description>
-    <PackageProjectUrl>https://github.com/hexinnovation/MathConverter</PackageProjectUrl>
     <RepositoryUrl>https://github.com/hexinnovation/MathConverter</RepositoryUrl>
+    <PackageProjectUrl>$(RepositoryUrl)</PackageProjectUrl>
     <PackageIcon>smalllogo.png</PackageIcon>
     <RepositoryType>GitHub</RepositoryType>
     <PackageTags>$(PackageTags) Converter Math Arbitrary Expressions ConverterParameter IValueConverter IMultiValueConverter</PackageTags>

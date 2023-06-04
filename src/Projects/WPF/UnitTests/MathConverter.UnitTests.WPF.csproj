@@ -1,9 +1,8 @@
 ﻿<Project Sdk="MSBuild.Sdk.Extras/3.0.44">
 
+  <Import Project="..\..\Common\WPF.props" />
+
   <PropertyGroup>
-    <TargetFrameworks>net35;net40;net45;netcoreapp3.0;netcoreapp3.1</TargetFrameworks>
-    <UseWPF>true</UseWPF>
-    <RootNamespace>HexInnovation</RootNamespace>
     <AssemblyName>MathConverter.UnitTests</AssemblyName>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <IsPackable>false</IsPackable>
@@ -29,12 +28,6 @@
       </ItemGroup>
     </Otherwise>
   </Choose>
-
-  <ItemGroup Condition="$(TargetFramework.StartsWith('net4'))">
-    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies.$(TargetFramework)" Version="1.0.3" PrivateAssets="All">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
-  </ItemGroup>
 
   <Import Project="..\..\Common\UnitTests.props" />
 

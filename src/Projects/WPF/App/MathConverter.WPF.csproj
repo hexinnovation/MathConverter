@@ -1,28 +1,13 @@
 ﻿<Project Sdk="MSBuild.Sdk.Extras/3.0.44">
+
+  <Import Project="..\..\Common\WPF.props" />
+
   <PropertyGroup>
-    <TargetFrameworks>net35;net40;net45;netcoreapp3.0;netcoreapp3.1</TargetFrameworks>
-    <UseWPF Condition="$(TargetFramework.StartsWith('netcoreapp3'))">true</UseWPF>
     <AssemblyName>MathConverter</AssemblyName>
     <PackageTags>WPF</PackageTags>
     <MathConverterTarget>WPF</MathConverterTarget>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)'=='net35'">
-    <DefineConstants>NET35</DefineConstants>
-  </PropertyGroup>
-
-  <ItemGroup Condition="$(TargetFramework.StartsWith('net4'))">
-    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies.$(TargetFramework)" Version="1.0.3" PrivateAssets="All">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
-  </ItemGroup>
-
-  <ItemGroup Condition="$(TargetFramework.StartsWith('net3')) Or $(TargetFramework.StartsWith('net4'))">
-    <Reference Include="PresentationCore" />
-    <Reference Include="PresentationFramework" />
-    <Reference Include="WindowsBase" />
-    <Reference Condition="$(TargetFramework.StartsWith('net4'))" Include="System.Xaml" />
-  </ItemGroup>
-
   <Import Project="..\..\Common\App.props" />
+
 </Project>

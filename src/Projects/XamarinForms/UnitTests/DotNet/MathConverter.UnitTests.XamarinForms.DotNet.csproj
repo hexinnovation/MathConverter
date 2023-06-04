@@ -1,7 +1,6 @@
 ﻿<Project Sdk="MSBuild.Sdk.Extras/3.0.44">
   <PropertyGroup>
     <TargetFrameworks>netcoreapp2.0;netcoreapp3.0;netcoreapp3.1</TargetFrameworks>
-    <RootNamespace>HexInnovation</RootNamespace>
     <AssemblyName>MathConverter.UnitTests</AssemblyName>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <IsPackable>false</IsPackable>
