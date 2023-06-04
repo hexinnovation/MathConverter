@@ -164,27 +164,41 @@ namespace HexInnovation
             var stringJoinCulture = targetType == typeof(string) ? culture : CultureInfo.InvariantCulture;
             var finalAnswerToConvert = evaluatedValues?.Count == 1 ? evaluatedValues[0] : string.Join(",", evaluatedValues.Select(p => string.Format(stringJoinCulture, "{0}", p)).MyToArray());
 
+            return ConvertType(finalAnswerToConvert, targetType);
+        }
+
+        /// <summary>
+        /// Converts a value to a given type. Returns the input value if the type conversion fails.
+        /// This function tries the following things:
+        /// - TypeConverters
+        /// - Coersion (Implicit conversions: https://learn.microsoft.com/en-us/dotnet/csharp/programming-guide/types/casting-and-type-conversions#implicit-conversions)
+        /// - IConvertible (System.Convert.ChangeType)
+        /// </summary>
+        /// <param name="value">The value to convert</param>
+        /// <param name="targetType">The type to convert to</param>
+        public static object ConvertType(object value, Type targetType)
+        {
             // At this point, we have now computed our final answer.
             // However, we might need to do standard type conversion to convert it to a different type.
 
             // We don't need to convert null, and we can't convert if there's no type specified that we need to convert to.
-            if (finalAnswerToConvert == null || targetType == null)
-                return finalAnswerToConvert;
+            if (value == null || targetType == null)
+                return value;
 
             // We might not need to convert.
-            if (targetType.IsInstanceOfType(finalAnswerToConvert))
+            if (targetType.IsInstanceOfType(value))
             {
-                return finalAnswerToConvert;
+                return value;
             }
 
             // We need to convert the answer to the appropriate type. Let's start with the default TypeConverter.
             var converter = TypeDescriptor.GetConverter(targetType);
 
-            if (converter.CanConvertFrom(finalAnswerToConvert.GetType()))
+            if (converter.CanConvertFrom(value.GetType()))
             {
                 // We don't want to use the CultureInfo here when converting, because Rect conversion is broken in some cultures.
                 // We'll keep these conversions working in InvariantCulture.
-                return converter.ConvertFrom(null, CultureInfo.InvariantCulture, finalAnswerToConvert);
+                return converter.ConvertFrom(null, CultureInfo.InvariantCulture, value);
             }
 
             // We know we're not returning null... If we're trying to convert to a Nullable<SomeStruct>, let's just convert to SomeStruct instead.
@@ -201,37 +215,38 @@ namespace HexInnovation
             if (typeConverter != null)
             {
                 // Xamarin.Forms.TypeConverters only convert from Invariant Strings. All other conversions are deprecated.
-                string convertFrom = finalAnswerToConvert as string ?? $"{finalAnswerToConvert}";
+                string convertFrom = value as string ?? $"{value}";
                 return typeConverter.ConvertFromInvariantString(convertFrom);
             }
 #endif
 
             try
             {
-                if (Operator.DoesImplicitConversionExist(finalAnswerToConvert.GetType(), targetType, true))
+                if (Operator.DoesImplicitConversionExist(value.GetType(), targetType, true))
                 {
                     // The default TypeConverter doesn't support this conversion. Let's try an implicit conversion.
-                    return Operator.DoImplicitConversion(finalAnswerToConvert, targetType);
+                    return Operator.DoImplicitConversion(value, targetType);
                 }
-                else if (CompatibilityExtensions.IsIConvertible(finalAnswerToConvert))
+                else if (CompatibilityExtensions.IsIConvertible(value))
                 {
                     if (targetType == typeof(char))
                     {
                         // We'll add a special cast for conversions to char, where we'll convert to int first.
-                        return System.Convert.ToChar((int)System.Convert.ChangeType(finalAnswerToConvert, typeof(int)));
+                        return System.Convert.ToChar((int)System.Convert.ChangeType(value, typeof(int)));
                     }
                     else
                     {
                         // Let's try System.Convert. This might throw an exception.
-                        return System.Convert.ChangeType(finalAnswerToConvert, targetType);
+                        return System.Convert.ChangeType(value, targetType);
                     }
                 }
             }
             catch (InvalidCastException) { }
 
             // Welp, we can't convert this value... Oh well.
-            return finalAnswerToConvert;
+            return value;
         }
+
         /// <summary>
         /// Don't call this method, as it is not supported.
         /// </summary>

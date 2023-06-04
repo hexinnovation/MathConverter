@@ -233,6 +233,13 @@ namespace HexInnovation
             }
         }
     }
+    sealed class ConvertTypeFunction : TwoArgFunction
+    {
+        public override object Evaluate(CultureInfo cultureInfo, object x, object y)
+        {
+            return y is Type type ? MathConverter.ConvertType(x, type) : x;
+        }
+    }
     sealed class IsNullFunction : ArbitraryArgFunction
     {
         public override object Evaluate(CultureInfo cultureInfo, Func<object>[] arguments)

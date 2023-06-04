@@ -99,6 +99,7 @@ namespace HexInnovation
             Add(new CustomFunctionDefinition { Name = "TryParseDouble", Function = typeof(TryParseDoubleFunction) });
             Add(new CustomFunctionDefinition { Name = "GetType", Function = typeof(GetTypeFunction) });
             Add(new CustomFunctionDefinition { Name = "StartsWith", Function = typeof(StartsWithFunction) });
+            Add(new CustomFunctionDefinition { Name = "ConvertType", Function = typeof(ConvertTypeFunction) });
             Add(new CustomFunctionDefinition { Name = "Contains", Function = typeof(ContainsFunction) });
             Add(new CustomFunctionDefinition { Name = "EndsWith", Function = typeof(EndsWithFunction) });
             Add(new CustomFunctionDefinition { Name = "Log", Function = typeof(LogFunction) });

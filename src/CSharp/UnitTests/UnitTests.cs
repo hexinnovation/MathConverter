@@ -938,6 +938,20 @@ namespace HexInnovation
             Assert.AreEqual(typeof(string), _converter.Convert(new object[] { null, 3, 5.0, "Hello" }, typeof(object), "GetType([3])", new CultureInfo("de")));
             Assert.AreEqual(typeof(string), _converter.Convert(new object[] { null, 3, 5.0, "Hello" }, typeof(object), "GetType(`Hello`)", new CultureInfo("de")));
             Assert.AreEqual(typeof(DateTime), _converter.Convert(new object[] { null, 3, 5.0, "Hello" }, typeof(object), "GetType(Now())", new CultureInfo("de")));
+
+            Assert.AreEqual('x', _converter.Convert(new object[] { (int)'x', typeof(char) }, typeof(object), "ConvertType(x, y)", new CultureInfo("de")));
+            Assert.AreEqual(3, _converter.Convert(new object[] { 3.25, typeof(int) }, typeof(object), "ConvertType(x, y)", new CultureInfo("de")));
+            Assert.AreEqual(3, _converter.Convert(new object[] { 3.4999, typeof(int) }, typeof(object), "ConvertType(x, y)", new CultureInfo("de")));
+            Assert.AreEqual(4, _converter.Convert(new object[] { 3.5, typeof(int) }, typeof(object), "ConvertType(x, y)", new CultureInfo("de")));
+            Assert.AreEqual(4, _converter.Convert(new object[] { 4.4999, typeof(int) }, typeof(object), "ConvertType(x, y)", new CultureInfo("de")));
+            Assert.AreEqual(TimeSpan.FromHours(6), _converter.Convert(new object[] { "6:00:00", typeof(TimeSpan) }, typeof(object), "ConvertType(x, y)", new CultureInfo("de")));
+            Assert.AreEqual(DateTime.Parse("2022-04-24", CultureInfo.InvariantCulture), _converter.Convert(new object[] { "2022-04-24", typeof(DateTime) }, typeof(object), "ConvertType(x, y)", new CultureInfo("de")));
+            try
+            {
+                _converter.Convert(new object[] { "24.04.2022", typeof(DateTime) }, typeof(object), "ConvertType(x, y)", new CultureInfo("de"));
+                Assert.Fail("Conversions should always happen from the because to maintain consistency when using TypeConverters.");
+            }
+            catch (Exception ex) when (ex is { InnerException: { InnerException: FormatException } }) { }
         }
 
         [TestMethod]
