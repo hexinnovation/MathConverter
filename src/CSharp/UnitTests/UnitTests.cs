@@ -957,11 +957,11 @@ namespace HexInnovation
         [TestMethod]
         public void TestCustomFunctions()
         {
-            _converter.CustomFunctions.Add(new CustomFunctionDefinition { Function = typeof(ConstantValueFunction), Name = "ConstValue" });
+            _converter.CustomFunctions.Add(CustomFunctionDefinition.Create<ConstantValueFunction>("ConstValue"));
             Assert.IsTrue(ReferenceEquals(ConstantValueFunction.Value, _converter.Convert(null, typeof(object), "ConstValue()", CultureInfo.InvariantCulture)));
             Assert.IsTrue(_converter.CustomFunctions.Remove("ConstValue"));
 
-            _converter.CustomFunctions.Add(new CustomFunctionDefinition { Function = typeof(ThreeArgFunction), Name = "ThreeArg" });
+            _converter.CustomFunctions.Add(CustomFunctionDefinition.Create<ThreeArgFunction>("ThreeArg"));
 
             try
             {
