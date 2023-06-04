@@ -959,7 +959,6 @@ namespace HexInnovation
         {
             _converter.CustomFunctions.Add(CustomFunctionDefinition.Create<ConstantValueFunction>("ConstValue"));
             Assert.IsTrue(ReferenceEquals(ConstantValueFunction.Value, _converter.Convert(null, typeof(object), "ConstValue()", CultureInfo.InvariantCulture)));
-            Assert.IsTrue(_converter.CustomFunctions.Remove("ConstValue"));
 
             _converter.CustomFunctions.Add(CustomFunctionDefinition.Create<ThreeArgFunction>("ThreeArg"));
 
@@ -986,7 +985,19 @@ namespace HexInnovation
 
             Assert.AreEqual(1.0, _converter.Convert(new object[0], typeof(object), "ThreeArg(1, 2, 3)", new CultureInfo("de")));
             Assert.AreEqual(true, _converter.Convert(new object[0], typeof(object), "ThreeArg(true, 2, 3)", new CultureInfo("de")));
-            Assert.IsTrue(_converter.CustomFunctions.Remove("ThreeArg"));
+
+            Assert.AreEqual(1.0, _converter.Convert(new object[0], typeof(object), "Max(-1, 1, 0)", new CultureInfo("de")));
+
+            // Override the Max function with our ThreeArgFunction.
+            _converter.ClearCache();
+            _converter.CustomFunctions.Remove("Max");
+            _converter.CustomFunctions.Add(CustomFunctionDefinition.Create<ThreeArgFunction>("Max"));
+
+            Assert.AreEqual(-1.0, _converter.Convert(new object[0], typeof(object), "Max(-1, 1, 0)", new CultureInfo("de")));
+
+            _converter.ClearCache();
+            _converter.CustomFunctions.Clear();
+            _converter.CustomFunctions.RegisterDefaultFunctions();
         }
 
         public class ConstantValueFunction : ZeroArgFunction
