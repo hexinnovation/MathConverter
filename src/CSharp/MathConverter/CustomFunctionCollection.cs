@@ -121,6 +121,7 @@ namespace HexInnovation
             Add(CustomFunctionDefinition.Create<JoinFunction>("Join"));
             Add(CustomFunctionDefinition.Create<ThrowFunction>("Throw"));
             Add(CustomFunctionDefinition.Create<UnsetValueFunction>("UnsetValue"));
+            Add(CustomFunctionDefinition.Create<TryCatchFunction>("TryCatch"));
         }
         public bool Contains(CustomFunctionDefinition item)
         {

@@ -490,4 +490,24 @@ namespace HexInnovation
             throw new Exception($"The {FunctionName} function was called with {arguments.Length} argument{(arguments.Length == 1 ? "" : "s")}: {string.Join(", ", arguments.Select(x => x()).MyToArray())}");
         }
     }
+    sealed class TryCatchFunction : ArbitraryArgFunction
+    {
+        public override object Evaluate(CultureInfo cultureInfo, Func<object>[] getArgument)
+        {
+            int i;
+
+            for (i = 0; i < getArgument.Length - 1; i++)
+            {
+                try
+                {
+                    return getArgument[i]();
+                }
+                catch { }
+            }
+
+            // Do not catch any exception thrown by the last argument.
+            return getArgument[i]();
+        }
+        public override bool IsValidNumberOfParameters(int numParams) => numParams >= 2;
+    }
 }

@@ -979,6 +979,19 @@ namespace HexInnovation
             {
                 Assert.AreEqual(x.expectedValue, _converter.Convert(x.arguments, typeof(object), "EnumEquals(x, y)", new CultureInfo("de")));
             }
+
+            Assert.AreEqual(1.0, _converter.Convert(typeof(Flags), typeof(object), "TryCatch(ConvertType('Invalid Flag', x), 1)", new CultureInfo("de")));
+            Assert.AreEqual(1.0, _converter.Convert(typeof(Flags), typeof(object), "TryCatch(ConvertType('Invalid Flag', x), Throw('Hey!'), 1)", new CultureInfo("de")));
+
+            try
+            {
+                _converter.Convert(typeof(Flags), typeof(object), "TryCatch(ConvertType('Invalid Flag', x), Throw(x), ConvertType('Invalid Flag', x))", new CultureInfo("de"));
+                Assert.Fail("If every single argument throws, the last thrown exception should not be caught.");
+            }
+            catch (EvaluationException ex) when (ex is { InnerException: NodeEvaluationException { Node: ConvertTypeFunction } }) { }
+
+            var result = new object();
+            Assert.AreEqual(result, new TryCatchFunction().Evaluate(new CultureInfo("de"), new Func<object>[] { () => result, () => throw new Exception("This will not be thrown, since the first function will not error.") }));
         }
 
         [TestMethod]
