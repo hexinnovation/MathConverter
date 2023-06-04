@@ -952,6 +952,33 @@ namespace HexInnovation
                 Assert.Fail("Conversions should always happen from the because to maintain consistency when using TypeConverters.");
             }
             catch (Exception ex) when (ex is { InnerException: { InnerException: FormatException } }) { }
+
+            foreach (var x in new[] {
+                new { expectedValue = true, arguments = new object[] { OperatorTypes.Addition, "Addition" } },
+                new { expectedValue = true, arguments = new object[] { "Addition", OperatorTypes.Addition } },
+                new { expectedValue = false, arguments = new object[] { "Addition", OperatorTypes.Multiply } },
+                new { expectedValue = false, arguments = new object[] { OperatorTypes.Addition, OperatorTypes.Multiply } },
+                new { expectedValue = false, arguments = new object[] { Letters.A, Flags.A } },
+                new { expectedValue = true, arguments = new object[] { Letters.A, "A" } },
+                new { expectedValue = true, arguments = new object[] { "A", Letters.A } },
+                new { expectedValue = true, arguments = new object[] { Flags.A, "A" } },
+                new { expectedValue = true, arguments = new object[] { "A", Flags.A } },
+                new { expectedValue = true, arguments = new object[] { $"{Letters.A}", Flags.A } },
+                new { expectedValue = true, arguments = new object[] { Letters.A, $"{Flags.A}" } },
+                new { expectedValue = false, arguments = new object[] { $"{Letters.A}", $"{Flags.A}" } },
+                new { expectedValue = true, arguments = new object[] { "A,B", Flags.A | Flags.B } },
+                new { expectedValue = true, arguments = new object[] { "B,A", Flags.A | Flags.B } },
+                new { expectedValue = true, arguments = new object[] { (int)Flags.D, Flags.D } },
+                new { expectedValue = true, arguments = new object[] { (int)(Flags.D | Flags.F), Flags.F | Flags.D } },
+                new { expectedValue = true, arguments = new object[] { (int)(Flags.A | Flags.B), Flags.A | Flags.B } },
+                new { expectedValue = false, arguments = new object[] { "A", "A" } },
+                new { expectedValue = false, arguments = new object[] { false, false } },
+                new { expectedValue = false, arguments = new object[] { 3, 3 } },
+                new { expectedValue = false, arguments = new object[] { Flags.A, "Invalid Flags" } },
+            })
+            {
+                Assert.AreEqual(x.expectedValue, _converter.Convert(x.arguments, typeof(object), "EnumEquals(x, y)", new CultureInfo("de")));
+            }
         }
 
         [TestMethod]
@@ -998,6 +1025,40 @@ namespace HexInnovation
             _converter.ClearCache();
             _converter.CustomFunctions.Clear();
             _converter.CustomFunctions.RegisterDefaultFunctions();
+        }
+
+        [TestMethod]
+        public void TestEnumConversion()
+        {
+#pragma warning disable IDE0001 // Simplify name Nullable<Flags>
+
+            foreach (var flags in new object[] { Flags.A, Flags.D, Flags.B | Flags.C, (Flags)294381, Letters.A, Letters.B, Letters.B | Letters.C })
+            {
+                Assert.AreEqual((Flags)flags, MathConverter.ConvertType(flags is Flags ? (int)(Flags)flags : (int)(Letters)flags, typeof(Flags)));
+                Assert.AreEqual((Flags)flags, MathConverter.ConvertType(flags is Flags ? (int)(Flags)flags : (int)(Letters)flags, typeof(Nullable<Flags>)));
+
+                Assert.AreEqual((Flags)flags, MathConverter.ConvertType(flags, typeof(Flags)));
+                Assert.AreEqual((Flags)flags, MathConverter.ConvertType(flags, typeof(Nullable<Flags>)));
+
+                Assert.AreEqual((Flags)Enum.Parse(typeof(Flags), flags.ToString()), MathConverter.ConvertType(flags.ToString(), typeof(Flags)));
+                Assert.AreEqual((Flags)Enum.Parse(typeof(Flags), flags.ToString()), MathConverter.ConvertType(flags.ToString(), typeof(Nullable<Flags>)));
+            }
+
+            Assert.AreEqual((Flags)Letters.A, MathConverter.ConvertType(Letters.A, typeof(Flags)));
+
+            foreach (var input in new object[] { DateTime.Now, 3.0 })
+            {
+                Assert.AreEqual(input, MathConverter.ConvertType(input, typeof(Flags)));
+            }
+
+            try
+            {
+                MathConverter.ConvertType("Invalid Flags", typeof(Flags));
+                Assert.Fail("The TypeConverter fails to convert invalid strings to enum.");
+            }
+            catch (FormatException) { }
+
+#pragma warning restore IDE0001 // Simplify name Nullable<Flags>
         }
 
         public class ConstantValueFunction : ZeroArgFunction
@@ -2587,5 +2648,19 @@ namespace HexInnovation
     internal interface IHaveValue<out T> where T : struct
     {
         T Value { get; }
+    }
+
+    internal enum Letters
+    {
+        A, B, C, D, E, F,
+    }
+    internal enum Flags : int
+    {
+        A = 1,
+        B = 2,
+        C = 4,
+        D = 8,
+        E = 16,
+        F = 32,
     }
 }

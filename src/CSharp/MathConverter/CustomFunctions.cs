@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 
 #if !XAMARIN
 using System.Windows;
@@ -238,6 +239,45 @@ namespace HexInnovation
         public override object Evaluate(CultureInfo cultureInfo, object x, object y)
         {
             return y is Type type ? MathConverter.ConvertType(x, type) : x;
+        }
+    }
+    sealed class EnumEqualsFunction : TwoArgFunction
+    {
+        public override object Evaluate(CultureInfo cultureInfo, object x, object y)
+        {
+            if (x is null || y is null)
+                return x is null && y is null;
+
+            var xType = x.GetType();
+            var yType = y.GetType();
+
+            var xIsEnum = xType.GetTypeInfo().IsEnum;
+            var yIsEnum = yType.GetTypeInfo().IsEnum;
+
+            // Enums cannot be inherited, so two enums will only be equal if they are the same type.
+            // Technically, this is different from the default behavior. By default, enums of disparate types
+            // will be equal as long as their integer value is the same (typically this means it's declared in the same order).
+            if (xIsEnum && yIsEnum)
+                return xType.Equals(yType) && TryConvert<bool>(Operator.Equality.Evaluate(x, y), out var result) && result;
+
+            if (!xIsEnum && !yIsEnum)
+                return false;
+
+            var @enum = xIsEnum ? x : y;
+            var other = xIsEnum ? y : x;
+            var enumType = xIsEnum ? xType : yType;
+
+            try
+            {
+                return MathConverter.ConvertType(other, enumType) is { } converted
+                    && converted.GetType() == enumType
+                    && TryConvert<bool>(Operator.Equality.Evaluate(@enum, converted), out var result2)
+                    && result2;
+            }
+            catch (FormatException) // We failed to convert the non-enum to the enum type.
+            {
+                return false;
+            }
         }
     }
     sealed class IsNullFunction : ArbitraryArgFunction

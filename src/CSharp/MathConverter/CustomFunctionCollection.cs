@@ -100,6 +100,7 @@ namespace HexInnovation
             Add(CustomFunctionDefinition.Create<GetTypeFunction>("GetType"));
             Add(CustomFunctionDefinition.Create<StartsWithFunction>("StartsWith"));
             Add(CustomFunctionDefinition.Create<ConvertTypeFunction>("ConvertType"));
+            Add(CustomFunctionDefinition.Create<EnumEqualsFunction>("EnumEquals"));
             Add(CustomFunctionDefinition.Create<ContainsFunction>("Contains"));
             Add(CustomFunctionDefinition.Create<EndsWithFunction>("EndsWith"));
             Add(CustomFunctionDefinition.Create<LogFunction>("Log"));

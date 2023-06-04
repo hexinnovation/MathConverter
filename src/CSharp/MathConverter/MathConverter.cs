@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 
 #if XAMARIN
 using Xamarin.Forms;
@@ -242,6 +243,15 @@ namespace HexInnovation
                 }
             }
             catch (InvalidCastException) { }
+
+            try
+            {
+                if (targetType.GetTypeInfo().IsEnum)
+                {
+                    return Enum.ToObject(targetType, value);
+                }
+            }
+            catch (ArgumentException) { }
 
             // Welp, we can't convert this value... Oh well.
             return value;

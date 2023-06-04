@@ -76,6 +76,7 @@ namespace HexInnovation
         /// <summary>
         /// The binary "!=" operator.
         /// It is designed to work like the "!=" operator in C#, returning true if the two arguments are not equal, or false if they are equal.
+        /// Note: If no custom operator is available and we need to evaluate arbitrary objects using the default <c>x != y</c>, we will prefer <c>!x.Equals(y)</c> instead, provided one of the operands is not null.
         /// <see cref="https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/expressions#relational-and-type-testing-operators"/>
         /// </summary>
         public static readonly BinaryOperator Inequality = OperatorTypes.Inequality;
@@ -83,6 +84,7 @@ namespace HexInnovation
         /// <summary>
         /// The binary "==" operator.
         /// It is designed to work like the "==" operator in C#, returning true if the two arguments are equal, or false if not.
+        /// Note: If no custom operator is available and we need to evaluate arbitrary objects using the default <c>x == y</c>, we will prefer <c>x.Equals(y)</c> instead, provided one of the operands is not null.
         /// <see cref="https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/expressions#relational-and-type-testing-operators"/>
         /// </summary>
         public static readonly BinaryOperator Equality = OperatorTypes.Equality;
@@ -958,10 +960,21 @@ namespace HexInnovation
         }
         private bool? ApplyDefaultOperator(object x, object y)
         {
+            if (x is not { } && y is { })
+                return ApplyDefaultOperator(y, x);
+
+            if (x is null)
+                return OperatorType switch
+                {
+                    OperatorTypes.Inequality => x != y,
+                    OperatorTypes.Equality => x == y,
+                    _ => throw new NotSupportedException()
+                };
+
             return OperatorType switch
             {
-                OperatorTypes.Inequality => x != y,
-                OperatorTypes.Equality => x == y,
+                OperatorTypes.Inequality => !x.Equals(y),
+                OperatorTypes.Equality => x.Equals(y),
                 _ => throw new NotSupportedException()
             };
         }
