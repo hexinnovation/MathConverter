@@ -150,6 +150,13 @@ namespace HexInnovation
                 return null;
         }
     }
+    sealed class GetTypeFunction : OneArgFunction
+    {
+        public override object Evaluate(CultureInfo cultureInfo, object argument)
+        {
+            return argument?.GetType();
+        }
+    }
     sealed class StartsWithFunction : TwoArgFunction
     {
         public override object Evaluate(CultureInfo cultureInfo, object x, object y)

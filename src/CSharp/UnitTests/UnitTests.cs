@@ -931,6 +931,13 @@ namespace HexInnovation
 
                 Assert.AreEqual(DependencyProperty.UnsetValue, _converter.Convert(null, typeof(string), "UnsetValue()", new CultureInfo("de")));
             }
+
+            Assert.AreEqual(null, _converter.Convert(new object[] { null, 3, 5.0, "Hello" }, typeof(object), "GetType(x)", new CultureInfo("de")));
+            Assert.AreEqual(typeof(int), _converter.Convert(new object[] { null, 3, 5.0, "Hello" }, typeof(object), "GetType(y)", new CultureInfo("de")));
+            Assert.AreEqual(typeof(double), _converter.Convert(new object[] { null, 3, 5.0, "Hello" }, typeof(object), "GetType(z)", new CultureInfo("de")));
+            Assert.AreEqual(typeof(string), _converter.Convert(new object[] { null, 3, 5.0, "Hello" }, typeof(object), "GetType([3])", new CultureInfo("de")));
+            Assert.AreEqual(typeof(string), _converter.Convert(new object[] { null, 3, 5.0, "Hello" }, typeof(object), "GetType(`Hello`)", new CultureInfo("de")));
+            Assert.AreEqual(typeof(DateTime), _converter.Convert(new object[] { null, 3, 5.0, "Hello" }, typeof(object), "GetType(Now())", new CultureInfo("de")));
         }
 
         [TestMethod]
