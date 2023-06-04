@@ -334,7 +334,7 @@ namespace HexInnovation
                     currentValueIsDefined = true;
                 }
 
-                if (Operator.TryConvertToBool(currentValue) == false)
+                if (TryConvert<bool>(currentValue, out var v) && !v)
                 {
                     return currentValue;
                 }
@@ -363,7 +363,7 @@ namespace HexInnovation
                     currentValueIsDefined = true;
                 }
 
-                if (Operator.TryConvertToBool(currentValue) == true)
+                if (TryConvert<bool>(currentValue, out var v) && v)
                 {
                     return currentValue;
                 }
@@ -392,7 +392,7 @@ namespace HexInnovation
             {
                 if (currentValueIsDefined)
                 {
-                    if (Operator.TryConvertToBool(Operator.GreaterThan.Evaluate(arg, max)) == true)
+                    if (TryConvert<bool>(Operator.GreaterThan.Evaluate(arg, max), out var v) && v)
                     {
                         max = arg;
                     }
@@ -418,7 +418,7 @@ namespace HexInnovation
             {
                 if (currentValueIsDefined)
                 {
-                    if (Operator.TryConvertToBool(Operator.LessThan.Evaluate(arg, min)) == true)
+                    if (TryConvert<bool>(Operator.LessThan.Evaluate(arg, min), out var v) && v)
                     {
                         min = arg;
                     }
