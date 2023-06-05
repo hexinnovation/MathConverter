@@ -1,0 +1,15 @@
+﻿<Window x:Class="MathConverter.Demo.Demos.WideRoundedRectangle"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:math="http://hexinnovation.com/math"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="If CornerRadius = ActualHeight / 2, we get a rounded rectangle" Height="200" Width="400" WindowStyle="ToolWindow">
+  <Window.Resources>
+    <math:MathConverter x:Key="Math" />
+  </Window.Resources>
+  <Border Margin="20">
+    <Border CornerRadius="{Binding ActualHeight, ConverterParameter=x/2, Converter={StaticResource Math}}" BorderThickness="1" BorderBrush="Black" DataContext="{Binding RelativeSource={RelativeSource Self}}" />
+  </Border>
+</Window>

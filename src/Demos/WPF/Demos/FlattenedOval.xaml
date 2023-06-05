@@ -1,0 +1,11 @@
+﻿<Window x:Class="MathConverter.Demo.Demos.FlattenedOval"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="If CornerRadius = ActualHeight, we get a flattened oval" Height="200" Width="400" WindowStyle="ToolWindow">
+  <Border Margin="20">
+    <Border CornerRadius="{Binding ActualHeight}" BorderThickness="1" BorderBrush="Black" DataContext="{Binding RelativeSource={RelativeSource Self}}" />
+  </Border>
+</Window>

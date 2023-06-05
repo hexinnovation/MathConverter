@@ -1,0 +1,16 @@
+﻿<Window x:Class="MathConverter.Demo.Demos.CountClicks"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:math="http://hexinnovation.com/math"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Interpolated strings allow us to format strings intelligently." SizeToContent="WidthAndHeight" WindowStyle="ToolWindow" DataContext="{Binding RelativeSource={RelativeSource Self}}">
+  <Window.Resources>
+    <math:MathConverter x:Key="Math" />
+  </Window.Resources>
+  <StackPanel Margin="20" Orientation="Horizontal">
+    <Button Content="Click me!" MinWidth="100" Click="Button_Click" HorizontalAlignment="Left" Margin="0,0,10,0" />
+    <TextBlock Text="{Binding NumClicks, ConverterParameter='$`You have clicked the button {x} time{(x == 1 ? `` : `s`)}.`', Converter={StaticResource Math}}" />
+  </StackPanel>
+</Window>

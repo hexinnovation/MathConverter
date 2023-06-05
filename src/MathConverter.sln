@@ -33,6 +33,20 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "XamarinForms", "XamarinForm
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Demos", "Demos", "{3E2A7D28-66DA-4C25-AE20-9B07FBC8087F}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Assets", "Assets", "{4095B614-553F-422A-8875-2A8B278D144C}"
+	ProjectSection(SolutionItems) = preProject
+		..\ReadmeAssets\Boolean to Visibility.gif = ..\ReadmeAssets\Boolean to Visibility.gif
+		..\ReadmeAssets\Custom Function Animation.gif = ..\ReadmeAssets\Custom Function Animation.gif
+		..\ReadmeAssets\Custom Function.png = ..\ReadmeAssets\Custom Function.png
+		..\ReadmeAssets\Evenly-Spaced Rectangles.png = ..\ReadmeAssets\Evenly-Spaced Rectangles.png
+		..\ReadmeAssets\Flattened Oval.png = ..\ReadmeAssets\Flattened Oval.png
+		..\ReadmeAssets\Interpolated String Animation.gif = ..\ReadmeAssets\Interpolated String Animation.gif
+		..\ReadmeAssets\No ConverterParameter.png = ..\ReadmeAssets\No ConverterParameter.png
+		..\ReadmeAssets\Now Plus Six Hours.png = ..\ReadmeAssets\Now Plus Six Hours.png
+		..\ReadmeAssets\True Rounded Rectangle.png = ..\ReadmeAssets\True Rounded Rectangle.png
+		..\ReadmeAssets\Wide Rounded Rectangle.png = ..\ReadmeAssets\Wide Rounded Rectangle.png
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Ad-Hoc|Any CPU = Ad-Hoc|Any CPU
@@ -532,6 +546,7 @@ Global
 		{00C4A2A4-6907-47B1-9E06-1F1ABF0686B7} = {BCF1BB6A-BD33-401B-BA2F-586443F8BF30}
 		{04FFD3F5-E07C-4F98-95CF-37CB79273686} = {CA39EEDB-5FC8-46E9-B5A4-74C7AAF3F02B}
 		{BCF1BB6A-BD33-401B-BA2F-586443F8BF30} = {CA39EEDB-5FC8-46E9-B5A4-74C7AAF3F02B}
+		{4095B614-553F-422A-8875-2A8B278D144C} = {7F4CC393-A1F5-4591-90E9-F299D83549D9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0A8F9075-38FE-4C85-A28C-631452C7A21F}

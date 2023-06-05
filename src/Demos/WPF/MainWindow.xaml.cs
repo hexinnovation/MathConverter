@@ -1,8 +1,9 @@
-﻿using System.Linq;
+﻿using System;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 
-namespace MathConverterDemo
+namespace MathConverter.Demo
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -12,20 +13,13 @@ namespace MathConverterDemo
         public MainWindow()
         {
             InitializeComponent();
-
-            // Depending on which sample is being run, we may need to initialize the ComboBox.
-            if (FindName("cb") is ComboBox cb)
+        }
+        private void Item_DoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == MouseButton.Left && sender is ListBoxItem { DataContext: Type type } && type.IsAssignableTo(typeof(Window)))
             {
-                if (FindName("label") == null)
-                {
-                    cb.ItemsSource = new IndexedCollection<string> { "English", "Español", "Français", };
-                }
-                else
-                {
-                    cb.ItemsSource = Enumerable.Range(0, 6);
-                }
-                cb.SelectedIndex = 0;
-                Loaded += delegate { cb.Focus(); cb.IsDropDownOpen = true; };
+                var window = (Window)Activator.CreateInstance(type);
+                window.ShowDialog();
             }
         }
     }

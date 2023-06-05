@@ -1,0 +1,16 @@
+﻿<Window x:Class="MathConverter.Demo.Demos.BooleanToVisibility"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:math="http://hexinnovation.com/math"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Visibility=&quot;{Binding ConverterParameter='x ? `Visible` : `Collapsed`'}&quot;" SizeToContent="Height" Width="420" WindowStyle="ToolWindow">
+  <Window.Resources>
+    <math:MathConverter x:Key="Math" />
+  </Window.Resources>
+  <StackPanel Margin="20">
+    <CheckBox x:Name="CheckBox" Content="Show TextBox?" IsChecked="True" />
+    <TextBox Visibility="{Binding IsChecked, ElementName=CheckBox, ConverterParameter='x ? `Visible` : `Collapsed`', Converter={StaticResource Math}}" Margin="0,10,0,0" />
+  </StackPanel>
+</Window>

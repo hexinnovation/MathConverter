@@ -1,405 +1,352 @@
-MathConverter
-=============
-
-A WPF Converter class that does it all
-
-![MathConverter logo](ReadmeAssets/biglogo.png)
-
-
+![Math Converter: A XAML Converter that does it all.](ReadmeAssets/biglogo.png)
 
 Installation:
 -------------
 
-`MathConverter` is available on [NuGet](https://www.nuget.org/packages/MathConverter/)
+`MathConverter` is available on Nuget. There are two packages:
 
-To install MathConverter, run the following command in the [Package Manager Console](https://docs.microsoft.com/en-us/nuget/tools/package-manager-console):
+| Nuget Package                                                                          | UI Framework                                                             | Target Frameworks                                                                                                                                     |
+|----------------------------------------------------------------------------------------|--------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [MathConverter](https://www.nuget.org/packages/MathConverter)                          | [WPF](https://learn.microsoft.com/dotnet/desktop/wpf/overview)           | <ul><li>.NET Framework 3.5+</li><li>.NET Core 3.0+</li></ul>                                                                                          |
+| [MathConverter.XamarinForms](https://www.nuget.org/packages/MathConverter.XamarinForms)| [Xamarin.Forms](https://dotnet.microsoft.com/apps/xamarin/xamarin-forms) | <ul><li>.NET Standard 1.0+</li><li>.NET Core 2.0+</li><li>Xamarin.iOS 10+</li><li>MonoAndroid 10+</li><li>UAP 10.0</li><li>Xamarin.Mac 2.0+</li></ul> |
+
+To install MathConverter, run the one of the following commands in the [Package Manager Console](https://docs.microsoft.com/en-us/nuget/tools/package-manager-console):
 
 ```
 PM> Install-Package MathConverter
+PM> Install-Package MathConverter.XamarinForms
 ```
-
 
 What is MathConverter?
 ----------------------
 
-In WPF, bindings are absolutely incredible. They save a lot of time in GUI development. If you are unfamiliar with bindings, you can read Microsoft's documentation about them [here](http://msdn.microsoft.com/en-us/library/ms752347).
+`MathConverter` allows you to do Math in XAML.
 
-The main shortcoming with Bindings is that custom converters are needed so frequently.
+`MathConverter` is a powerful `Binding` converter that allows you to specify how to perform conversions directly in XAML, without needing to define a new `IValueConverter` in C# for every single conversion.
 
-`MathConverter` is the last converter you'll ever need. It can do anything you ask of it.
+Getting Started:
+----------------
 
+It's as easy as 1-2-3.
 
+**1)** Install the Nuget package.
 
-
-
-How does it work?
------------------
-
-Consider the problem of creating a rectangle with rounded corners.
-
--------------------
-
-If you simply bind to the `ActualHeight`:
+**2)** Add a `MathConverter` resource.
 
 ```xaml
-<Border Margin="20" DataContext="{Binding RelativeSource={RelativeSource Self}}"
-        BorderThickness="1" BorderBrush="Black" CornerRadius="{Binding ActualHeight}" />
+<Application.Resources>
+    <math:MathConverter x:Key="Math" />
+</Application.Resources>
 ```
 
-You will get a flattened oval.
-
-![Flattened oval](ReadmeAssets/0.png)
-
-What you want to do is bind to *half* of the height. But that's not possible. This is why Microsoft included Converters for bindings. In this case, we have to create our own custom Converter.
-
-```c#
-class HalfValueRadiusConverter : IValueConverter
-{
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-    {
-        return new CornerRadius((double)value / 2);
-    }
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-    {
-        throw new NotSupportedException();
-    }
-}
-```
-
-You have to add a `HalfValueRadiusConverter` to the control's resources:
-
-```xaml
-<Window.Resources>
-    <local:HalfValueRadiusConverter x:Key="half" />
-</Window.Resources>
-```
-
-and change the binding to this:
-
-```xaml
-CornerRadius="{Binding ActualHeight, Converter={StaticResource half}}"
-```
-
-But this converter can only be used to create `CornerRadius` objects. To generalize it, the body of the `Convert` method would have to be changed to:
-
-```c#
-switch (targetType.FullName)
-{
-    case "System.Double":
-        return (double)value / 2;
-    case "System.Windows.CornerRadius":
-        return new CornerRadius((double)value / 2);
-    default:
-        throw new NotImplementedException();
-}
-```
-
-Later, if you want to bind to two times a value, you have to add a new, similar class for `DoubleValueConverter` and add one to the resources before you can use it for a binding.
-
--------------
-
-This is where `MathConverter` comes in handy. It is a single Converter class that does it all.
-
--------------
-
-
-
-
-
-Getting Started
----------------
-
-You can install [MathConverter from Nuget](https://www.nuget.org/packages/MathConverter/), or you can check out the [source from GitHub](https://github.com/timothylcooke/MathConverter)
-
-Once you have MathConverter referenced, you need to add a `MathConverter` object to your resources.
-
-```xaml
-<Window.Resources>
-    <math:MathConverter x:Key="math" />
-</Window.Resources>
-```
-
-The `math` namespace is defined as follows:
+The `math` namespace is defined as follows<b>*</b>:
 
 ```xaml
 xmlns:math="http://hexinnovation.com/math"
 ```
 
-Now when you use the converter, you specify a `ConverterParameter`.
+**3)** Do Math. Now, you can use `MathConverter` on any `Binding`. Specify a `ConverterParameter` to specify the rules of the conversion.
+
+> <b>*Note:</b> In some targets (e.g. .NET Standard 1.0), you might have to define the `math` namespace as `xmlns:math="clr-namespace:HexInnovation;assembly=MathConverter.XamarinForms"`
+
+Example: Rounded Rectangle
+--------------------------
+
+Suppose we want to make a rounded rectangle. If we create a `Border` and bind bind its `CornerRadius` to its own `ActualHeight`, we end up with a flattened oval ([Full XAML file](src/Demos/WPF/Demos/FlattenedOval.xaml)):
 
 ```xaml
-CornerRadius="{Binding ActualHeight, Converter={StaticResource math}, ConverterParameter=x/2}"
+<Border CornerRadius={Binding ActualHeight}" … />
 ```
 
-Our result:
+![If CornerRadius = ActualHeight, we get a flattened oval](ReadmeAssets/Flattened%20Oval.png)
 
-![Two rectangles of different heights with rounded corners](ReadmeAssets/1.png)
-
-You can see that it works well, no matter the height of the Border.
-
-You can specify different radii by passing in multiple values for the parameter. Those values can be separated by either commas or semicolons. This was designed to mimmic the way `CornerRadius` objects can be created in XAML.
-
-So the following converter parameters are equivalent:
+We can use MathConverter to instead bind to `ActualHeight / 2` ([Full XAML file](src/Demos/WPF/Demos/WideRoundedRectangle.xaml)):
 
 ```xaml
-ConverterParameter=x/2
-ConverterParameter=x/2;x/2;x/2;x/2
-ConverterParameter='x/2,x/2,x/2,x/2'
+<Border CornerRadius="{Binding ActualHeight, ConverterParameter=x/2, Converter={StaticResource Math}}" … />
 ```
 
-But even this binding has a shortcoming. If the rectangle is taller than it is wide, the rounded rectangle becomes an oval.
+![If CornerRadius = ActualHeight / 2, we get a rounded rectangle](ReadmeAssets/Wide%20Rounded%20Rectangle.png)
 
-![An oval, stretched vertically](ReadmeAssets/2.png)
-
-We can easily fix it by making a `MultiBinding`.
+The simple conversion of `ActualHeight / 2` works well, as long as the rectangle is wider than it is tall. If we need to make a rounded rectangle of an arbitrary size, we need to use a `MultiBinding` to set the `CornerRadius` to the smaller of the `ActualWidth` and the `ActualHeight` divided by two ([Full XAML file](src/Demos/WPF/Demos/TrueRoundedRectangle.xaml)):
 
 ```xaml
 <Border.CornerRadius>
-    <MultiBinding Converter="{StaticResource math}" ConverterParameter="min(x,y)/2">
+    <MultiBinding ConverterParameter="Min(x,y)/2" Converter="{StaticResource Math}">
         <Binding Path="ActualHeight" />
         <Binding Path="ActualWidth" />
     </MultiBinding>
 </Border.CornerRadius>
 ```
 
-![A tall rectangle with rounded corners](ReadmeAssets/3.png)
+![If CornerRadius = ActualHeight / 2, we get a rounded rectangle](ReadmeAssets/True%20Rounded%20Rectangle.png)
 
-The fact that we used x and y for variable names may seem to suggest that you can only bind to 3 or less values. `MathConverter` actually supports an unlimited number of variables. `x` is simply shorthand for `[0]`, `y` is shorthand for `[1]`, and `z` is shorthand for `[2]`. All other variables must be referenced by index.
+> **Note:** MathConverter can take any number of Bindings. The first binding's value can be accessed by `x` or `[0]`, the second can be accessed by `y` or `[1]`, and the third can be accessed by `z` or `[2]`. Any value beyond the third can be accessed only by its index: `[3]`, `[4]`, etc.
+> 
+>**Note:** Instead of using the `Min` function, we could also use the ternary operator: `ConverterParameter = "(x > y ? y : x) / 2"`, but that's a little cumbersome to add to XAML.
 
+Example: Different margins on different sides
+---------------------------------------------
+You can specify multiple values for types like `CornerRadius`, `Thickness`, `Size`, `Point`, and `Rect`, just like in normal XAML. For example, we can specify different values for vertical/horizontal margins ([Full XAML file](src/Demos/WPF/Demos/DifferentMargins.xaml)):
 
+```xaml
+<Rectangle Fill="Green" … Margin="{Binding Source={StaticResource Margin}, ConverterParameter=0;x, Converter={StaticResource Math}}" />
+```
 
+![Three rectangles with 20 pixels of margin between them. The middle rectangle has top and bottom margins of 20, but left and right margins of 0.](ReadmeAssets/Evenly-Spaced%20Rectangles.png)
 
+> **Note:** To facilitate entering multiple values into XAML, MathConverter, commas and semicolons are equivalent. We can use either one as separators between the values. So the following margins are equivalent:
+> * `ConverterParameter=0;x`
+> * `ConverterParameter='0,x'`
+> * `ConverterParameter=0;x;0;x`
+> * `ConverterParameter='0,x;0,x'`
+> * ``ConverterParameter=' $`0,{x},0,{x}` '`` (See [the interpolated strings documentation](#example-interpolated-strings))
+
+Example: No Parameter at all
+----------------------------
+
+The `ConverterParameter` is optional. When it is omitted, MathConverter will attempt to convert all of the binding values string-joined with a comma.
+
+In this example, we create two different GridLength (margin) values: one by specifying `Margin` for all four sides, and the other by specifying `Margin` for horizontal margins, and `SmallMargin` for vertical margins ([Full XAML file](src/Demos/WPF/Demos/NoConverterParameter.xaml)).
+
+The first essentially converts as `Margin="20"`. The second converts as `Margin="20,10"`.
+
+```xaml
+<Border BorderThickness="1" BorderBrush="Black" Grid.Row="2" Margin="{Binding Source={StaticResource Margin}, Converter={StaticResource Math}}">
+    <Border BorderThickness="1" BorderBrush="Red">
+        <Border.Margin>
+            <MultiBinding Converter="{StaticResource Math}">
+                <Binding Source="{StaticResource Margin}" />
+                <Binding Source="{StaticResource SmallMargin}" />
+            </MultiBinding>
+        </Border.Margin>
+    </Border>
+</Border>
+```
+
+![We can convert one, two, or four values to GridLength without specifying a ConverterParameter.](ReadmeAssets/No%20ConverterParameter.png)
+
+Example: Boolean to Visibility
+------------------------------
+
+Suppose you want to show a `Control` based on a `Boolean` condition. You can simply bind the `Visibility` parameter and use the ternary operator to convert the boolean to a `Visibility` ([Full XAML file](src/Demos/WPF/Demos/BooleanToVisibility.xaml)):
+
+```xaml
+<TextBox Visibility="{Binding IsChecked, ElementName=CheckBox, ConverterParameter='x ? `Visible` : `Collapsed`', Converter={StaticResource Math}}" />
+```
+
+![When we toggle the CheckBox, the TextBox appears and disappears](ReadmeAssets/Boolean%20to%20Visibility.gif)
+
+There's a lot going on in this conversion, so let's take this one slowly.
+
+The conversion parameter is `` x ? `Visible` : `Collapsed` ``. MathConverter allows us to input strings very similarly to C#. To more easily facilitate adding strings to XAML, we can use `"` (double quote), `'` (single quote), or `` ` `` (grave) characters to start and end a string.
+
+Suppose that `x` evaluates to true (`CheckBox.IsChecked` is `true`). Then, `` x ? `Visible` : `Collapsed` `` would evaluate to a `System.String` of `"Visible"`. Since we're binding to a property of `Visibility`, MathConverter later converts this value to `Visibility.Visible` for us.
+
+> **Note:** You can backslash-escape characters such as `\t` and `\n` in strings, just like C#. Additionally, you can backslash-escape double quotes, single quotes, and grave characters.
+>
+> **Note:** All strings must start and end with the same character. So a ConverterParameter of `'Hello, world"` would throw an exception because `'` and `"` do not match, whereas ConverterParameters of `` `Hello, world` ``, `"Hello, world"`, and `'Hello, world'` are equivalent.
+
+Example: Interpolated Strings
+-----------------------------
+Not only can we include arbitrary strings in the `ConverterParameter`, we can also use interpolated strings to format arbitrary strings ([Full XAML file](src/Demos/WPF/Demos/CountClicks.xaml)):
+
+```xaml
+<TextBlock Text="{Binding NumClicks, ConverterParameter='$`You have clicked the button {x} time{(x == 1 ? `` : `s`)}.`', Converter={StaticResource Math}}" />
+```
+
+![You have clicked the button x time(s), where x increments with each click](ReadmeAssets/Interpolated%20String%20Animation.gif)
+
+Interpolated strings work the same way as they do in C#. The same rules above apply: a string must start and end with the same character. For example, the following are all valid interpolated strings: `$'Coordinates: ({x:N2},{y:N2}).'`, `$"The weather outside is {x}."`, `` $`Progress: {x:P} complete` ``, whereas the string `$'Invalid"` would throw an exception since `'` and `"` do not match.
+
+> **Note:** Just like in C#, an interpolated string is just a wrapper around a call to the `Format` function (which uses `string.Format`), so the converter parameter `` $`Hello, {x}` `` is equivalent to `Format('Hello, {0}', x)`.
 
 Functions
----------
+----------------------------------
 
-The `min` function is also interesting. It can take any number of arguments, except zero. It is an *N-value function*. There are two other N-value functions: `max` and `average` (which can also be written as `avg`). It should be noted that there are other N-value functions that we will come back to later.
+We've already alluded to `Min` and `Format`. There are many more functions built into MathConverter, and you can always add your own functions (see [the "Custom Functions" section](#custom-functions)). For now, we're just going to cover some of the functions built into MathConverter.
 
-There are also several *1-value* and *2-value functions* available. Those functions are: `cos`, `sin`, `tan`, `abs`, `acos`, `asin`, `atan`, `ceil`/`ceiling`, `floor`, `round`, `sqrt`, `deg`/`degrees`, `rad`/`radians`, `atan2`, and `log`. Again, there are more functions that we will come back to.
+Functions are case-sensitive (They were not case sensitive in version 1.x).
 
-All functions are case-insensitive, so you can call them as you wish.
+Functions include:
+* `Now()` returns [`System.DateTime.Now`](https://learn.microsoft.com/dotnet/api/system.datetime.now)
+* `UnsetValue()` returns [`DependencyProperty.UnsetValue`](https://learn.microsoft.com/dotnet/api/system.windows.dependencyproperty.unsetvalue) or [`BindableProperty.UnsetValue`](https://learn.microsoft.com/dotnet/api/xamarin.forms.bindableproperty.unsetvalue)
+* `Cos(x)`, `Sin(x)`, `Tan(x)`, `Abs(x)`, `Acos(x)`/`ArcCos(x)`, `Asin(x)`/`ArcSin(x)`, `Atan(x)`/`ArcTan(x)`, `Ceil(x)`/`Ceiling(x)`, `Floor(x)`, `Sqrt(x)`, `Log(x, y)`, `Atan2(x, y)`/`ArcTan2(x, y)`, `Round(x)`/`Round(x, y)` all behave like their counterparts in [`System.Math`](https://learn.microsoft.com/dotnet/api/system.math). They return `null` if at least one argument is `null`.
+* `Deg(x)`/`Degrees(x)` returns `x / pi * 180`
+* `Rad(x)`/`Radians(x)` returns `x / 180 * pi`
+* `ToLower(x)`/`LCase(x)` returns ``$"{x}".ToLower()``
+* `ToUpper(x)`/`UCase(x)` returns ``$"{x}".ToUpper()``
+* `TryParseDouble(x)` will attempt to cast/convert `x` to `double` or cast/convert `x` to `string` and parse it to double. The function returns `null` if it fails to convert the input.
+* `StartsWith(x, y)` will return `true` or `false` if it can cast/convert `x` to string, based on if `x` starts with `y` or `$"{y}"`. If `x` is not a string or `$"{y}".Length` is `0`, the function returns `null` instead.
+* `EndsWith(x, y)` behaves the same way as `StartsWith` except it detects if `x` _ends_ with `y`.
+* `Contains(x, y)` is a bit different. `x` can be an `IEnumerable`, in which case we check to see if it contains `y`, or if `x` is a string, the function checks if `x` contains `$"{y}"`. If `$"{y}".Length` is zero (but notably, not if `y == ""`), then the function returns `null` instead.
+* `IsNull(x, y)`/`IfNull(x, y)` are equivalent to `x ?? y`
+* `And()`, `Or()`, and `Nor()` each accept an arbitrary number of functions. They use reflection to call the logical operators UnaryNot (`Nor(x, y)` evaluates as `!Or(x, y)`), BitwiseAnd, and BitwiseOr. This means that we can accept and return non-boolean values, provided that their types would compile with `&&`, `||`, and `!` in C#. We only evaluate as many parameters as we need to. For example, `And(…)` will evaulate parameters only until it encounters a false value, in which case it will return the false value.
+* `Max()`, `Min()`, and `Avg()`/`Average()` ignore values that can't be converted to double, and return `null` if no they do not encounter any numeric values.
+* `Format()` simply returns [`string.Format`](https://learn.microsoft.com/dotnet/api/system.string.format)
+* `Concat()` simply returns [`string.Concat`](https://learn.microsoft.com/dotnet/api/system.string.concat).
+* `Join()` simply returns [`string.Join`](https://learn.microsoft.com/dotnet/api/system.string.join).
+* `GetType(x)` simply returns `x?.GetType()`
+* `ConvertType(x, y)` will do whatever it can to convert `x` to type `y`. If `y` is not a `Type` or `x` cannot be converted, the function returns `x` instead. Because TypeConverters are inconsistent, we always use [InvariantCulture](https://learn.microsoft.com/dotnet/api/system.globalization.cultureinfo.invariantculture) when converting.
+* `EnumEquals(x, y)` will see if two enum values are equal. Example use cases: ``EnumEquals(x, `Visible`)``, ``EnumEquals(`Visible`, x)``. If two enum values are different types are compared, `EnumEquals` will return `false`, even if `x.Equals(y)` is true for the same inputs in C#.
+* `Throw()` will throw an exception when evaluated. The exception contains helpful information for debugging issues with a conversion.
+* `TryCatch()` takes two or more arguments, and returns immediately as soon as it finds an argument that does not throw an exception. If every argument throws an exception, `TryCatch()` will not catch the last exception.
 
-`deg` uses the function:
-```c#
-x => x / Math.PI * 180
-```
-
-and `rad` uses the function:
-```c#
-x => x / 180 * Math.PI
-```
-
-`round` accepts either one or two values. If the second value is ommitted, it defaults to zero. It works similarly to the [`System.Math.Round`](https://msdn.microsoft.com/en-us/library/system.math.round(v=vs.110).aspx) function. All other functions behave similarly to their corresponding functions in the [`System.Math`](https://msdn.microsoft.com/en-us/library/System.Math(v=vs.110).aspx) class.
-
-`MathConverter` also replaces `e` and `pi` in Conversion strings with their corresponding numeric values, as defined in the [`System.Math`](https://msdn.microsoft.com/en-us/library/System.Math(v=vs.110).aspx) class.
-
-`MathConverter` allows for inputs of several numeric types: `String`, `char`, `int`, `byte`, `sbyte`, `decimal`, `short`, `uint`, `long`, `ulong`, and `float`. The appropriate [`System.Convert.ToDouble`](https://msdn.microsoft.com/en-us/library/system.convert.todouble(v=vs.110).aspx) overload is used to convert these objects to doubles. `char` values are casted to ints before being converted.
-
-`MathConverter` allows for conversions to the following types:
-
-* `Double` (1 value must be specified).
-* `Object` (1 value must be specified). This is the same as `double`, and `MathConverter` will in fact return a double.
-* `CornerRadius` (1 value for the same radius for all four corners, or 4 values to specify the corners in the order of Top-Left, Top-Right, Bottom-Right, Bottom-Left).
-* `GridLength` (1 value must be specified).
-* `Thickness` (1 value for a uniform margin/padding, 2 for Left-Right and Top-Bottom margin/padding, and 4 for left, top, right, bottom)
-* `Rect` (4 values specify the X, Y, Width, and Height)
-* `Size` (2 values specify the Width and Height)
-* `Point` (2 values specify the X- and Y- coordinates)
-
-If you fail to specify a `ConverterParameter`, `MathConverter` will consider the type you are converting to, and the number of inputs. If they match up, it will use that.
-
-So for the binding:
+Using these operators, you can do very powerful things. One such example ([Full XAML file](src/Demos/WPF/Demos/NowPlusSixHours.xaml)):
 
 ```xaml
-<ColumnDefinition Width="{Binding Source={StaticResource Padding}, Converter={StaticResource math}}"/>
+<TextBlock Text="{Binding Source={x:Type sys:TimeSpan}, ConverterParameter='$`Six hours from now, the time will be {Now() + ConvertType(`6:00:00`, x):h\':\'mm\':\'ss tt}`', Converter={StaticResource Math}}" />
 ```
 
-where `Padding` is defined in the resources as:
+We use `ConvertType` to convert `"6:00:00"` from string to `TimeSpan`, then add that `TimeSpan` to the current time, and format it with the format string `"h:mm:ss tt"`.
+
+![Six hours from now, the time will be 12:35:09 AM](ReadmeAssets/Now%20Plus%20Six%20Hours.png)
+
+
+Custom Functions
+----------------
+
+MathConverter's built-in functions are implemented in [CustomFunctions.cs](src/CSharp/MathConverter/CustomFunctions.cs). Those classes can be used as examples to follow to create your own custom functions. This allows you to effectively extend MathConverter to do whatever you want.
+
+The main window of our demo app is a perfect example ([Full XAML file](src/Demos/WPF/MainWindow.xaml)).
+
+We have a ListBox with Types added.
+
 ```xaml
-<sys:Double x:Key="Padding">40</sys:Double>
+<ListBox>
+    <ListBox.Items>
+        <x:Type TypeName="demos:FlattenedOval" />
+        <x:Type TypeName="demos:WideRoundedRectangle" />
+        <x:Type TypeName="demos:TrueRoundedRectangle" />
+        <!-- More Types -->
+    </ListBox.Items>
+
+    <!-- More stuff -->
+</ListBox>
 ```
 
-`MathConverter` will see that you are attempting to convert a single value to a `GridLength`. Since `GridLength` requires one value, `MathConverter` will simply convert the value specified and return a `GridLength` with a value of 40. The net result is that the column will be 40 pixels wide. In this manner, `MathConverter` can be used to convert from any numeric type to any of its supported output types.
-
-One interesting example of this is the following window:
-
-![A window with a line, whose start-point and end-point can be specified in four separate text boxes: StartPoint X, StartPoint Y, EndPoint X, and EndPoint Y](ReadmeAssets/4.png)
-
-The line is created as follows:
+The `ListBox` uses a `DataTemplate` to show a `TextBox` for each item. We use the custom function `GetWindowTitle()` to convert the `Type`s to a display value.
 
 ```xaml
-<Path StrokeThickness="1" Stroke="Black" Grid.Row="4" Grid.ColumnSpan="3">
-    <Path.Data>
-        <PathGeometry>
-            <PathFigure>
-                <PathFigure.StartPoint>
-                    <MultiBinding Converter="{StaticResource math}">
-                        <Binding Path="Text" Mode="OneWay" ElementName="x1" />
-                        <Binding Path="Text" Mode="OneWay" ElementName="y1" />
-                    </MultiBinding>
-                </PathFigure.StartPoint>
-                <PathFigure.EndPoint>
-                    <MultiBinding Converter="{StaticResource math}">
-                        <Binding Path="Text" Mode="OneWay" ElementName="x2" />
-                        <Binding Path="Text" Mode="OneWay" ElementName="y2" />
-                    </MultiBinding>
-                </PathFigure.EndPoint>
-            </PathFigure>
-        </PathGeometry>
-    </Path.Data>
-</Path>
+<TextBlock Text="{Binding ConverterParameter='GetWindowTitle(x)', Converter={StaticResource Math}}" />
 ```
 
-Note that each `MultiBinding` could easily include `ConverterParameter="x,y"`, but because `Point` requires two values, and the `ConverterParameter` simply specifies to use the parameters in order, it's not necessary to include it.
+The `GetWindowTitle` function is added to MathConverter as follows:
 
+```xaml
+<Window.Resources>
+    <math:MathConverter x:Key="Math">
+        <!-- "GetWindowTitle" in the parameter will invoke the `GetWindowTitleFunction` function. -->
+        <math:CustomFunctionDefinition Name="GetWindowTitle" Function="functions:GetWindowTitleFunction" />
+    </math:MathConverter>
+</Window.Resources>
+```
 
+`GetWindowTitleFunction` is defined as follows ([Full C# file](src/Demos/WPF/CustomFunctions/GetWindowTitle.cs)):
 
-
-
-Non-Numeric Types
------------------
-
-So far, we've only really talked about converting numeric types. `MathConverter` is also capable of conversions to several other types. Let's start by diving into an example. Suppose we want to create a `ComboBox` whose items are numbered.
-
-![A combobox with numbered items](ReadmeAssets/5.png)
-
-For this example, we create an `IndexedCollection` class. If you want to see the full source for `IndexedCollection`, it is available [here](Demo/IndexedCollection.cs).
 ```c#
-public class IndexedCollection<T> : ObservableCollection<IndexedElement<T>> { ... }
-public class IndexedElement<T> : INotifyPropertyChanged
+public class GetWindowTitleFunction : OneArgFunction
 {
-    public int Index { get; set; }
-    public T Value { get; set; }
+    public override object Evaluate(CultureInfo cultureInfo, object argument)
+    {
+        return argument is Type t && t.IsAssignableTo(typeof(Window)) ? ((Window)Activator.CreateInstance(t)).Title : null;
+    }
 }
 ```
 
-We create the following `Window`:
+ So, our `GetWindowTitleFunction` instantiates the `Type` and get the `Title` property of the resulting `Window`.
+
+![The GetWindowTitle function converts the Types to display names for us](ReadmeAssets/Custom%20Function.png)
+
+In this example, `GetWindowTitleFunction` extends `OneArgFunction`, but all that matters is that we extend `CustomFunction`. It is recommended that you implement one of its predefined subclasses:
+* ZeroArgFunction
+* OneArgFunction
+* OneDoubleFunction
+* TwoArgFunction
+* ArbitraryArgFunction
+
+Again, there are plenty of examples in [CustomFunctions.cs](src/CSharp/MathConverter/CustomFunctions.cs).
+
+Overriding Built-In Functions
+-----------------------------
+
+Suppose you don't like how a function is implemented. You can always override the function with your own custom function.
+
+As a concrete example, we can implement a [`CustomAverageFunction`](src/Demos/WPF/CustomFunctions/CustomAverageFunction.cs) function. This is similar to MathConverter's built-in `AverageFunction`, except that it rounds each input, instead of simply taking the average.
+
 ```xaml
-<Window x:Class="MathConverterDemo.MainWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:math="http://hexinnovation.com/math"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="MathConverter Demo" SizeToContent="Height" Width="324">
-    <Window.Resources>
-        <math:MathConverter x:Key="math"/>
-    </Window.Resources>
-    <ComboBox x:Name="cb" Margin="20">
-        <ComboBox.ItemTemplate>
-            <DataTemplate>
-                <TextBlock>
-                    <TextBlock.Text>
-                        <MultiBinding ConverterParameter="format(&quot;Language {0}: {1}&quot;,x+1,y)" Converter="{StaticResource math}">
-                            <Binding Path="Index" />
-                            <Binding Path="Value" />
-                        </MultiBinding>
-                    </TextBlock.Text>
-                </TextBlock>
-            </DataTemplate>
-        </ComboBox.ItemTemplate>
-    </ComboBox>
-</Window>
+<TextBlock x:Name="TextBlock" Text="{Binding ConverterParameter='`Average(1, 1.5) returns ` + Average(1, 1.5)', Converter={StaticResource Math}}" />
 ```
 
-In the constructor of the `Window`, we add the following code:
+![The Average function changes each time the RadioButton is changed](ReadmeAssets/Custom%20Function%20Animation.gif)
+
+With [a little bit of code-behind](src/Demos/WPF/Demos/CustomAverageFunction.xaml.cs), we can remove and replace the `Average` function with our `CustomAverageFunction`:
 
 ```c#
-public MainWindow()
+private void RadioButton_Changed(object sender, RoutedEventArgs e)
 {
-    InitializeComponent();
-    cb.ItemsSource = new IndexedCollection<string> { "English", "Español", "Français" };
-    cb.SelectedIndex = 0;
+    if (!(FindResource("Math") is HexInnovation.MathConverter math))
+        return;
+
+    if (UseStockFunction.IsChecked == true)
+    {
+        // Go back to the stock function.
+        math.CustomFunctions.Clear();
+        math.CustomFunctions.RegisterDefaultFunctions();
+    }
+    else
+    {
+        // Remove the default Average function and define our own.
+        math.CustomFunctions.Remove("Average");
+        math.CustomFunctions.Add(CustomFunctionDefinition.Create<MyCustomAverageFunction>("Average"));
+    }
+
+    // Tell the TextBlock to refresh its binding again.
+    TextBlock?.GetBindingExpression(TextBlock.TextProperty).UpdateTarget();
 }
 ```
 
-The Converter `format("Language {0}: {1}",x+1,y)` will essentially `return string.Format("Language {0}: {1}", Index+1, Value);`
+> **Note:** In this example, the built-in `Average` function is still available with the name `Avg`. Most functions are not defined with multiple names (see [the "Functions" section](#functions)).
 
-The real magic being done here is in the [`System.String.Format`](https://msdn.microsoft.com/en-us/library/b1csw23d(v=vs.110).aspx) method. If you unfamiliar with this method, you can see a lot of examples [here](http://msdn.microsoft.com/en-us/library/txafckwd).
+Syntax
+------
 
-`format` is another example of an N-value function. The only difference is that this particular function does not return a numeric value, but rather returns a string. Other non-numeric N-value functions are: `and`, `or`, `nor`. These functions take and return boolean values. The zero-value function function `now()` returns [`System.DateTime.Now`](https://msdn.microsoft.com/en-us/library/system.datetime.now(v=vs.110).aspx). There are also one-value functions useful for case-conversion: `tolower` / `lcase`, and `toupper` / `ucase`. When passed `null`, these functions will return `null`. When passed an object, they will call `ToString()` on the object and then convert to lower/upper case. There are a few two-value string-related functions: `contains`, `startswith`, and `endswith`. The first variable must be a string. The second variable must be either a string or a value whose `ToString()` returns a string with a non-zero length. If the first value is not a string, these methods will return `null`. If the second value is `null`, or if its `ToString()` method returns a `null` or empty string, the methods will also return `null`. Otherwise, the methods will return true if the string contains the second argument's `ToString()` value. Alternatively, the `contains` function can also be passed an `IEnumerable` of objects, and will return `true` if the `IEnumerable` contains the second argument, or `false` if it does not.
+MathConverter's `ConverterParameter` syntax is very similar to C#, so you can generally expect it to behave just like C#. We follow [the standard C# rules regarding operator ordering](https://learn.microsoft.com/dotnet/csharp/language-reference/operators/#operator-precedence), except as noted below:
 
-Let's look again at the `ConverterParameter` in the previous example: `ConverterParameter="format(&quot;Language {0}: {1}&quot;,x+1,y)"`. Because this is xaml, the `&quot;` characters are converted to `"` characters. Thus, at runtime, the `ConverterParameter` is `format("Language {0}: {1}",x+1,y)`. When `MathConverter` parses the `ConverterParameter`, it sees that "Language {0}: {1}" is a string. In order to include special characters in the string, you can simply backslash-escape them, just like you're used to. So `\r`, `\n`, `\"`, and `\t` (among others) are valid special characters that can be added to strings. At the moment, arbitrary unicode characters (such as `\u0000`) are not supported, but these can be added if there is sufficient demand.
-
-You can also use the grave (`` ` ``) character to enclose strings, to avoid needing to add `&quot;` over and over again in a `ConverterParameter`. So we can actually use ``format(`Language {0}: {1}`,x+1,y)`` in the above example.
-
-Next, we're going to take a look at an example of how to pluralize an object.
-
-```xaml
-<ComboBox x:Name="cb">
-    <ComboBox.Items>
-        <sys:Int32>0</sys:Int32>
-        <sys:Int32>1</sys:Int32>
-        <sys:Int32>2</sys:Int32>
-        <sys:Int32>3</sys:Int32>
-        <sys:Int32>4</sys:Int32>
-        <sys:Int32>5</sys:Int32>
-    </ComboBox.Items>
-    <ComboBox.ItemTemplate>
-        <DataTemplate>
-            <TextBlock Text="{Binding ConverterParameter='format(&quot;{0} apple&quot; + (x == 1 ? &quot;&quot; : &quot;s&quot;), x)', Converter={StaticResource math}}" />
-        </DataTemplate>
-    </ComboBox.ItemTemplate>
-</ComboBox>
-```
-
-![A ComboBox with the following options: "0 apples", "1 apple", "2 apples", "3 apples", "4 apples", and "5 apples"](ReadmeAssets/6.png)
-
-Here, we can see that we change the format string based on whether or not the integer we are binding to is equal to 1. The format string is `"{0} apple" + (x == 1 ? "" : "s")`. We use the ternary conditional (`? =`) operator to change our format string from `{0} apple` to `{0} apples` depending on whether the value is plural or singular.
-
-
-
-Interpolated Strings
---------------------
-`MathConverter` supports interpolated strings, just like C#.
-
-In the previous example, we used `ConverterParameter="format(&quot;Language {0}: {1}&quot;,x+1,y)"`. We established that this was equivalent to C#'s `string.Format("Language {0}: {1}", x+1, y)`.
-
-In C#, you can simplify the call to string.Format by using an interpolated string. In this case, that would be `$"Language {x+1}: {y}"`. Similarly, in `MathConverter`, we can use ``ConverterParameter="$`Language {x+1}: {y}`"``. This will be converted by `MathConverter`'s compiler into a call to `string.Format("Language {0}: {1}", x+1, y)`.
-
-Just like in C#, you can embed strings within in an interpolated string. So `MathConverter`'s interpolated strings can be just as complex as C#'s. For example, you can simplify the expression `ConverterParameter='format(&quot;{0} apple&quot; + (x == 1 ? &quot;&quot; : &quot;s&quot;), x)'` to simply be ```ConverterParameter='$`{x} apple{(x==1 ? `` : `s`)}`'```.
-
-
-Visibility
-----------
-Often in WPF, it is important to convert to a `Visibility` option. It's often that a control should be hidden or collapsed based on a boolean binding. So you can use the functions `visibleorcollapsed` and `visibleorhidden` to convert a boolean value to a `Visibility` value. Both are one-value functions that will return `Visibility.Visible` if the value `true` is passed in as the parameter. If any other value (e.g. `false`, `null`, `"Hello World"`, or even the string `"true"`, etc.) is passed in, then either `Visibility.Collapsed` or `Visibility.Hidden` are returned, depending on which function was called.
-
-
-Operators
----------
-
-The ternary conditional operator is just one of several operators we can use. In general, the operators used in MathConverter will follow [the standard C# rules regarding operator ordering](https://docs.microsoft.com/en-us/dotnet/articles/csharp/language-reference/operators/), meaning you can usually expect it to behave just like C#. But there are a few notable exceptions:
-
-* Since `MathConverter` is specifically designed to perform math calculations, the caret (`^`) operator does not perform the `XOR` operation. Rather, it is an exponent symbol. It uses [`System.Math.Pow`](https://msdn.microsoft.com/en-us/library/system.math.pow(v=vs.110).aspx) to evaluate expressions, and its precedence is just above multiplicative operations (`*`, `/`, and `%`).
+* Since `MathConverter` is specifically designed to perform math calculations, the caret (`^`) operator does not perform the `XOR` operation. Rather, it is an exponent symbol. It uses [`System.Math.Pow`](https://learn.microsoft.com/dotnet/api/system.math.pow) to evaluate expressions, and its precedence is just above multiplicative operations (`*`, `/`, and `%`).
 * The multiplication operator can often be safely ommitted. A `ConverterParameter` value of `xyz` will evaluate to `x*y*z`. The parameter `x2y` will evaluate to `x^2*y` (or equivalently, `xxy` or `x*x*y`). Similarly, `2x3` is equivalent to `2*x^3` or `2*x*x*x`. Note that `x(2)` is equivalent to `x*(2)`, in the same way that `x(y+z)` is equivalent to `x*(y+z)`. Note that `1/xy` will evaluate to `1/x*y`, not to `1/(x*y)`, as you might expect.
-* `MathConverter` doesn't support all of the operations that C# does. The following operators are not supported:
+* `MathConverter` doesn't support all of the operations that C# does. The following operators are examples of those not supported:
     * Assignment operators (`=`, `+=`, `&&=`, etc)
     * Logical operators (`|`, `&`, and `^` as `XOR`)
          - Note that `||` and `&&` are supported operators.
+    * `switch` and `with` expressions are not supported.
     * `is` and `as` (since Types are not supported)
-    * Binary operations (`<<`, `>>`, `~`) are not supported.
+    * Bitwise operations (`<<`, `>>`, `~`) are not supported.
     * The unary operators `++` and `--` are not supported, since they change the values of the inputs.
-    * Primary operators (`x.y`, `f(x)`, `a[x]`, `new`, `typeof`, `checked`, `unchecked`) are not supported.
+    * Primary operators (`x.y`, `f(x)`, `a[i]`, `new`, `typeof`, `checked`, `unchecked`, `default`, `nameof`, `sizeof`) are not supported.
 
+MathConverter uses reflection to evaluate operator calls, so you can use custom types with custom operator implementations and MathConverter will use those operators while converting.
 
-null
-----
+Numeric Types
+-------------
+Generally, MathConverter will favor using `double` values over other numeric types. When evaluating which operator to call, `MathConverter` will convert any operands to `double`, if possible, before calling the operator. If an input is of type `char`, it will convert to `int` then convert to `double`. Where a path to implicitly convert an operand to `double` exists, MathConverter will convert for you in order to apply an operator that takes numeric inputs.
 
-`MathConverter` fully supportes `null` values. You can include `null` in the `ConverterParameter`, and it will evaluate to `null`. Also, any bindings will still work if the binding returns `null`. In addition to supporting the `??` null-coalescing operator, it also includes the 2-value function `isnull`/`ifnull`. `MathConverter` evaluates the expression `x ?? y` in the same way that it would evaluate the expressions `isnull(x,y)` or `x == null ? y : x`.
+Hence, supposing `x = 1` (an integer), C# would evaluate that `1 + x/2 = 1`, since `(int)1 / 2 = 0`. MathConverter will implicitly converter all variables to doubles. So, the expression `1 + x/2` is evaluated as `1.0 + (double)x/2.0`, so MathConverter will return `1.5`.
 
-`MathConverter` evaluates most of its values using the `dynamic` type. So `x+y` will yield `null` if `x = 3` and `y = null`. However, if `x = "Hello World"` and `y = null`, `x+y` will yield `"Hello World"`.
+Parser
+------
 
-
-
-Parser:
--------
-
-Each time a conversion must be made, `MathConverter` must parse and evaluate an expression. When it parses an expression, it reads through the string one character at a time, and returns a syntax tree. The parsing is done in the `Parser` class. The `Parser` returns an `AbstractSyntaxTree` for each comma-separated (or semicolon-separated) value. In an effort to improve efficiency, `MathConverter` uses a cache. It saves the syntax tree for each string it evaluates. As a result, it is discouraged to use the same `MathConverter` instance across your entire application. It is a better idea to use a different `MathConverter` object for each `UserControl`, `Page`, or `Window`. You can turn off caching on a per-instance basis:
+Each time a conversion must be made, MathConverter must parse and evaluate an expression. When it parses an expression, it reads through the string one character at a time, and returns a syntax tree. The parsing is done in the `Parser` class. The `Parser` returns an `AbstractSyntaxTree` for each comma-separated (or semicolon-separated) value. In an effort to improve efficiency, `MathConverter` uses a cache to save the `AbstractSyntaxTree`s for each string it evaluates. Therefore, if you have a lot of conversion strings, it is discouraged to use the same `MathConverter` instance across your entire application. It is a better idea to use a different `MathConverter` object for each `UserControl`, `Page`, or `Window`. You can turn off caching on a per-instance basis:
 
 ```xaml
 <math:MathConverter x:Key="nocache" UseCache="False" />
 ```
 
+Breaking Changes From V1
+-------------------------
+There are a few breaking changes from version 1.
 
-Thanks for reading!
--------------------
-
-`MathConverter` is still a work in progress, and we're bound to add more features as we continue to use it.
+* Function names are now case-sensitive.
+* `e`, `pi`, `null`, `true`, and `false` keywords are now required to be lower-case.
+* `VisibleOrCollapsed` and `VisibleOrHidden` functions were deprecated, and will be removed in a future release. You should change your conversions from `VisibleOrCollapsed(x)` to `` x ? `Visible` : `Collapsed` ``
+* There are several small differences in how/when types are converted. For example, we no longer convert from int to double unless it needs to be used as an operand in an operator such as `+`, `*`, etc.

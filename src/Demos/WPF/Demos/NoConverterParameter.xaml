@@ -1,0 +1,25 @@
+﻿<Window x:Class="MathConverter.Demo.Demos.NoConverterParameter"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:math="http://hexinnovation.com/math"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        mc:Ignorable="d"
+        Title="We can convert one, two, or four values to GridLength without specifying a ConverterParameter." Height="150" Width="580" WindowStyle="ToolWindow">
+  <Window.Resources>
+    <math:MathConverter x:Key="Math" />
+    <sys:Double x:Key="Margin">20</sys:Double>
+    <sys:Double x:Key="SmallMargin">10</sys:Double>
+  </Window.Resources>
+  <Border BorderThickness="1" BorderBrush="Black" Grid.Row="2" Margin="{Binding Source={StaticResource Margin}, Converter={StaticResource Math}}">
+    <Border BorderThickness="1" BorderBrush="Red">
+      <Border.Margin>
+        <MultiBinding Converter="{StaticResource Math}">
+          <Binding Source="{StaticResource Margin}" />
+          <Binding Source="{StaticResource SmallMargin}" />
+        </MultiBinding>
+      </Border.Margin>
+    </Border>
+  </Border>
+</Window>
