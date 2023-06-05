@@ -35,6 +35,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Demos", "Demos", "{3E2A7D28
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Assets", "Assets", "{4095B614-553F-422A-8875-2A8B278D144C}"
 	ProjectSection(SolutionItems) = preProject
+		..\ReadmeAssets\Banner.svg = ..\ReadmeAssets\Banner.svg
 		..\ReadmeAssets\Boolean to Visibility.gif = ..\ReadmeAssets\Boolean to Visibility.gif
 		..\ReadmeAssets\Custom Function Animation.gif = ..\ReadmeAssets\Custom Function Animation.gif
 		..\ReadmeAssets\Custom Function.png = ..\ReadmeAssets\Custom Function.png

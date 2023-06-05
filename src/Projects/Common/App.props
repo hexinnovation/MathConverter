@@ -13,7 +13,7 @@
     <FileVersion>$(AssemblyVersion)</FileVersion>
     <ApplicationVersion>$(AssemblyVersion)</ApplicationVersion>
     <Authors>$(Company)</Authors>
-    <Description>A $(MathConverterTarget) Converter class that does it all.</Description>
+    <Description>A XAML Converter that does it all.</Description>
     <RepositoryUrl>https://github.com/hexinnovation/MathConverter</RepositoryUrl>
     <PackageProjectUrl>$(RepositoryUrl)</PackageProjectUrl>
     <PackageIcon>smalllogo.png</PackageIcon>

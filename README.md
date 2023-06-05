@@ -1,4 +1,4 @@
-![Math Converter: A XAML Converter that does it all.](ReadmeAssets/biglogo.png)
+![Math Converter: A XAML Converter that does it all.](ReadmeAssets/Banner.svg)
 
 Installation:
 -------------
