@@ -241,7 +241,14 @@ namespace HexInnovation
     }
     public class CustomFunctionDefinition
     {
+        /// <summary>
+        /// The name of the function. For example, if we choose "MyCustomFunction",
+        /// you can invoke the function like "MyCustomFunction(x)"
+        /// </summary>
         public string Name { get; set; }
+        /// <summary>
+        /// The type of the function. This type must extend <see cref="CustomFunction"/>
+        /// </summary>
         public Type Function { get; set; }
 
         public static CustomFunctionDefinition Create<T>(string name)

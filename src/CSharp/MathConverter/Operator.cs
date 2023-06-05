@@ -236,7 +236,7 @@ namespace HexInnovation
             return GetPossibleOperators(operatorName, operands.Select(p => p?.GetType() ?? typeof(object)).ToArray());
         }
 
-        protected internal static List<MethodInfo> GetImplicitOperatorPath(string operatorName, Type typeFrom, Type typeTo)
+        internal static List<MethodInfo> GetImplicitOperatorPath(string operatorName, Type typeFrom, Type typeTo)
         {
             var implicitOperators = GetPossibleOperators(operatorName, typeFrom)
                 .ToDictionary(p => p.Method.ReturnType, p => new List<MethodInfo> { p.Method });
@@ -295,7 +295,14 @@ namespace HexInnovation
             // There's no implicit conversion from typeFrom to typeTo.
             return null;
         }
-        protected internal static bool DoesImplicitConversionExist(Type typeFrom, Type typeTo, bool allowImplicitOperator)
+        /// <summary>
+        /// Checks to see if there is a path to implicitly convert from one type to another.
+        /// Effectively, this method tells you if <see cref="DoImplicitConversion(object, Type)"/> will succeed.
+        /// </summary>
+        /// <param name="typeFrom">The type to convert from.</param>
+        /// <param name="typeTo">The type to convert to.</param>
+        /// <param name="allowImplicitOperator">True to allow implicit operators (e.g. what the compiler uses to implicitly convert int to double). Generally you want to specify <c>true</c> here.</param>
+        internal static bool DoesImplicitConversionExist(Type typeFrom, Type typeTo, bool allowImplicitOperator)
         {
             // https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/conversions#implicit-numeric-conversions
             if (typeFrom == null)
@@ -393,7 +400,14 @@ namespace HexInnovation
             // This is probably good enough???
             return false;
         }
-        protected internal static object DoImplicitConversion(object from, Type typeTo)
+
+        /// <summary>
+        /// Implicitly converts an object to a given type. This method can throw an exception if the conversion fails.
+        /// See <see cref="DoesImplicitConversionExist(Type, Type, bool)"/>
+        /// </summary>
+        /// <param name="from">The object to convert.</param>
+        /// <param name="typeTo">The type to convert to.</param>
+        internal static object DoImplicitConversion(object from, Type typeTo)
         {
             var typeToIsValueType = typeTo.GetTypeInfo().IsValueType;
 
@@ -454,7 +468,7 @@ namespace HexInnovation
             return Convert.ChangeType(from, typeTo);
         }
 
-        protected internal static bool? TryConvertToBool(object value)
+        internal static bool? TryConvertToBool(object value)
         {
             if (value is bool b)
             {
