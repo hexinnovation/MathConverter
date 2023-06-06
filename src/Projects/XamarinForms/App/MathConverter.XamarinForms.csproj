@@ -1,7 +1,9 @@
 ﻿<Project Sdk="MSBuild.Sdk.Extras/3.0.44">
 
   <PropertyGroup>
-    <TargetFrameworks>monoandroid10.0;netstandard1.0;netstandard1.3;netstandard2.0;netcoreapp2.0;netcoreapp3.0;netcoreapp3.1;net5.0;net6.0;net7.0;xamarin.mac20;xamarin.ios10</TargetFrameworks>
+    <TargetFrameworks>netstandard1.0;netstandard1.3;netstandard2.0;netcoreapp2.0;netcoreapp3.0;netcoreapp3.1;net5.0</TargetFrameworks>
+    <TargetFrameworks Condition="'$(MSBuildRuntimeType)' != 'Mono'">$(TargetFrameworks);net6.0;net7.0;</TargetFrameworks>
+    <TargetFrameworks Condition="'$(MSBuildRuntimeType)' != 'Core'">$(TargetFrameworks);monoandroid10.0;xamarin.mac20;xamarin.ios10</TargetFrameworks>
     <TargetFrameworks Condition="'$(OS)' == 'Windows_NT'">$(TargetFrameworks);uap10.0</TargetFrameworks>
     <TargetPlatformVersion Condition="$(TargetFramework.StartsWith('uap'))">10.0.22621.0</TargetPlatformVersion>
     <TargetPlatformMinVersion Condition="$(TargetFramework.StartsWith('uap'))">10.0.15063.0</TargetPlatformMinVersion>
