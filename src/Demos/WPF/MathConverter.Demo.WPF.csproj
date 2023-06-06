@@ -1,4 +1,5 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
     <TargetFrameworks>net6.0-windows</TargetFrameworks>
     <UseWPF>true</UseWPF>
@@ -16,7 +17,13 @@
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
     <DefineConstants>DEBUG;TRACE</DefineConstants>
   </PropertyGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\..\Projects\WPF\App\MathConverter.WPF.csproj" />
+	<!--
+	Production WPF apps should use PackageReference instead of ProjectReference:
+	<PackageReference Include="MathConverter" Version="(latest)" />
+	-->
   </ItemGroup>
+
 </Project>

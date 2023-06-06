@@ -125,7 +125,7 @@
     <DefineConstants>$(DefineConstants);NUNIT</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform" Version="6.2.10" />
+    <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform" Version="6.2.14" />
     <PackageReference Include="NUnit" Version="3.6.1" />
     <PackageReference Include="nunit.xamarin" version="3.6.1" />
   </ItemGroup>
