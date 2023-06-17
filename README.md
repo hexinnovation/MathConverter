@@ -3,18 +3,20 @@
 Installation:
 -------------
 
-`MathConverter` is available on Nuget. There are two packages:
+`MathConverter` is available on Nuget. There are three packages:
 
 | Nuget Package                                                                          | UI Framework                                                             | Target Frameworks                                                                                                                                                            |
 |----------------------------------------------------------------------------------------|--------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | [MathConverter](https://www.nuget.org/packages/MathConverter)                          | [WPF](https://learn.microsoft.com/dotnet/desktop/wpf/overview)           | <ul><li>.NET Framework 3.5+</li><li>.NET Core 3.0+</li><li>.NET 5.0 - 7.0</li></ul>                                                                                          |
 | [MathConverter.XamarinForms](https://www.nuget.org/packages/MathConverter.XamarinForms)| [Xamarin.Forms](https://dotnet.microsoft.com/apps/xamarin/xamarin-forms) | <ul><li>.NET Standard 1.0+</li><li>.NET Core 2.0+</li><li>.NET 5.0 - 7.0</li><li>Xamarin.iOS 10+</li><li>MonoAndroid 10+</li><li>UAP 10.0</li><li>Xamarin.Mac 2.0+</li></ul> |
+| [MathConverter.Maui](https://www.nuget.org/packages/MathConverter.Maui)                | [.NET MAUI](https://learn.microsoft.com/en-us/dotnet/maui/what-is-maui)  | <ul><li>.NET 6.0 - 7.0</li><li>Windows</li><li>MacCatalyst</li><li>iOS</li><li>Android</li></ul>                                                                             |
 
 To install MathConverter, run the one of the following commands in the [Package Manager Console](https://docs.microsoft.com/en-us/nuget/tools/package-manager-console):
 
 ```
 PM> Install-Package MathConverter
 PM> Install-Package MathConverter.XamarinForms
+PM> Install-Package MathConverter.Maui
 ```
 
 What is MathConverter?
