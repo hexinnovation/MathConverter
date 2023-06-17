@@ -8,6 +8,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MathConverter.Demo.WPF", "D
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Readme", "Readme", "{7F4CC393-A1F5-4591-90E9-F299D83549D9}"
 	ProjectSection(SolutionItems) = preProject
+		..\Nuget README.md = ..\Nuget README.md
 		..\README.md = ..\README.md
 	EndProjectSection
 EndProject

@@ -16,6 +16,7 @@
     <PackageIcon>smalllogo.png</PackageIcon>
     <RepositoryType>GitHub</RepositoryType>
     <PackageTags>$(PackageTags) Converter Math Arbitrary Expressions XAML ConverterParameter IValueConverter IMultiValueConverter</PackageTags>
+    <PackageReadmeFile Condition="'$(MSBuildRuntimeType)' != 'Mono'">README.md</PackageReadmeFile>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <IncludeSymbols>true</IncludeSymbols>
@@ -30,6 +31,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
     <None Include="$(MSBuildThisFileDirectory)..\..\..\ReadmeAssets\smalllogo.png" Pack="True" PackagePath="smalllogo.png" Link="Assets\smalllogo.png" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\..\Nuget README.md" Pack="True" PackagePath="README.md" Link="Assets\README.md" />
     <EmbeddedFiles Include="$(GeneratedAssemblyInfoFile)" />
   </ItemGroup>
 
