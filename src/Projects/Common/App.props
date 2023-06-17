@@ -15,7 +15,7 @@
     <PackageProjectUrl>$(RepositoryUrl)</PackageProjectUrl>
     <PackageIcon>smalllogo.png</PackageIcon>
     <RepositoryType>GitHub</RepositoryType>
-    <PackageTags>$(PackageTags) Converter Math Arbitrary Expressions ConverterParameter IValueConverter IMultiValueConverter</PackageTags>
+    <PackageTags>$(PackageTags) Converter Math Arbitrary Expressions XAML ConverterParameter IValueConverter IMultiValueConverter</PackageTags>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <IncludeSymbols>true</IncludeSymbols>
