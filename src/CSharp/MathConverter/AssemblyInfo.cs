@@ -3,6 +3,8 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 #if XAMARIN
 using Xamarin.Forms;
+#elif MAUI
+using Microsoft.Maui.Controls;
 #else
 using System.Windows;
 using System.Windows.Markup;

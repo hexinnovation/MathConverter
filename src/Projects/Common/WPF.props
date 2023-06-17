@@ -3,6 +3,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>net35;net5.0-windows;net6.0-windows;net7.0-windows;netcoreapp3.0;netcoreapp3.1</TargetFrameworks>
+    <DefineConstants>WPF</DefineConstants>
     <UseWPF>true</UseWPF>
   </PropertyGroup>
 

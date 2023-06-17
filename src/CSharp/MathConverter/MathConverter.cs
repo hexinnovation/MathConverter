@@ -9,9 +9,13 @@ using System.Reflection;
 #if XAMARIN
 using Xamarin.Forms;
 using TypeConverterAttribute = Xamarin.Forms.TypeConverterAttribute;
-using XamarinTypeConverter = Xamarin.Forms.TypeConverter;
-using DependencyProperty = Xamarin.Forms.BindableProperty;
-#else
+using PlatformTypeConverter = Xamarin.Forms.TypeConverter;
+#elif MAUI
+using Microsoft.Maui;
+using Microsoft.Maui.Controls;
+using PlatformTypeConverter = System.ComponentModel.TypeConverter;
+#elif WPF
+using BindableProperty = System.Windows.DependencyProperty;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Markup;
@@ -56,12 +60,12 @@ namespace HexInnovation
         /// <param name="totalBinding">How many arguments are there total? If there is only one, we're assuming this converter is being used on a <see cref="Binding"/>, not a <see cref="MultiBinding"/></param>
         /// <param name="parameter">The ConverterParameter being used for this conversion. This helps identify the (possibly faulty) binding.</param>
         /// <param name="targetType">The type we're trying to convert to. This helps identify the (possibly faulty) binding.</param>
-        /// <returns>The <paramref name="arg"/> passed in, or <code>null</code> if the <paramref name="arg"/> is equal to <see cref="DependencyProperty.UnsetValue"/></returns>
+        /// <returns>The <paramref name="arg"/> passed in, or <code>null</code> if the <paramref name="arg"/> is equal to <see cref="BindableProperty.UnsetValue"/></returns>
         private static object SanitizeBinding(object arg, int argIndex, int totalBinding, object parameter, Type targetType)
         {
-            if (arg == DependencyProperty.UnsetValue)
+            if (arg == BindableProperty.UnsetValue)
             {
-                Debug.WriteLine($"Encountered {nameof(DependencyProperty.UnsetValue)} in the {(totalBinding > 1 ? $"{ComputeOrdinal(argIndex + 1)} " : "")}argument while trying to convert to type \"{targetType.FullName}\" using the ConverterParameter {(parameter == null ? "'null'" : $"\"{parameter}\"")}. Double-check that your binding is correct.");
+                Debug.WriteLine($"Encountered {nameof(BindableProperty.UnsetValue)} in the {(totalBinding > 1 ? $"{ComputeOrdinal(argIndex + 1)} " : "")}argument while trying to convert to type \"{targetType.FullName}\" using the ConverterParameter {(parameter == null ? "'null'" : $"\"{parameter}\"")}. Double-check that your binding is correct.");
                 return null;
             }
 
@@ -113,8 +117,12 @@ namespace HexInnovation
         /// This eliminates the need to parse the same statement over and over.
         /// </summary>
         private Dictionary<string, AbstractSyntaxTree[]> _cachedResults = new Dictionary<string, AbstractSyntaxTree[]>();
-#if XAMARIN
-        private static readonly Dictionary<Type, XamarinTypeConverter> XamarinTypeConverters = new Dictionary<Type, XamarinTypeConverter>();
+#if !WPF
+        private static readonly Dictionary<Type, PlatformTypeConverter> PlatformTypeConverters = new()
+#if MAUI
+            { { typeof(GridLength), new GridLengthTypeConverter() } }
+#endif
+            ;
 #endif
 
         /// <summary>
@@ -209,13 +217,13 @@ namespace HexInnovation
                 targetType = newTarget;
             }
 
-#if XAMARIN
-            // Let's try Xamarin.Forms.TypeConverter
-            var typeConverter = GetXamarinTypeConverter(targetType);
+#if !WPF
+            // Let's try PlatformTypeConverter
+            var typeConverter = GetPlatformTypeConverter(targetType);
 
             if (typeConverter != null)
             {
-                // Xamarin.Forms.TypeConverters only convert from Invariant Strings. All other conversions are deprecated.
+                // PlatformTypeConverters only convert from Invariant Strings. All other conversions are deprecated.
                 string convertFrom = value as string ?? $"{value}";
                 return typeConverter.ConvertFromInvariantString(convertFrom);
             }
@@ -273,24 +281,23 @@ namespace HexInnovation
             // WE CAN'T CONVERT BACK
             throw new NotSupportedException();
         }
-#if XAMARIN
-        private static XamarinTypeConverter GetXamarinTypeConverter(Type targetType)
+#if !WPF
+        private static PlatformTypeConverter GetPlatformTypeConverter(Type targetType)
         {
-            if (XamarinTypeConverters.ContainsKey(targetType))
+            if (PlatformTypeConverters.ContainsKey(targetType))
             {
-                return XamarinTypeConverters[targetType];
+                return PlatformTypeConverters[targetType];
             }
 
             foreach (var attribute in targetType.GetCustomAttributes<TypeConverterAttribute>())
             {
-                var converterType = Type.GetType(attribute.ConverterTypeName, false);
-                if (converterType != null)
+                if (Type.GetType(attribute.ConverterTypeName, false) is { } converterType)
                 {
-                    return XamarinTypeConverters[targetType] = (XamarinTypeConverter)Activator.CreateInstance(converterType);
+                    return PlatformTypeConverters[targetType] = (PlatformTypeConverter)Activator.CreateInstance(converterType);
                 }
             }
 
-            return XamarinTypeConverters[targetType] = null;
+            return PlatformTypeConverters[targetType] = null;
         }
 #endif
 

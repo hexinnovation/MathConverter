@@ -6,7 +6,7 @@
     <AssemblyName>MathConverter.UnitTests</AssemblyName>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <IsPackable>false</IsPackable>
-    <DefineConstants>NUNIT</DefineConstants>
+    <DefineConstants>$(DefineConstants);NUNIT</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

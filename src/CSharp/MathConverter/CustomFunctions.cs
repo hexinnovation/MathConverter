@@ -4,7 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 
-#if !XAMARIN
+#if WPF
 using System.Windows;
 #endif
 
@@ -20,7 +20,9 @@ namespace HexInnovation
         {
 #if XAMARIN
             return Xamarin.Forms.BindableProperty.UnsetValue;
-#else
+#elif MAUI
+            return Microsoft.Maui.Controls.BindableProperty.UnsetValue;
+#elif WPF
             return DependencyProperty.UnsetValue;
 #endif
         }
@@ -123,7 +125,7 @@ namespace HexInnovation
             return $"{argument}".ToUpper();
         }
     }
-#if !XAMARIN
+#if WPF
     sealed class VisibleOrCollapsedFunction : OneArgFunction
     {
         public override object Evaluate(CultureInfo cultureInfo, object argument)

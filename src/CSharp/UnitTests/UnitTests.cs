@@ -9,6 +9,9 @@ using TestInitializeAttribute = NUnit.Framework.SetUpAttribute;
 using TestMethodAttribute = NUnit.Framework.TestAttribute;
 using Assert = HexInnovation.MyAssert;
 using NUnitAssert = NUnit.Framework.Assert;
+#elif XUNIT
+using TestMethod = Xunit.FactAttribute;
+using Assert = HexInnovation.MyAssert;
 #else
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 #endif
@@ -16,10 +19,14 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 #if XAMARIN
 using Xamarin.Forms;
 using Rect = Xamarin.Forms.Rectangle;
-using DependencyProperty = Xamarin.Forms.BindableProperty;
-#else
+#elif WPF
+using BindableProperty = System.Windows.DependencyProperty;
 using System.Windows;
 using System.Windows.Media;
+#elif MAUI
+using Microsoft.Maui;
+using Microsoft.Maui.Graphics;
+using Microsoft.Maui.Controls;
 #endif
 
 namespace HexInnovation
@@ -35,6 +42,23 @@ namespace HexInnovation
         public static void IsNull(object anObject) => NUnitAssert.IsNull(anObject);
         public static void AreEqual(double expected, double actual, double delta) => NUnitAssert.AreEqual(expected, actual, delta);
     }
+#elif XUNIT
+    static class MyAssert
+    {
+        public static void AreEqual(object expected, object actual) => Xunit.Assert.Equal(expected, actual);
+        public static void Fail(string message) => Xunit.Assert.True(false, message);
+        public static void IsInstanceOfType(object actual, Type expected) => Xunit.Assert.IsType(expected, actual);
+        public static void IsTrue(bool condition) => Xunit.Assert.True(condition);
+        public static void IsFalse(bool condition) => Xunit.Assert.False(condition);
+        public static void IsNull(object anObject) => Xunit.Assert.Null(anObject);
+        public static void AreEqual(double expected, double actual, double delta) => Xunit.Assert.InRange(actual, expected - delta, expected + delta);
+    }
+
+    [AttributeUsage(AttributeTargets.Class)]
+    public class TestClassAttribute : Attribute
+    {
+        // This does nothing.
+    }
 #endif
 
 #pragma warning disable CS1718 // Comparison made to same variable
@@ -48,8 +72,12 @@ namespace HexInnovation
         private MathConverter _converter;
         private MathConverter _converterNoCache;
 
+#if XUNIT
+        public MathConverterTests()
+#else
         [TestInitialize]
         public void Initialize()
+#endif
         {
             // Set the current culture to Japanese. Most of our tests occur in de culture.
             UnitTestCompatibilityExtensions.SetCurrentCulture(new CultureInfo("ja-JP"));
@@ -109,10 +137,10 @@ namespace HexInnovation
             Assert.AreEqual(new CornerRadius(1, 2, 3, 4), _converter.Convert(new object[] { 1, 2, 3, 4 }, typeof(CornerRadius), "1,2,3,4", new CultureInfo("de")));
             Assert.AreEqual(new CornerRadius(1, 2, 3, 4), _converter.Convert(new object[] { 1, 2, 3, 4 }, typeof(CornerRadius), "`1,2,3,4`", new CultureInfo("de")));
 
-#if XAMARIN
-            var pixel = GridUnitType.Absolute;
-#else
+#if WPF
             var pixel = GridUnitType.Pixel;
+#else
+            var pixel = GridUnitType.Absolute;
 #endif
 
             Assert.AreEqual(new GridLength(1, pixel), _converter.Convert(new object[] { 1 }, typeof(GridLength), "x", new CultureInfo("de")));
@@ -170,8 +198,8 @@ namespace HexInnovation
             Assert.IsFalse((bool)_converter.Convert(new object[] { false }, typeof(bool), null, new CultureInfo("de")));
             Assert.IsTrue((bool)_converter.Convert(new object[0], typeof(bool), "true", new CultureInfo("de")));
             Assert.IsFalse((bool)_converter.Convert(new object[0], typeof(bool), "false", new CultureInfo("de")));
-            
-#if !XAMARIN
+
+#if WPF
             Assert.AreEqual(Geometry.Parse("M 0,0 L 100,100 L 100,0 Z").ToString(), _converter.Convert(new object[0], typeof(Geometry), "`M 0,0 L 100,100 L 100,0 Z`", new CultureInfo("de")).ToString());
 #endif
         }
@@ -439,17 +467,17 @@ namespace HexInnovation
 
             try
             {
-                _converter.Convert(new object[] { DependencyProperty.UnsetValue }, typeof(int?), "x ? true : false", new CultureInfo("de"));
+                _converter.Convert(new object[] { BindableProperty.UnsetValue }, typeof(int?), "x ? true : false", new CultureInfo("de"));
 
-#if XAMARIN
-                var dependencyPropertyClass = nameof(BindableProperty);
-#else
+#if WPF
                 var dependencyPropertyClass = nameof(DependencyProperty);
+#else
+                var dependencyPropertyClass = nameof(BindableProperty);
 #endif
 
-                Assert.Fail($"This should have thrown an exception. We should evaluate {dependencyPropertyClass}.{nameof(DependencyProperty.UnsetValue)} as null, which fails as the first operand of the Ternary operator.");
+                Assert.Fail($"This should have thrown an exception. We should evaluate {dependencyPropertyClass}.{nameof(BindableProperty.UnsetValue)} as null, which fails as the first operand of the Ternary operator.");
             }
-            catch (EvaluationException ex) when (ex.Message == $"MathConverter threw an exception while performing a conversion.{Environment.NewLine}{Environment.NewLine}ConverterParameter:{Environment.NewLine}x ? true : false{Environment.NewLine}{Environment.NewLine}BindingValues:{Environment.NewLine}[0]: ({DependencyProperty.UnsetValue.GetType().FullName}):  {DependencyProperty.UnsetValue}" && ex.InnerException.Message == $"A System.InvalidOperationException was thrown while evaluating the TernaryNode:{Environment.NewLine}(x ? True : False)" && ex.InnerException.InnerException.Message == "Cannot apply operator '?:' when the first operand is null") { }
+            catch (EvaluationException ex) when (ex.Message == $"MathConverter threw an exception while performing a conversion.{Environment.NewLine}{Environment.NewLine}ConverterParameter:{Environment.NewLine}x ? true : false{Environment.NewLine}{Environment.NewLine}BindingValues:{Environment.NewLine}[0]: ({BindableProperty.UnsetValue.GetType().FullName}):  {BindableProperty.UnsetValue}" && ex.InnerException.Message == $"A System.InvalidOperationException was thrown while evaluating the TernaryNode:{Environment.NewLine}(x ? True : False)" && ex.InnerException.InnerException.Message == "Cannot apply operator '?:' when the first operand is null") { }
         }
         [TestMethod]
         public void TestNullTargetType()
@@ -463,7 +491,7 @@ namespace HexInnovation
                 Assert.AreEqual(null, _converter.Convert(new object[0], null, "null", culture));
             }
         }
-#if !XAMARIN
+#if WPF
         [TestMethod]
         public void TestGeometry()
         {
@@ -910,7 +938,7 @@ namespace HexInnovation
                     }
                 }
 
-#if !XAMARIN
+#if WPF
                 // VisibleOrHidden and VisibleOrCollapsed are deprecated!
                 Assert.AreEqual(Visibility.Visible, _converter.Convert(new object[] { true }, typeof(object), "VisibleOrHidden(x)", new CultureInfo("de")));
                 Assert.AreEqual(Visibility.Visible, _converter.Convert(new object[] { true }, typeof(object), "VisibleOrCollapsed(x)", new CultureInfo("de")));
@@ -929,7 +957,7 @@ namespace HexInnovation
                 Assert.AreEqual(null, _converter.Convert(new object[] { null, 3, 5 }, typeof(object), "TryParseDouble(`INVALID!`)", new CultureInfo("de")));
                 Assert.AreEqual(null, _converter.Convert(new object[] { TimeSpan.FromDays(3) }, typeof(object), "TryParseDouble(x)", new CultureInfo("de")));
 
-                Assert.AreEqual(DependencyProperty.UnsetValue, _converter.Convert(null, typeof(string), "UnsetValue()", new CultureInfo("de")));
+                Assert.AreEqual(BindableProperty.UnsetValue, _converter.Convert(null, typeof(string), "UnsetValue()", new CultureInfo("de")));
             }
 
             Assert.AreEqual(null, _converter.Convert(new object[] { null, 3, 5.0, "Hello" }, typeof(object), "GetType(x)", new CultureInfo("de")));
