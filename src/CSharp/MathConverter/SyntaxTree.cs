@@ -358,7 +358,7 @@ namespace HexInnovation
         /// </summary>
         /// <param name="cultureInfo">The culture to evaluate with.</param>
         /// <param name="argument">The argument passed to the function.</param>
-        public abstract double? Evaluate(CultureInfo cultureInfo, double parameter);
+        public abstract double? Evaluate(CultureInfo cultureInfo, double argument);
         /// <summary>
         /// What the function should return when the argument is null: defaults to null.
         /// </summary>
