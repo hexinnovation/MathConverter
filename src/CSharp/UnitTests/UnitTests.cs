@@ -130,7 +130,7 @@ namespace HexInnovation
             Assert.AreEqual(+4+ +-+x+-+-+-+ +-x, _converter.Convert(args, typeof(object), "+4+ +-+x+-+-+-+ +-x", new CultureInfo("de")));
         }
         [TestMethod]
-        public void TestCommonWpfTypes()
+        public void TestCommonTypes()
         {
             Assert.AreEqual(new CornerRadius(1, 2, 3, 4), _converter.Convert(new object[] { 1, 2, 3, 4 }, typeof(CornerRadius), null, new CultureInfo("de")));
             Assert.AreEqual(new CornerRadius(1, 2, 3, 4), _converter.Convert(new object[] { 1, 2, 3, 4 }, typeof(CornerRadius), "x,y,z,[3]", new CultureInfo("de")));
