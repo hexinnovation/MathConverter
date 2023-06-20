@@ -61,9 +61,9 @@ namespace HexInnovation
         /// <param name="parameter">The ConverterParameter being used for this conversion. This helps identify the (possibly faulty) binding.</param>
         /// <param name="targetType">The type we're trying to convert to. This helps identify the (possibly faulty) binding.</param>
         /// <returns>The <paramref name="arg"/> passed in, or <code>null</code> if the <paramref name="arg"/> is equal to <see cref="BindableProperty.UnsetValue"/></returns>
-        private static object SanitizeBinding(object arg, int argIndex, int totalBinding, object parameter, Type targetType)
+        private object SanitizeBinding(object arg, int argIndex, int totalBinding, object parameter, Type targetType)
         {
-            if (arg == BindableProperty.UnsetValue)
+            if (arg == BindableProperty.UnsetValue && !AllowUnsetValue)
             {
                 Debug.WriteLine($"Encountered {nameof(BindableProperty.UnsetValue)} in the {(totalBinding > 1 ? $"{ComputeOrdinal(argIndex + 1)} " : "")}argument while trying to convert to type \"{targetType.FullName}\" using the ConverterParameter {(parameter == null ? "'null'" : $"\"{parameter}\"")}. Double-check that your binding is correct.");
                 return null;
@@ -115,6 +115,12 @@ namespace HexInnovation
                     _cachedResults = null;
             }
         }
+
+        /// <summary>
+        /// Defaults to <c>false</c>, which implicitly converts <see cref="BindableProperty.UnsetValue"/> to <c>null</c> with a debug warning.
+        /// Set to <c>true</c> to actually allow UnsetValue to be used to convert.
+        /// </summary>
+        public bool AllowUnsetValue { get; set; } = false;
 
         /// <summary>
         /// A dictionary which stores a cache of AbstractSyntaxTrees for given ConverterParameter strings.

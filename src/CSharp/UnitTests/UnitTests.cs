@@ -1102,6 +1102,22 @@ namespace HexInnovation
 #pragma warning restore IDE0001 // Simplify name Nullable<Flags>
         }
 
+        [TestMethod]
+        public void TestUnsetValue()
+        {
+            // By default, MathConverter implicitly converts UnsetValue to null.
+            Assert.IsNull(_converter.Convert(BindableProperty.UnsetValue, typeof(object), "x", new CultureInfo("de")));
+            Assert.IsFalse((bool)_converter.Convert(BindableProperty.UnsetValue, typeof(object), "x == UnsetValue()", new CultureInfo("de")));
+            Assert.IsTrue((bool)_converter.Convert(BindableProperty.UnsetValue, typeof(object), "x == null", new CultureInfo("de")));
+
+            _converter.AllowUnsetValue = true;
+            Assert.AreEqual(BindableProperty.UnsetValue, _converter.Convert(BindableProperty.UnsetValue, typeof(object), "x", new CultureInfo("de")));
+            Assert.IsTrue((bool)_converter.Convert(BindableProperty.UnsetValue, typeof(object), "x == UnsetValue()", new CultureInfo("de")));
+            Assert.IsFalse((bool)_converter.Convert(BindableProperty.UnsetValue, typeof(object), "x == null", new CultureInfo("de")));
+
+            _converter.AllowUnsetValue = false;
+        }
+
         public class ConstantValueFunction : ZeroArgFunction
         {
             public static readonly object Value = new object();
