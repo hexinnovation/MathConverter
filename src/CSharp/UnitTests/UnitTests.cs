@@ -18,15 +18,18 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 #if XAMARIN
 using Xamarin.Forms;
+using Xamarin.Forms.Xaml;
 using Rect = Xamarin.Forms.Rectangle;
 #elif WPF
 using BindableProperty = System.Windows.DependencyProperty;
 using System.Windows;
+using System.Windows.Data;
 using System.Windows.Media;
 #elif MAUI
 using Microsoft.Maui;
 using Microsoft.Maui.Graphics;
 using Microsoft.Maui.Controls;
+using Microsoft.Maui.Controls.Xaml;
 #endif
 
 namespace HexInnovation
@@ -1116,6 +1119,67 @@ namespace HexInnovation
             Assert.IsFalse((bool)_converter.Convert(BindableProperty.UnsetValue, typeof(object), "x == null", new CultureInfo("de")));
 
             _converter.AllowUnsetValue = false;
+        }
+
+        [TestMethod]
+        public void TestConvertExtension()
+        {
+            var convert = new ConvertExtension();
+
+            foreach (var str in new[] { "abc", "def" })
+            {
+                convert.Expression = str;
+
+                Assert.AreEqual(str, convert._binding.ConverterParameter);
+            }
+
+            foreach (var obj in new object[] { "Hello", null, 4 })
+            {
+                convert.FallbackValue = convert.TargetNullValue = obj;
+                Assert.AreEqual(obj, convert._binding.FallbackValue);
+                Assert.AreEqual(obj, convert._binding.TargetNullValue);
+            }
+
+            foreach (var obj in new BindingBase[] { new Binding(),
+#if WPF
+                // WPF doesn't support a MultiBinding within a MultiBinding
+                new Binding()
+#else
+                new MultiBinding()
+#endif
+            })
+            {
+                // Setting x and Var7 should add Bindings[0] and Bindings[7] the first time, and update them the second.
+                // In both cases, Bindings[0] through Bindings[6] should be UnsetValue.
+                convert.x = obj;
+                convert.Var7 = obj;
+                Assert.AreEqual(obj, convert._binding.Bindings[0]);
+                Assert.AreEqual(obj, convert._binding.Bindings[7]);
+
+                for (int i = 1; i < 7; i++)
+                {
+                    var binding = convert._binding.Bindings[i] as Binding;
+
+                    Assert.IsTrue(binding is { });
+
+#if !WPF
+                    // WPF makes this complicated.
+                    Assert.AreEqual(BindableProperty.UnsetValue, binding.Source);
+#endif
+                }
+
+                // Bindings[8] should not be set.
+                Assert.AreEqual(8, convert._binding.Bindings.Count);
+            }
+
+            convert.Var9 = new Binding();
+            Assert.AreEqual(10, convert._binding.Bindings.Count);
+
+#if !WPF
+            // WPF makes this complicated.
+            Assert.AreEqual(convert._binding, convert.ProvideValue(null));
+            Assert.AreEqual(convert._binding, ((IMarkupExtension)convert).ProvideValue(null));
+#endif
         }
 
         public class ConstantValueFunction : ZeroArgFunction
