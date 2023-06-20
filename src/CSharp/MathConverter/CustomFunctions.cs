@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -128,6 +129,10 @@ namespace HexInnovation
 #if WPF
     sealed class VisibleOrCollapsedFunction : OneArgFunction
     {
+        public VisibleOrCollapsedFunction()
+        {
+            Debug.WriteLine($"{nameof(VisibleOrCollapsedFunction)} is deprecated. Use 'x ? `Visible` : `Collapsed` instead.'");
+        }
         public override object Evaluate(CultureInfo cultureInfo, object argument)
         {
             return TryConvert<bool>(argument, out var value) && value ? Visibility.Visible : Visibility.Collapsed;
@@ -135,6 +140,11 @@ namespace HexInnovation
     }
     sealed class VisibleOrHiddenFunction : OneArgFunction
     {
+        public VisibleOrHiddenFunction()
+        {
+            Debug.WriteLine($"{nameof(VisibleOrCollapsedFunction)} is deprecated. Use 'x ? `Visible` : `Hidden` instead.'");
+        }
+
         public override object Evaluate(CultureInfo cultureInfo, object argument)
         {
             return TryConvert<bool>(argument, out var value) && value ? Visibility.Visible : Visibility.Hidden;
