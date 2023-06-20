@@ -81,11 +81,21 @@ The simple conversion of `ActualHeight / 2` works well, as long as the rectangle
 </Border.CornerRadius>
 ```
 
+Alternatively, we can use the `math:Convert` MarkupExtension, which is more elegant syntax for creating a `MultiBinding`. Under the covers, this works by actually creating a `MultiBinding` for us:
+
+```xaml
+CornerRadius="{math:Convert 'Min(x,y)/2', x={Binding ActualHeight}, y={Binding ActualWidth}}"
+```
+
 ![If CornerRadius = ActualHeight / 2, we get a rounded rectangle](ReadmeAssets/True%20Rounded%20Rectangle.png)
 
+> **Note:** Instead of using the `Min` function, we could also use the ternary operator: `ConverterParameter = "(x > y ? y : x) / 2"`, but that's a little cumbersome to add to XAML.
+>
 > **Note:** MathConverter can take any number of Bindings. The first binding's value can be accessed by `x` or `[0]`, the second can be accessed by `y` or `[1]`, and the third can be accessed by `z` or `[2]`. Any value beyond the third can be accessed only by its index: `[3]`, `[4]`, etc.
-> 
->**Note:** Instead of using the `Min` function, we could also use the ternary operator: `ConverterParameter = "(x > y ? y : x) / 2"`, but that's a little cumbersome to add to XAML.
+>
+> The `math:Convert` MarkupExtension is limited to ten variables: `x`, `y`, `z`, and `Var3` through `Var9`. If you need more than ten variables, you're probably doing something wrong. But if you insist on using `MathConverter` with an obsene number of parameters, you'll have to use a `MultiBinding`.
+>
+> `math:Convert` is a wrapper around `MultiBinding`, not `Binding`. If you're binding to only one variable, there's considerably less overhead if you simply use a `Binding` with a `MathConverter`.
 
 Example: Different margins on different sides
 ---------------------------------------------
@@ -124,6 +134,12 @@ The first essentially converts as `Margin="20"`. The second converts as `Margin=
         </Border.Margin>
     </Border>
 </Border>
+```
+
+Alternatively, we could use the `Convert` MarkupExtension, which creates a `MultiBinding` for us:
+
+```xaml
+<Border … Margin="{math:Convert x={Binding Margin}, y={Binding SmallMargin}}" />
 ```
 
 ![We can convert one, two, or four values to GridLength without specifying a ConverterParameter.](ReadmeAssets/No%20ConverterParameter.png)

@@ -20,18 +20,17 @@
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="BorderBrush" Value="Black" />
         <Setter Property="DataContext" Value="{Binding RelativeSource={RelativeSource Self}}" />
-        <Setter Property="CornerRadius">
-          <Setter.Value>
-            <MultiBinding ConverterParameter="Min(x,y)/2" Converter="{StaticResource Math}">
-              <Binding Path="ActualHeight" />
-              <Binding Path="ActualWidth" />
-            </MultiBinding>
-          </Setter.Value>
-        </Setter>
       </Style>
     </Grid.Resources>
 
-    <Border Grid.Row="0" />
-    <Border Grid.Row="2" Width="100" />
+    <Border Grid.Row="0">
+      <Border.CornerRadius>
+        <MultiBinding ConverterParameter="Min(x,y)/2" Converter="{StaticResource Math}">
+          <Binding Path="ActualHeight" />
+          <Binding Path="ActualWidth" />
+        </MultiBinding>
+      </Border.CornerRadius>
+    </Border>
+    <Border Grid.Row="2" Width="100" CornerRadius="{math:Convert 'Min(x,y)/2', x={Binding ActualHeight}, y={Binding ActualWidth}}" />
   </Grid>
 </Window>

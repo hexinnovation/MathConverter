@@ -22,7 +22,7 @@ It's as easy as 1-2-3.
 </Application.Resources>
 ```
 
-The `math` namespace is defined as follows<b>*</b>:
+The `math` namespace is defined as follows:
 
 ```xaml
 xmlns:math="http://hexinnovation.com/math"
@@ -31,12 +31,12 @@ xmlns:math="http://hexinnovation.com/math"
 **3)** Do Math. Now, you can use `MathConverter` on any `Binding`. Specify a `ConverterParameter` to specify the rules of the conversion.
 
 ```xaml
-<Border.CornerRadius>
-    <MultiBinding ConverterParameter="Min(x,y)/2" Converter="{StaticResource Math}">
-        <Binding Path="ActualHeight" />
-        <Binding Path="ActualWidth" />
-    </MultiBinding>
-</Border.CornerRadius>
+<Border CornerRadius="{Binding ActualHeight, ConverterParameter=x/2, Converter={StaticResource Math}}" />
+```
+Or, for conversions with multiple bindings.
+
+```xaml
+<Border CornerRadius="{math:Convert 'Min(x,y)/2', x={Binding ActualHeight}, y={Binding ActualWidth}}" />
 ```
 
 See [the GitHub repository](https://github.com/hexinnovation/MathConverter) for documentation and examples.
