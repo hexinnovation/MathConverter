@@ -72,8 +72,12 @@ namespace HexInnovation
             return arg;
         }
 
-
+        /// <summary>
+        /// The custom functions used by MathConverter.
+        /// Allows you to extend MathConverter with custom functions.
+        /// </summary>
         public CustomFunctionCollection CustomFunctions { get; }
+
 
 
         /// <summary>
