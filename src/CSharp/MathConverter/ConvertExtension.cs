@@ -1,17 +1,16 @@
-using System;
 using System.ComponentModel;
-using System.Diagnostics;
-using System.Linq;
 
 #if WPF
 using BindableProperty = System.Windows.DependencyProperty;
-using System.Collections.ObjectModel;
-using System.Globalization;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Markup;
-#elif MAUI
+#else
+using System;
+using System.Collections.Generic;
+#endif
+
+#if MAUI
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Controls.Xaml;
 #elif XAMARIN
@@ -34,7 +33,7 @@ namespace HexInnovation;
 #endif
 public sealed class ConvertExtension
 #if WPF
-    : MarkupExtension
+    : MultiBinding
 #else
     : IMarkupExtension<BindingBase>
 #endif
@@ -71,7 +70,13 @@ public sealed class ConvertExtension
     /// </summary>
     public ConvertExtension()
     {
+#if WPF
+        Converter = DefaultConverter;
+        Mode = BindingMode.OneWay;
+        _binding = this;
+#else
         _binding = new MultiBinding { Converter = DefaultConverter, Mode = BindingMode.OneWay };
+#endif
     }
 
 
@@ -85,120 +90,6 @@ public sealed class ConvertExtension
     {
         Expression = expression;
     }
-
-    /// <summary>
-    /// Update type
-    /// </summary>
-    [DefaultValue(UpdateSourceTrigger.PropertyChanged)]
-    public UpdateSourceTrigger UpdateSourceTrigger
-    {
-        get => _binding.UpdateSourceTrigger;
-        set => _binding.UpdateSourceTrigger = value;
-    }
-
-    /// <summary>
-    /// Raise SourceUpdated event whenever a value flows from target to source
-    /// </summary>
-    [DefaultValue(false)]
-    public bool NotifyOnSourceUpdated
-    {
-        get => _binding.NotifyOnSourceUpdated;
-        set => _binding.NotifyOnSourceUpdated = value;
-    }
-
-    /// <summary>
-    /// Raise TargetUpdated event whenever a value flows from source to target
-    /// </summary>
-    [DefaultValue(false)]
-    public bool NotifyOnTargetUpdated
-    {
-        get => _binding.NotifyOnTargetUpdated;
-        set => _binding.NotifyOnTargetUpdated = value;
-    }
-
-    /// <summary>
-    /// Raise ValidationError event whenever there is a ValidationError on Update
-    /// </summary>
-    [DefaultValue(false)]
-    public bool NotifyOnValidationError
-    {
-        get => _binding.NotifyOnValidationError;
-        set => _binding.NotifyOnValidationError = value;
-    }
-
-    /// <summary>
-    /// Converter to convert the source values to the target value
-    /// </summary>
-    public MathConverter Converter
-    {
-        get => _binding.Converter as MathConverter;
-        set => _binding.Converter = value;
-    }
-
-    /// <summary>
-    /// Culture in which to evaluate the converter
-    /// </summary>
-    [DefaultValue(null)]
-    [TypeConverter(typeof(CultureInfoIetfLanguageTagConverter))]
-    public CultureInfo ConverterCulture
-    {
-        get => _binding.ConverterCulture;
-        set => _binding.ConverterCulture = value;
-    }
-
-    /// <summary>
-    ///     <see cref="Collection&lt;ValidationRule&gt;"/> is a collection of <see cref="ValidationRule"/>
-    ///     instances on this MultiBinding. Each of the rules is checked for validity on update
-    /// </summary>
-    public Collection<ValidationRule> ValidationRules => _binding.ValidationRules;
-
-
-    /// <summary>
-    /// True if an exception during source updates should be considered a validation error.
-    /// </summary>
-    [DefaultValue(false)]
-    public bool ValidatesOnExceptions
-    {
-        get => _binding.ValidatesOnExceptions;
-        set => _binding.ValidatesOnExceptions = value;
-    }
-
-    /// <summary>
-    /// True if a data error in the source item should be considered a validation error.
-    /// </summary>
-    [DefaultValue(false)]
-    public bool ValidatesOnDataErrors
-    {
-        get => _binding.ValidatesOnDataErrors;
-        set => _binding.ValidatesOnDataErrors = value;
-    }
-
-    /// <summary>
-    /// True if a data error from INotifyDataErrorInfo source item should be considered a validation error.
-    /// </summary>
-    [DefaultValue(true)]
-    public bool ValidatesOnNotifyDataErrors
-    {
-        get => _binding.ValidatesOnDataErrors;
-        set => _binding.ValidatesOnDataErrors = value;
-    }
-
-    /// <summary>
-    /// Name of the <see cref="BindingGroup"/> this binding should join.
-    /// </summary>
-    [DefaultValue("")]
-    public string BindingGroupName
-    {
-        get => _binding.BindingGroupName;
-        set => _binding.BindingGroupName = value;
-    }
-
-
-    /// <summary>
-    /// Return the value to set on the property for the target for this
-    /// binding.
-    /// </summary>
-    public sealed override object ProvideValue(IServiceProvider serviceProvider) => _binding.ProvideValue(serviceProvider);
 #else
     /// <summary>
     /// Returns a MultiBinding with a x<see cref="MathConverter"/> to convert the value as specified.
@@ -221,11 +112,16 @@ public sealed class ConvertExtension
     [DefaultValue(null)]
     public string Expression
     {
+#if WPF
+        get => ConverterParameter as string;
+        set => ConverterParameter = value;
+#else
         get => _binding.ConverterParameter as string;
         set => _binding.ConverterParameter = value;
+#endif
     }
 
-
+#if !WPF
     /// <summary>
     ///     Value to use when source cannot provide a value
     /// </summary>
@@ -248,25 +144,29 @@ public sealed class ConvertExtension
         get => _binding.TargetNullValue;
         set => _binding.TargetNullValue = value;
     }
-
+#endif
 
     private void SetBinding(int index, BindingBase binding)
     {
-        while (_binding.Bindings.Count < index)
-            _binding.Bindings.Add(unsetValueBinding);
+        while (Bindings.Count < index)
+            Bindings.Add(unsetValueBinding);
 
-        if (_binding.Bindings.Count == index)
-            _binding.Bindings.Add(binding);
+        if (Bindings.Count == index)
+            Bindings.Add(binding);
         else
-            _binding.Bindings[index] = binding;
+            Bindings[index] = binding;
     }
+
+#if !WPF
+    private IList<BindingBase> Bindings => _binding.Bindings;
+#endif
 
     /// <summary>
     /// The first variable (accessed by [0] or x)
     /// </summary>
     public BindingBase x
     {
-        get => _binding.Bindings[0];
+        get => Bindings[0];
         set => SetBinding(0, value);
     }
     /// <summary>
@@ -274,7 +174,7 @@ public sealed class ConvertExtension
     /// </summary>
     public BindingBase y
     {
-        get => _binding.Bindings[1];
+        get => Bindings[1];
         set => SetBinding(1, value);
     }
     /// <summary>
@@ -282,16 +182,15 @@ public sealed class ConvertExtension
     /// </summary>
     public BindingBase z
     {
-        get => _binding.Bindings[2];
+        get => Bindings[2];
         set => SetBinding(2, value);
     }
-
     /// <summary>
     /// The fourth variable (accessed by [3])
     /// </summary>
     public BindingBase Var3
     {
-        get => _binding.Bindings[3];
+        get => Bindings[3];
         set => SetBinding(3, value);
     }
     /// <summary>
@@ -299,7 +198,7 @@ public sealed class ConvertExtension
     /// </summary>
     public BindingBase Var4
     {
-        get => _binding.Bindings[4];
+        get => Bindings[4];
         set => SetBinding(4, value);
     }
     /// <summary>
@@ -307,7 +206,7 @@ public sealed class ConvertExtension
     /// </summary>
     public BindingBase Var5
     {
-        get => _binding.Bindings[5];
+        get => Bindings[5];
         set => SetBinding(5, value);
     }
     /// <summary>
@@ -315,7 +214,7 @@ public sealed class ConvertExtension
     /// </summary>
     public BindingBase Var6
     {
-        get => _binding.Bindings[6];
+        get => Bindings[6];
         set => SetBinding(6, value);
     }
     /// <summary>
@@ -323,7 +222,7 @@ public sealed class ConvertExtension
     /// </summary>
     public BindingBase Var7
     {
-        get => _binding.Bindings[7];
+        get => Bindings[7];
         set => SetBinding(7, value);
     }
     /// <summary>
@@ -331,7 +230,7 @@ public sealed class ConvertExtension
     /// </summary>
     public BindingBase Var8
     {
-        get => _binding.Bindings[8];
+        get => Bindings[8];
         set => SetBinding(8, value);
     }
     /// <summary>
@@ -339,7 +238,7 @@ public sealed class ConvertExtension
     /// </summary>
     public BindingBase Var9
     {
-        get => _binding.Bindings[9];
+        get => Bindings[9];
         set => SetBinding(9, value);
     }
 }
