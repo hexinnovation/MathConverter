@@ -4,6 +4,8 @@
   <PropertyGroup>
     <LangVersion>10.0</LangVersion>
     <RootNamespace>HexInnovation</RootNamespace>
+    <SignAssembly>True</SignAssembly>
+    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)StrongNamedAssemblyKey.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <ItemGroup>
