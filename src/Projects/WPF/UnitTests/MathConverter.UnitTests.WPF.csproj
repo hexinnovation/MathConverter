@@ -11,8 +11,23 @@
 
   <ItemGroup>
     <ProjectReference Include="..\App\MathConverter.WPF.csproj" />
-    <PackageReference Include="NUnit" Version="3.13.3" />
   </ItemGroup>
+
+  <Choose>
+    <When Condition="$(TargetFramework.StartsWith('net3')) Or $(TargetFramework.StartsWith('netcoreapp')) Or $(TargetFramework.StartsWith('net5'))">
+      <ItemGroup>
+        <PackageReference Include="NUnit" Version="3.14.0" />
+      </ItemGroup>
+    </When>
+    <Otherwise>
+      <PropertyGroup>
+        <DefineConstants>$(DefineConstants);NUNIT4</DefineConstants>
+      </PropertyGroup>
+      <ItemGroup>
+        <PackageReference Include="NUnit" Version="4.0.1" />
+      </ItemGroup>
+    </Otherwise>
+  </Choose>
 
   <Choose>
     <When Condition="'$(TargetFramework)' == 'netcoreapp3.0'">
@@ -23,7 +38,7 @@
     </When>
     <Otherwise>
       <ItemGroup>
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.0" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
         <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
       </ItemGroup>
     </Otherwise>

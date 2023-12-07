@@ -1,19 +1,16 @@
 ﻿using Android.App;
-using Android.Content.PM;
 using Android.OS;
+using Android.Runtime;
 using MSTestX;
 
 namespace MathConverter.UnitTests.Android
 {
-    [Activity(Name = "MathConverter.RunTestsActivity", Label = "MathConverter.UnitTests", Icon = "@mipmap/ic_launcher", Theme = "@style/AppTheme", MainLauncher = true, ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation)]
+    [Activity(Label = "MathConverter.UnitTests", Theme = "@style/AppTheme", MainLauncher = true)]
     public class MainActivity : TestRunnerActivity
     {
-        protected override void OnCreate(Bundle bundle)
+        protected override void OnCreate(Bundle savedInstanceState)
         {
-            TabLayoutResource = Resource.Layout.tab_bar;
-            ToolbarResource = Resource.Layout.tool_bar;
-
-            base.OnCreate(bundle);
+            base.OnCreate(savedInstanceState);
         }
     }
 }

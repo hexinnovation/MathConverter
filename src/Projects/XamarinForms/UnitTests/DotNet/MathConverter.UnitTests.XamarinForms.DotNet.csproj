@@ -1,8 +1,8 @@
 ﻿<Project Sdk="MSBuild.Sdk.Extras/3.0.44">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp2.0;netcoreapp3.0;netcoreapp3.1;net5.0</TargetFrameworks>
-    <TargetFrameworks Condition="'$(MSBuildRuntimeType)' != 'Mono'">$(TargetFrameworks);net6.0;net7.0;</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.0;netcoreapp3.1;net5.0</TargetFrameworks>
+    <TargetFrameworks Condition="'$(MSBuildRuntimeType)' != 'Mono'">$(TargetFrameworks);net6.0;net7.0;net8.0</TargetFrameworks>
     <AssemblyName>MathConverter.UnitTests</AssemblyName>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <IsPackable>false</IsPackable>
@@ -11,16 +11,25 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\App\MathConverter.XamarinForms.csproj" />
-    <PackageReference Include="NUnit" Version="3.13.3" />
   </ItemGroup>
-  
+
   <Choose>
-    <When Condition="$(TargetFramework.StartsWith('netcoreapp2'))">
+    <When Condition="$(TargetFramework.StartsWith('netcoreapp')) Or $(TargetFramework.StartsWith('net5'))">
       <ItemGroup>
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" />
-        <PackageReference Include="NUnit3TestAdapter" Version="3.15.1" />
+        <PackageReference Include="NUnit" Version="3.14.0" />
       </ItemGroup>
     </When>
+    <Otherwise>
+      <PropertyGroup>
+        <DefineConstants>$(DefineConstants);NUNIT4</DefineConstants>
+      </PropertyGroup>
+      <ItemGroup>
+        <PackageReference Include="NUnit" Version="4.0.1" />
+      </ItemGroup>
+    </Otherwise>
+  </Choose>
+
+  <Choose>
     <When Condition="'$(TargetFramework)' == 'netcoreapp3.0'">
       <ItemGroup>
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.3.3" />
@@ -29,7 +38,7 @@
     </When>
     <Otherwise>
       <ItemGroup>
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.1" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
         <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
       </ItemGroup>
     </Otherwise>

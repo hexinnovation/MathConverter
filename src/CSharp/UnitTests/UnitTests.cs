@@ -8,7 +8,11 @@ using TestClassAttribute = NUnit.Framework.TestFixtureAttribute;
 using TestInitializeAttribute = NUnit.Framework.SetUpAttribute;
 using TestMethodAttribute = NUnit.Framework.TestAttribute;
 using Assert = HexInnovation.MyAssert;
+#if NUNIT4
+using NUnitAssert = NUnit.Framework.Legacy.ClassicAssert;
+#else
 using NUnitAssert = NUnit.Framework.Assert;
+#endif
 #elif XUNIT
 using TestMethod = Xunit.FactAttribute;
 using Assert = HexInnovation.MyAssert;
@@ -1090,7 +1094,7 @@ namespace HexInnovation
 
             Assert.AreEqual((Flags)Letters.A, MathConverter.ConvertType(Letters.A, typeof(Flags)));
 
-            foreach (var input in new object[] { DateTime.Now, 3.0 })
+            foreach (var input in new object[] { DateTime.Now, new object() })
             {
                 Assert.AreEqual(input, MathConverter.ConvertType(input, typeof(Flags)));
             }
