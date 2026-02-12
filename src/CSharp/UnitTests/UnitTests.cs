@@ -93,7 +93,7 @@ namespace HexInnovation
         public void TestUnaryPlusAndMinus()
         {
             const double x = 3;
-            var args = new object[] { x };
+            object[] args = [x];
 
             Assert.AreEqual(+4*+x, _converter.Convert(args, typeof(object), "+4*+x", new CultureInfo("de")));
             Assert.AreEqual(+4*(+x), _converter.Convert(args, typeof(object), "+4(+x)", new CultureInfo("de")));
@@ -107,7 +107,7 @@ namespace HexInnovation
             Assert.AreEqual(+4*Math.Pow(x, 3), _converter.Convert(args, typeof(object), "+4x3", new CultureInfo("de")));
             try
             {
-                _converter.Convert(new object[0], typeof(object), "x++x", new CultureInfo("de"));
+                _converter.Convert([], typeof(object), "x++x", new CultureInfo("de"));
                 Assert.Fail("The ++ operator should is not supported, so this statement should throw an exception.");
             }
             catch (Exception ex) when (ex is { InnerException: ParsingException { Message: { } message } } && message.Contains("The ++ operator is not supported.")) { }
@@ -124,7 +124,7 @@ namespace HexInnovation
             Assert.AreEqual(-4*Math.Pow(x, 3), _converter.Convert(args, typeof(object), "-4x3", new CultureInfo("de")));
             try
             {
-                _converter.Convert(new object[0], typeof(object), "4--x", new CultureInfo("de"));
+                _converter.Convert([], typeof(object), "4--x", new CultureInfo("de"));
                 Assert.Fail("The -- operator should is not supported, so this statement should throw an exception.");
             }
             catch (Exception ex) when (ex is { InnerException: ParsingException { Message: { } message } } && message.Contains("The -- operator is not supported.")) { }
@@ -135,10 +135,10 @@ namespace HexInnovation
         [TestMethod]
         public void TestCommonTypes()
         {
-            Assert.AreEqual(new CornerRadius(1, 2, 3, 4), _converter.Convert(new object[] { 1, 2, 3, 4 }, typeof(CornerRadius), null, new CultureInfo("de")));
-            Assert.AreEqual(new CornerRadius(1, 2, 3, 4), _converter.Convert(new object[] { 1, 2, 3, 4 }, typeof(CornerRadius), "x,y,z,[3]", new CultureInfo("de")));
-            Assert.AreEqual(new CornerRadius(1, 2, 3, 4), _converter.Convert(new object[] { 1, 2, 3, 4 }, typeof(CornerRadius), "1,2,3,4", new CultureInfo("de")));
-            Assert.AreEqual(new CornerRadius(1, 2, 3, 4), _converter.Convert(new object[] { 1, 2, 3, 4 }, typeof(CornerRadius), "`1,2,3,4`", new CultureInfo("de")));
+            Assert.AreEqual(new CornerRadius(1, 2, 3, 4), _converter.Convert([1, 2, 3, 4], typeof(CornerRadius), null, new CultureInfo("de")));
+            Assert.AreEqual(new CornerRadius(1, 2, 3, 4), _converter.Convert([1, 2, 3, 4], typeof(CornerRadius), "x,y,z,[3]", new CultureInfo("de")));
+            Assert.AreEqual(new CornerRadius(1, 2, 3, 4), _converter.Convert([1, 2, 3, 4], typeof(CornerRadius), "1,2,3,4", new CultureInfo("de")));
+            Assert.AreEqual(new CornerRadius(1, 2, 3, 4), _converter.Convert([1, 2, 3, 4], typeof(CornerRadius), "`1,2,3,4`", new CultureInfo("de")));
 
 #if WPF
             var pixel = GridUnitType.Pixel;
@@ -146,64 +146,64 @@ namespace HexInnovation
             var pixel = GridUnitType.Absolute;
 #endif
 
-            Assert.AreEqual(new GridLength(1, pixel), _converter.Convert(new object[] { 1 }, typeof(GridLength), "x", new CultureInfo("de")));
-            Assert.AreEqual(new GridLength(1, pixel), _converter.Convert(new object[] { 1 }, typeof(GridLength), null, new CultureInfo("de")));
-            Assert.AreEqual(new GridLength(1, GridUnitType.Star), _converter.Convert(new object[] { 1 }, typeof(GridLength), "$`{x}*`", new CultureInfo("de")));
-            Assert.AreEqual(new GridLength(1, GridUnitType.Star), _converter.Convert(new object[0], typeof(GridLength), "`1*`", new CultureInfo("de")));
+            Assert.AreEqual(new GridLength(1, pixel), _converter.Convert([1], typeof(GridLength), "x", new CultureInfo("de")));
+            Assert.AreEqual(new GridLength(1, pixel), _converter.Convert([1], typeof(GridLength), null, new CultureInfo("de")));
+            Assert.AreEqual(new GridLength(1, GridUnitType.Star), _converter.Convert([1], typeof(GridLength), "$`{x}*`", new CultureInfo("de")));
+            Assert.AreEqual(new GridLength(1, GridUnitType.Star), _converter.Convert([], typeof(GridLength), "`1*`", new CultureInfo("de")));
 
-            Assert.AreEqual(new Thickness(1), _converter.Convert(new object[] { 1 }, typeof(Thickness), "x", new CultureInfo("de")));
-            Assert.AreEqual(new Thickness(1), _converter.Convert(new object[] { 1 }, typeof(Thickness), "1", new CultureInfo("de")));
-            Assert.AreEqual(new Thickness(1), _converter.Convert(new object[] { 1 }, typeof(Thickness), null, new CultureInfo("de")));
-            Assert.AreEqual(new Thickness(1, 2, 1, 2), _converter.Convert(new object[] { 1, 2 }, typeof(Thickness), "x;y;x;y", new CultureInfo("de")));
-            Assert.AreEqual(new Thickness(1, 2, 1, 2), _converter.Convert(new object[] { 1, 2 }, typeof(Thickness), "x,y,x,y", new CultureInfo("de")));
-            Assert.AreEqual(new Thickness(1, 2, 1, 2), _converter.Convert(new object[] { 1, 2 }, typeof(Thickness), "x,y;x,y", new CultureInfo("de")));
-            Assert.AreEqual(new Thickness(1, 2, 1, 2), _converter.Convert(new object[] { 1, 2 }, typeof(Thickness), "x;y", new CultureInfo("de")));
-            Assert.AreEqual(new Thickness(1, 2, 1, 2), _converter.Convert(new object[] { 1, 2 }, typeof(Thickness), "x,y", new CultureInfo("de")));
-            Assert.AreEqual(new Thickness(1, 2, 1, 2), _converter.Convert(new object[] { 1, 2 }, typeof(Thickness), "1;2;1;2", new CultureInfo("de")));
-            Assert.AreEqual(new Thickness(1, 2, 1, 2), _converter.Convert(new object[] { 1, 2 }, typeof(Thickness), "1,2,1,2", new CultureInfo("de")));
-            Assert.AreEqual(new Thickness(1, 2, 1, 2), _converter.Convert(new object[] { 1, 2 }, typeof(Thickness), "1,2;1,2", new CultureInfo("de")));
-            Assert.AreEqual(new Thickness(1, 2, 1, 2), _converter.Convert(new object[] { 1, 2 }, typeof(Thickness), "1;2", new CultureInfo("de")));
-            Assert.AreEqual(new Thickness(1, 2, 1, 2), _converter.Convert(new object[] { 1, 2 }, typeof(Thickness), "1,2", new CultureInfo("de")));
-            Assert.AreEqual(new Thickness(1, 2, 1, 2), _converter.Convert(new object[] { 1, 2 }, typeof(Thickness), null, new CultureInfo("de")));
-            Assert.AreEqual(new Thickness(1, 2, 3, 4), _converter.Convert(new object[] { 1, 2, 3, 4 }, typeof(Thickness), "x;y;z;[3]", new CultureInfo("de")));
-            Assert.AreEqual(new Thickness(1, 2, 3, 4), _converter.Convert(new object[] { 1, 2, 3, 4 }, typeof(Thickness), "x,y,z,[3]", new CultureInfo("de")));
-            Assert.AreEqual(new Thickness(1, 2, 3, 4), _converter.Convert(new object[] { 1, 2, 3, 4 }, typeof(Thickness), "x,y;z,4", new CultureInfo("de")));
-            Assert.AreEqual(new Thickness(1, 2, 3, 4), _converter.Convert(new object[] { 1, 2, 3, 4 }, typeof(Thickness), "1;2;3;4", new CultureInfo("de")));
-            Assert.AreEqual(new Thickness(1, 2, 3, 4), _converter.Convert(new object[] { 1, 2, 3, 4 }, typeof(Thickness), "1,2,3,4", new CultureInfo("de")));
-            Assert.AreEqual(new Thickness(1, 2, 3, 4), _converter.Convert(new object[] { 1, 2, 3, 4 }, typeof(Thickness), "1,2;3,4", new CultureInfo("de")));
-            Assert.AreEqual(new Thickness(1, 2, 3, 4), _converter.Convert(new object[] { 1, 2, 3, 4 }, typeof(Thickness), null, new CultureInfo("de")));
-            Assert.AreEqual(new Thickness(1, 2, 1, 2), _converter.Convert(new object[0], typeof(Thickness), "`1,2,1,2`", new CultureInfo("de")));
-            Assert.AreEqual(new Thickness(1, 2, 1, 2), _converter.Convert(new object[0], typeof(Thickness), "`1,2`", new CultureInfo("de")));
+            Assert.AreEqual(new Thickness(1), _converter.Convert([1], typeof(Thickness), "x", new CultureInfo("de")));
+            Assert.AreEqual(new Thickness(1), _converter.Convert([1], typeof(Thickness), "1", new CultureInfo("de")));
+            Assert.AreEqual(new Thickness(1), _converter.Convert([1], typeof(Thickness), null, new CultureInfo("de")));
+            Assert.AreEqual(new Thickness(1, 2, 1, 2), _converter.Convert([1, 2], typeof(Thickness), "x;y;x;y", new CultureInfo("de")));
+            Assert.AreEqual(new Thickness(1, 2, 1, 2), _converter.Convert([1, 2], typeof(Thickness), "x,y,x,y", new CultureInfo("de")));
+            Assert.AreEqual(new Thickness(1, 2, 1, 2), _converter.Convert([1, 2], typeof(Thickness), "x,y;x,y", new CultureInfo("de")));
+            Assert.AreEqual(new Thickness(1, 2, 1, 2), _converter.Convert([1, 2], typeof(Thickness), "x;y", new CultureInfo("de")));
+            Assert.AreEqual(new Thickness(1, 2, 1, 2), _converter.Convert([1, 2], typeof(Thickness), "x,y", new CultureInfo("de")));
+            Assert.AreEqual(new Thickness(1, 2, 1, 2), _converter.Convert([1, 2], typeof(Thickness), "1;2;1;2", new CultureInfo("de")));
+            Assert.AreEqual(new Thickness(1, 2, 1, 2), _converter.Convert([1, 2], typeof(Thickness), "1,2,1,2", new CultureInfo("de")));
+            Assert.AreEqual(new Thickness(1, 2, 1, 2), _converter.Convert([1, 2], typeof(Thickness), "1,2;1,2", new CultureInfo("de")));
+            Assert.AreEqual(new Thickness(1, 2, 1, 2), _converter.Convert([1, 2], typeof(Thickness), "1;2", new CultureInfo("de")));
+            Assert.AreEqual(new Thickness(1, 2, 1, 2), _converter.Convert([1, 2], typeof(Thickness), "1,2", new CultureInfo("de")));
+            Assert.AreEqual(new Thickness(1, 2, 1, 2), _converter.Convert([1, 2], typeof(Thickness), null, new CultureInfo("de")));
+            Assert.AreEqual(new Thickness(1, 2, 3, 4), _converter.Convert([1, 2, 3, 4], typeof(Thickness), "x;y;z;[3]", new CultureInfo("de")));
+            Assert.AreEqual(new Thickness(1, 2, 3, 4), _converter.Convert([1, 2, 3, 4], typeof(Thickness), "x,y,z,[3]", new CultureInfo("de")));
+            Assert.AreEqual(new Thickness(1, 2, 3, 4), _converter.Convert([1, 2, 3, 4], typeof(Thickness), "x,y;z,4", new CultureInfo("de")));
+            Assert.AreEqual(new Thickness(1, 2, 3, 4), _converter.Convert([1, 2, 3, 4], typeof(Thickness), "1;2;3;4", new CultureInfo("de")));
+            Assert.AreEqual(new Thickness(1, 2, 3, 4), _converter.Convert([1, 2, 3, 4], typeof(Thickness), "1,2,3,4", new CultureInfo("de")));
+            Assert.AreEqual(new Thickness(1, 2, 3, 4), _converter.Convert([1, 2, 3, 4], typeof(Thickness), "1,2;3,4", new CultureInfo("de")));
+            Assert.AreEqual(new Thickness(1, 2, 3, 4), _converter.Convert([1, 2, 3, 4], typeof(Thickness), null, new CultureInfo("de")));
+            Assert.AreEqual(new Thickness(1, 2, 1, 2), _converter.Convert([], typeof(Thickness), "`1,2,1,2`", new CultureInfo("de")));
+            Assert.AreEqual(new Thickness(1, 2, 1, 2), _converter.Convert([], typeof(Thickness), "`1,2`", new CultureInfo("de")));
 
-            Assert.AreEqual(new Rect(1, 2, 3, 4), _converter.Convert(new object[] { 1, 2, 3, 4 }, typeof(Rect), "x;y;z;[3]", new CultureInfo("de")));
-            Assert.AreEqual(new Rect(1, 2, 3, 4), _converter.Convert(new object[] { 1, 2, 3, 4 }, typeof(Rect), "x,y,z,[3]", new CultureInfo("de")));
-            Assert.AreEqual(new Rect(1, 2, 3, 4), _converter.Convert(new object[] { 1, 2, 3, 4 }, typeof(Rect), "x,y;z,4", new CultureInfo("de")));
-            Assert.AreEqual(new Rect(1, 2, 3, 4), _converter.Convert(new object[] { 1, 2, 3, 4 }, typeof(Rect), "1;2;3;4", new CultureInfo("de")));
-            Assert.AreEqual(new Rect(1, 2, 3, 4), _converter.Convert(new object[] { 1, 2, 3, 4 }, typeof(Rect), "1,2,3,4", new CultureInfo("de")));
-            Assert.AreEqual(new Rect(1, 2, 3, 4), _converter.Convert(new object[] { 1, 2, 3, 4 }, typeof(Rect), "1,2;3,4", new CultureInfo("de")));
-            Assert.AreEqual(new Rect(1, 2, 3, 4), _converter.Convert(new object[] { 1, 2, 3, 4 }, typeof(Rect), null, new CultureInfo("de")));
-            Assert.AreEqual(new Rect(1, 2, 3, 4), _converter.Convert(new object[] { 1, 2, 3, 4 }, typeof(Rect), "`1,2,3,4`", new CultureInfo("de")));
+            Assert.AreEqual(new Rect(1, 2, 3, 4), _converter.Convert([1, 2, 3, 4], typeof(Rect), "x;y;z;[3]", new CultureInfo("de")));
+            Assert.AreEqual(new Rect(1, 2, 3, 4), _converter.Convert([1, 2, 3, 4], typeof(Rect), "x,y,z,[3]", new CultureInfo("de")));
+            Assert.AreEqual(new Rect(1, 2, 3, 4), _converter.Convert([1, 2, 3, 4], typeof(Rect), "x,y;z,4", new CultureInfo("de")));
+            Assert.AreEqual(new Rect(1, 2, 3, 4), _converter.Convert([1, 2, 3, 4], typeof(Rect), "1;2;3;4", new CultureInfo("de")));
+            Assert.AreEqual(new Rect(1, 2, 3, 4), _converter.Convert([1, 2, 3, 4], typeof(Rect), "1,2,3,4", new CultureInfo("de")));
+            Assert.AreEqual(new Rect(1, 2, 3, 4), _converter.Convert([1, 2, 3, 4], typeof(Rect), "1,2;3,4", new CultureInfo("de")));
+            Assert.AreEqual(new Rect(1, 2, 3, 4), _converter.Convert([1, 2, 3, 4], typeof(Rect), null, new CultureInfo("de")));
+            Assert.AreEqual(new Rect(1, 2, 3, 4), _converter.Convert([1, 2, 3, 4], typeof(Rect), "`1,2,3,4`", new CultureInfo("de")));
 
-            Assert.AreEqual(new Size(1, 2), _converter.Convert(new object[] { 1, 2 }, typeof(Size), "x;y", new CultureInfo("de")));
-            Assert.AreEqual(new Size(1, 2), _converter.Convert(new object[] { 1, 2 }, typeof(Size), "x,y", new CultureInfo("de")));
-            Assert.AreEqual(new Size(1, 2), _converter.Convert(new object[] { 1, 2 }, typeof(Size), "1;2", new CultureInfo("de")));
-            Assert.AreEqual(new Size(1, 2), _converter.Convert(new object[] { 1, 2 }, typeof(Size), "1,2", new CultureInfo("de")));
-            Assert.AreEqual(new Size(1, 2), _converter.Convert(new object[] { 1, 2 }, typeof(Size), null, new CultureInfo("de")));
-            Assert.AreEqual(new Size(1, 2), _converter.Convert(new object[] { 1, 2 }, typeof(Size), "`1,2`", new CultureInfo("de")));
+            Assert.AreEqual(new Size(1, 2), _converter.Convert([1, 2], typeof(Size), "x;y", new CultureInfo("de")));
+            Assert.AreEqual(new Size(1, 2), _converter.Convert([1, 2], typeof(Size), "x,y", new CultureInfo("de")));
+            Assert.AreEqual(new Size(1, 2), _converter.Convert([1, 2], typeof(Size), "1;2", new CultureInfo("de")));
+            Assert.AreEqual(new Size(1, 2), _converter.Convert([1, 2], typeof(Size), "1,2", new CultureInfo("de")));
+            Assert.AreEqual(new Size(1, 2), _converter.Convert([1, 2], typeof(Size), null, new CultureInfo("de")));
+            Assert.AreEqual(new Size(1, 2), _converter.Convert([1, 2], typeof(Size), "`1,2`", new CultureInfo("de")));
 
-            Assert.AreEqual(new Point(1, 2), _converter.Convert(new object[] { 1, 2 }, typeof(Point), "x;y", new CultureInfo("de")));
-            Assert.AreEqual(new Point(1, 2), _converter.Convert(new object[] { 1, 2 }, typeof(Point), "x,y", new CultureInfo("de")));
-            Assert.AreEqual(new Point(1, 2), _converter.Convert(new object[] { 1, 2 }, typeof(Point), "1;2", new CultureInfo("de")));
-            Assert.AreEqual(new Point(1, 2), _converter.Convert(new object[] { 1, 2 }, typeof(Point), "1,2", new CultureInfo("de")));
-            Assert.AreEqual(new Point(1, 2), _converter.Convert(new object[] { 1, 2 }, typeof(Point), null, new CultureInfo("de")));
+            Assert.AreEqual(new Point(1, 2), _converter.Convert([1, 2], typeof(Point), "x;y", new CultureInfo("de")));
+            Assert.AreEqual(new Point(1, 2), _converter.Convert([1, 2], typeof(Point), "x,y", new CultureInfo("de")));
+            Assert.AreEqual(new Point(1, 2), _converter.Convert([1, 2], typeof(Point), "1;2", new CultureInfo("de")));
+            Assert.AreEqual(new Point(1, 2), _converter.Convert([1, 2], typeof(Point), "1,2", new CultureInfo("de")));
+            Assert.AreEqual(new Point(1, 2), _converter.Convert([1, 2], typeof(Point), null, new CultureInfo("de")));
 
-            Assert.IsTrue((bool)_converter.Convert(new object[] { true }, typeof(bool), null, new CultureInfo("de")));
-            Assert.IsFalse((bool)_converter.Convert(new object[] { false }, typeof(bool), null, new CultureInfo("de")));
-            Assert.IsTrue((bool)_converter.Convert(new object[0], typeof(bool), "true", new CultureInfo("de")));
-            Assert.IsFalse((bool)_converter.Convert(new object[0], typeof(bool), "false", new CultureInfo("de")));
+            Assert.IsTrue((bool)_converter.Convert([true], typeof(bool), null, new CultureInfo("de")));
+            Assert.IsFalse((bool)_converter.Convert([false], typeof(bool), null, new CultureInfo("de")));
+            Assert.IsTrue((bool)_converter.Convert([], typeof(bool), "true", new CultureInfo("de")));
+            Assert.IsFalse((bool)_converter.Convert([], typeof(bool), "false", new CultureInfo("de")));
 
 #if WPF
-            Assert.AreEqual(Geometry.Parse("M 0,0 L 100,100 L 100,0 Z").ToString(), _converter.Convert(new object[0], typeof(Geometry), "`M 0,0 L 100,100 L 100,0 Z`", new CultureInfo("de")).ToString());
+            Assert.AreEqual(Geometry.Parse("M 0,0 L 100,100 L 100,0 Z").ToString(), _converter.Convert([], typeof(Geometry), "`M 0,0 L 100,100 L 100,0 Z`", new CultureInfo("de")).ToString());
 #endif
         }
         [TestMethod]
@@ -220,7 +220,7 @@ namespace HexInnovation
         {
             foreach (var culture in new CultureInfo[] { CultureInfo.InvariantCulture, new CultureInfo("de") })
             {
-                foreach (var args in new object[] { new object[0], new object[] { 3 }, new object[] { null, 7 } })
+                foreach (var args in new object[][] { [], [3], [null, 7] })
                 {
                     Assert.AreEqual(4.63, _converter.Convert(args, typeof(double), "4.63", culture));
                     Assert.AreEqual(-4.63, _converter.Convert(args, typeof(double), "-4.63", culture));
@@ -254,7 +254,7 @@ namespace HexInnovation
         {
             foreach (var culture in new CultureInfo[] { CultureInfo.InvariantCulture, new CultureInfo("de") })
             {
-                foreach (var args in new object[] { new object[0], new object[] { 3 }, new object[] { null, 7 } })
+                foreach (var args in new object[][] { [], [3], [null, 7] })
                 {
                     Assert.AreEqual(Math.E, _converter.Convert(args, typeof(object), "e", culture));
 
@@ -271,7 +271,7 @@ namespace HexInnovation
         {
             foreach (var culture in new CultureInfo[] { CultureInfo.InvariantCulture, new CultureInfo("de") })
             {
-                foreach (var args in new object[] { new object[0], new object[] { 3 }, new object[] { null, 7 } })
+                foreach (var args in new object[][] { [], [3], [null, 7] })
                 {
                     Assert.IsFalse((bool)_converter.Convert(args, typeof(bool), "!true", culture));
                     Assert.IsTrue((bool)_converter.Convert(args, typeof(bool), "!!true", culture));
@@ -286,23 +286,23 @@ namespace HexInnovation
         {
             foreach (var culture in new CultureInfo[] { CultureInfo.InvariantCulture, new CultureInfo("de") })
             {
-                Assert.IsNull(_converter.Convert(new object[] { null }, typeof(double), "x", culture));
-                Assert.IsNull(_converter.Convert(new object[] { null }, typeof(float), "x", culture));
-                Assert.AreEqual(3.0, (double)_converter.Convert(new object[] { 3 }, typeof(double), "x", culture));
-                Assert.AreEqual(0, (int)_converter.Convert(new object[] { 0, 1, 2, 3, 4, 5, 6 }, typeof(int), "x", culture));
-                Assert.AreEqual(0, (int)_converter.Convert(new object[] { 0, 1, 2, 3, 4, 5, 6 }, typeof(int), "[0]", culture));
-                Assert.AreEqual(1, (int)_converter.Convert(new object[] { 0, 1, 2, 3, 4, 5, 6 }, typeof(int), "y", culture));
-                Assert.AreEqual(1, (int)_converter.Convert(new object[] { 0, 1, 2, 3, 4, 5, 6 }, typeof(int), "[1]", culture));
-                Assert.AreEqual(2, (int)_converter.Convert(new object[] { 0, 1, 2, 3, 4, 5, 6 }, typeof(int), "z", culture));
-                Assert.AreEqual(2, (int)_converter.Convert(new object[] { 0, 1, 2, 3, 4, 5, 6 }, typeof(int), "[2]", culture));
-                Assert.AreEqual(3, (int)_converter.Convert(new object[] { 0, 1, 2, 3, 4, 5, 6 }, typeof(int), "[3]", culture));
-                Assert.AreEqual(4, (int)_converter.Convert(new object[] { 0, 1, 2, 3, 4, 5, 6 }, typeof(int), "[4]", culture));
-                Assert.AreEqual(5, (int)_converter.Convert(new object[] { 0, 1, 2, 3, 4, 5, 6 }, typeof(int), "[5]", culture));
-                Assert.AreEqual(6, (int)_converter.Convert(new object[] { 0, 1, 2, 3, 4, 5, 6 }, typeof(int), "[6]", culture));
+                Assert.IsNull(_converter.Convert([null], typeof(double), "x", culture));
+                Assert.IsNull(_converter.Convert([null], typeof(float), "x", culture));
+                Assert.AreEqual(3.0, (double)_converter.Convert([3], typeof(double), "x", culture));
+                Assert.AreEqual(0, (int)_converter.Convert([0, 1, 2, 3, 4, 5, 6], typeof(int), "x", culture));
+                Assert.AreEqual(0, (int)_converter.Convert([0, 1, 2, 3, 4, 5, 6], typeof(int), "[0]", culture));
+                Assert.AreEqual(1, (int)_converter.Convert([0, 1, 2, 3, 4, 5, 6], typeof(int), "y", culture));
+                Assert.AreEqual(1, (int)_converter.Convert([0, 1, 2, 3, 4, 5, 6], typeof(int), "[1]", culture));
+                Assert.AreEqual(2, (int)_converter.Convert([0, 1, 2, 3, 4, 5, 6], typeof(int), "z", culture));
+                Assert.AreEqual(2, (int)_converter.Convert([0, 1, 2, 3, 4, 5, 6], typeof(int), "[2]", culture));
+                Assert.AreEqual(3, (int)_converter.Convert([0, 1, 2, 3, 4, 5, 6], typeof(int), "[3]", culture));
+                Assert.AreEqual(4, (int)_converter.Convert([0, 1, 2, 3, 4, 5, 6], typeof(int), "[4]", culture));
+                Assert.AreEqual(5, (int)_converter.Convert([0, 1, 2, 3, 4, 5, 6], typeof(int), "[5]", culture));
+                Assert.AreEqual(6, (int)_converter.Convert([0, 1, 2, 3, 4, 5, 6], typeof(int), "[6]", culture));
 
                 try
                 {
-                    var invalid = (int)_converter.Convert(new object[] { 0, 1, 2, 3, 4, 5, 6 }, typeof(int), "[7]", culture);
+                    var invalid = (int)_converter.Convert([0, 1, 2, 3, 4, 5, 6], typeof(int), "[7]", culture);
                     Assert.Fail("Should have thrown a IndexOutOfRangeException.");
                 }
                 catch (EvaluationException ex) when (ex.InnerException.InnerException is IndexOutOfRangeException) { }
@@ -313,17 +313,17 @@ namespace HexInnovation
         {
             foreach (var culture in new CultureInfo[] { CultureInfo.InvariantCulture, new CultureInfo("de") })
             {
-                Assert.AreEqual("Hello", (string)_converter.Convert(new object[] { 3 }, typeof(string), @"""Hello""", culture));
-                Assert.AreEqual("Hello", (string)_converter.Convert(new object[] { 3 }, typeof(string), @"`Hello`", culture));
-                Assert.AreEqual("Hello", (string)_converter.Convert(new object[] { 3 }, typeof(string), @"'Hello'", culture));
-                Assert.AreEqual("H\"e'l\"l`o", (string)_converter.Convert(new object[] { 3 }, typeof(string), @"`H\""e'l""l\`o`", culture));
-                Assert.AreEqual("Hel`lo", (string)_converter.Convert(new object[] { 3 }, typeof(string), @"`Hel\`lo`", culture));
-                Assert.AreEqual("He`l'l\"o\t", (string)_converter.Convert(new object[] { 3 }, typeof(string), @"""He`l'l\""o\t""", culture));
-                Assert.AreEqual("\a\b\f\n\r\t\v\\`\"'", (string)_converter.Convert(new object[] { 3 }, typeof(string), @"""\a\b\f\n\r\t\v\\\`\""'""", culture));
+                Assert.AreEqual("Hello", (string)_converter.Convert([3], typeof(string), @"""Hello""", culture));
+                Assert.AreEqual("Hello", (string)_converter.Convert([3], typeof(string), @"`Hello`", culture));
+                Assert.AreEqual("Hello", (string)_converter.Convert([3], typeof(string), @"'Hello'", culture));
+                Assert.AreEqual("H\"e'l\"l`o", (string)_converter.Convert([3], typeof(string), @"`H\""e'l""l\`o`", culture));
+                Assert.AreEqual("Hel`lo", (string)_converter.Convert([3], typeof(string), @"`Hel\`lo`", culture));
+                Assert.AreEqual("He`l'l\"o\t", (string)_converter.Convert([3], typeof(string), @"""He`l'l\""o\t""", culture));
+                Assert.AreEqual("\a\b\f\n\r\t\v\\`\"'", (string)_converter.Convert([3], typeof(string), @"""\a\b\f\n\r\t\v\\\`\""'""", culture));
 
                 try
                 {
-                    var invalid = (int)_converter.Convert(new object[] { 0, 1, 2, 3, 4, 5, 6 }, typeof(int), "[7]", culture);
+                    var invalid = (int)_converter.Convert([0, 1, 2, 3, 4, 5, 6], typeof(int), "[7]", culture);
                     Assert.Fail("Should have thrown a IndexOutOfRangeException.");
                 }
                 catch (EvaluationException ex) when (ex.InnerException.InnerException is IndexOutOfRangeException) { }
@@ -335,14 +335,14 @@ namespace HexInnovation
             const double x = 4;
             const double y = 3;
 
-            Assert.AreEqual(Math.Pow(x, 3), (double)_converter.Convert(new object[] { x, y }, typeof(double), "x^3", new CultureInfo("de")));
-            Assert.AreEqual(Math.Pow(y, 3), (double)_converter.Convert(new object[] { x, y }, typeof(double), "y^3", new CultureInfo("de")));
-            Assert.AreEqual(Math.Pow(y, x), (double)_converter.Convert(new object[] { x, y }, typeof(double), "y^x", new CultureInfo("de")));
-            Assert.AreEqual(Math.Pow(y, x / 3), (double)_converter.Convert(new object[] { x, y }, typeof(double), "y^(x/3)", new CultureInfo("de")));
-            Assert.AreEqual(Math.Pow(y, 2), (double)_converter.Convert(new object[] { x, y }, typeof(double), "y2", new CultureInfo("de")));
-            Assert.AreEqual(Math.Pow(y, 2), (double)_converter.Convert(new object[] { x, y }, typeof(double), "y^2", new CultureInfo("de")));
-            Assert.AreEqual(Math.Pow(x, 2), (double)_converter.Convert(new object[] { x, y }, typeof(double), "x2", new CultureInfo("de")));
-            Assert.AreEqual(Math.Pow(x, 2), (double)_converter.Convert(new object[] { x, y }, typeof(double), "x^2", new CultureInfo("de")));
+            Assert.AreEqual(Math.Pow(x, 3), (double)_converter.Convert([x, y], typeof(double), "x^3", new CultureInfo("de")));
+            Assert.AreEqual(Math.Pow(y, 3), (double)_converter.Convert([x, y], typeof(double), "y^3", new CultureInfo("de")));
+            Assert.AreEqual(Math.Pow(y, x), (double)_converter.Convert([x, y], typeof(double), "y^x", new CultureInfo("de")));
+            Assert.AreEqual(Math.Pow(y, x / 3), (double)_converter.Convert([x, y], typeof(double), "y^(x/3)", new CultureInfo("de")));
+            Assert.AreEqual(Math.Pow(y, 2), (double)_converter.Convert([x, y], typeof(double), "y2", new CultureInfo("de")));
+            Assert.AreEqual(Math.Pow(y, 2), (double)_converter.Convert([x, y], typeof(double), "y^2", new CultureInfo("de")));
+            Assert.AreEqual(Math.Pow(x, 2), (double)_converter.Convert([x, y], typeof(double), "x2", new CultureInfo("de")));
+            Assert.AreEqual(Math.Pow(x, 2), (double)_converter.Convert([x, y], typeof(double), "x^2", new CultureInfo("de")));
         }
         [TestMethod]
         public void TestMultiplicative()
@@ -350,26 +350,26 @@ namespace HexInnovation
             const double x = 4;
             const double y = 3;
 
-            Assert.AreEqual(4*x*3*y, (double)_converter.Convert(new object[] { x, y }, typeof(double), "4x*3y", new CultureInfo("de")));
-            Assert.AreEqual(x*x*y, (double)_converter.Convert(new object[] { x, y }, typeof(double), "xxy", new CultureInfo("de")));
-            Assert.AreEqual(x*x*y, (double)_converter.Convert(new object[] { x, y }, typeof(double), "x*xy", new CultureInfo("de")));
-            Assert.AreEqual(x*x*y, (double)_converter.Convert(new object[] { x, y }, typeof(double), "xx*y", new CultureInfo("de")));
-            Assert.AreEqual(x*x*y, (double)_converter.Convert(new object[] { x, y }, typeof(double), "x*x*y", new CultureInfo("de")));
+            Assert.AreEqual(4*x*3*y, (double)_converter.Convert([x, y], typeof(double), "4x*3y", new CultureInfo("de")));
+            Assert.AreEqual(x*x*y, (double)_converter.Convert([x, y], typeof(double), "xxy", new CultureInfo("de")));
+            Assert.AreEqual(x*x*y, (double)_converter.Convert([x, y], typeof(double), "x*xy", new CultureInfo("de")));
+            Assert.AreEqual(x*x*y, (double)_converter.Convert([x, y], typeof(double), "xx*y", new CultureInfo("de")));
+            Assert.AreEqual(x*x*y, (double)_converter.Convert([x, y], typeof(double), "x*x*y", new CultureInfo("de")));
 
-            Assert.AreEqual(x*2*y, (double)_converter.Convert(new object[] { x, y }, typeof(double), "x(2)[1]", new CultureInfo("de")));
-            Assert.AreEqual(x*x*y, (double)_converter.Convert(new object[] { x, y }, typeof(double), "[0]x[1]", new CultureInfo("de")));
-            Assert.AreEqual(x*x*y, (double)_converter.Convert(new object[] { x, y }, typeof(double), "x*[0][1]", new CultureInfo("de")));
-            Assert.AreEqual(x*x*y, (double)_converter.Convert(new object[] { x, y }, typeof(double), "[0][0]*[1]", new CultureInfo("de")));
-            Assert.AreEqual(x*x*y, (double)_converter.Convert(new object[] { x, y }, typeof(double), "x*x*[1]", new CultureInfo("de")));
+            Assert.AreEqual(x*2*y, (double)_converter.Convert([x, y], typeof(double), "x(2)[1]", new CultureInfo("de")));
+            Assert.AreEqual(x*x*y, (double)_converter.Convert([x, y], typeof(double), "[0]x[1]", new CultureInfo("de")));
+            Assert.AreEqual(x*x*y, (double)_converter.Convert([x, y], typeof(double), "x*[0][1]", new CultureInfo("de")));
+            Assert.AreEqual(x*x*y, (double)_converter.Convert([x, y], typeof(double), "[0][0]*[1]", new CultureInfo("de")));
+            Assert.AreEqual(x*x*y, (double)_converter.Convert([x, y], typeof(double), "x*x*[1]", new CultureInfo("de")));
 
-            Assert.AreEqual(x*2*y*2, (double)_converter.Convert(new object[] { x, y }, typeof(double), "x(2)*y(2)", new CultureInfo("de")));
-            Assert.AreEqual(x*x*y*y, (double)_converter.Convert(new object[] { x, y }, typeof(double), "xx*yy", new CultureInfo("de")));
-            Assert.AreEqual(x*x*x%y, (double)_converter.Convert(new object[] { x, y }, typeof(double), "xxx%y", new CultureInfo("de")));
-            Assert.AreEqual(x*x*x%y*x, (double)_converter.Convert(new object[] { x, y }, typeof(double), "xxx%yx", new CultureInfo("de")));
-            Assert.AreEqual(x%y, (double)_converter.Convert(new object[] { x, y }, typeof(double), "x%y", new CultureInfo("de")));
-            Assert.AreEqual(y%x, (double)_converter.Convert(new object[] { x, y }, typeof(double), "y%x", new CultureInfo("de")));
-            Assert.AreEqual(y/x, (double)_converter.Convert(new object[] { x, y }, typeof(double), "y/x", new CultureInfo("de")));
-            Assert.AreEqual(y/y*x%y, (double)_converter.Convert(new object[] { x, y }, typeof(double), "y/yx%y", new CultureInfo("de")));
+            Assert.AreEqual(x*2*y*2, (double)_converter.Convert([x, y], typeof(double), "x(2)*y(2)", new CultureInfo("de")));
+            Assert.AreEqual(x*x*y*y, (double)_converter.Convert([x, y], typeof(double), "xx*yy", new CultureInfo("de")));
+            Assert.AreEqual(x*x*x%y, (double)_converter.Convert([x, y], typeof(double), "xxx%y", new CultureInfo("de")));
+            Assert.AreEqual(x*x*x%y*x, (double)_converter.Convert([x, y], typeof(double), "xxx%yx", new CultureInfo("de")));
+            Assert.AreEqual(x%y, (double)_converter.Convert([x, y], typeof(double), "x%y", new CultureInfo("de")));
+            Assert.AreEqual(y%x, (double)_converter.Convert([x, y], typeof(double), "y%x", new CultureInfo("de")));
+            Assert.AreEqual(y/x, (double)_converter.Convert([x, y], typeof(double), "y/x", new CultureInfo("de")));
+            Assert.AreEqual(y/y*x%y, (double)_converter.Convert([x, y], typeof(double), "y/yx%y", new CultureInfo("de")));
         }
         [TestMethod]
         public void TestAdditive()
@@ -377,10 +377,10 @@ namespace HexInnovation
             const double x = 4;
             const double y = 3;
 
-            Assert.AreEqual(x+x+y, (double)_converter.Convert(new object[] { x, y }, typeof(double), "x+x+y", new CultureInfo("de")));
-            Assert.AreEqual(x+x-y, (double)_converter.Convert(new object[] { x, y }, typeof(double), "x+x-y", new CultureInfo("de")));
-            Assert.AreEqual(x-x-y, (double)_converter.Convert(new object[] { x, y }, typeof(double), "x-x-y", new CultureInfo("de")));
-            Assert.AreEqual(x-x+y, (double)_converter.Convert(new object[] { x, y }, typeof(double), "x-x+y", new CultureInfo("de")));
+            Assert.AreEqual(x+x+y, (double)_converter.Convert([x, y], typeof(double), "x+x+y", new CultureInfo("de")));
+            Assert.AreEqual(x+x-y, (double)_converter.Convert([x, y], typeof(double), "x+x-y", new CultureInfo("de")));
+            Assert.AreEqual(x-x-y, (double)_converter.Convert([x, y], typeof(double), "x-x-y", new CultureInfo("de")));
+            Assert.AreEqual(x-x+y, (double)_converter.Convert([x, y], typeof(double), "x-x+y", new CultureInfo("de")));
         }
         [TestMethod]
         public void TestRelational()
@@ -388,18 +388,18 @@ namespace HexInnovation
             const double x = 4;
             const double y = 3;
 
-            Assert.AreEqual(x<x, (bool)_converter.Convert(new object[] { x, y }, typeof(bool), "x<x", new CultureInfo("de")));
-            Assert.AreEqual(x<=x, (bool)_converter.Convert(new object[] { x, y }, typeof(bool), "x<=x", new CultureInfo("de")));
-            Assert.AreEqual(x>x, (bool)_converter.Convert(new object[] { x, y }, typeof(bool), "x>x", new CultureInfo("de")));
-            Assert.AreEqual(x>=x, (bool)_converter.Convert(new object[] { x, y }, typeof(bool), "x>=x", new CultureInfo("de")));
-            Assert.AreEqual(x<y, (bool)_converter.Convert(new object[] { x, y }, typeof(bool), "x<y", new CultureInfo("de")));
-            Assert.AreEqual(x<=y, (bool)_converter.Convert(new object[] { x, y }, typeof(bool), "x<=y", new CultureInfo("de")));
-            Assert.AreEqual(x>y, (bool)_converter.Convert(new object[] { x, y }, typeof(bool), "x>y", new CultureInfo("de")));
-            Assert.AreEqual(x>=y, (bool)_converter.Convert(new object[] { x, y }, typeof(bool), "x>=y", new CultureInfo("de")));
-            Assert.AreEqual(y<y, (bool)_converter.Convert(new object[] { x, y }, typeof(bool), "y<y", new CultureInfo("de")));
-            Assert.AreEqual(y<=y, (bool)_converter.Convert(new object[] { x, y }, typeof(bool), "y<=y", new CultureInfo("de")));
-            Assert.AreEqual(y>y, (bool)_converter.Convert(new object[] { x, y }, typeof(bool), "y>y", new CultureInfo("de")));
-            Assert.AreEqual(y>=y, (bool)_converter.Convert(new object[] { x, y }, typeof(bool), "y>=y", new CultureInfo("de")));
+            Assert.AreEqual(x<x, (bool)_converter.Convert([x, y], typeof(bool), "x<x", new CultureInfo("de")));
+            Assert.AreEqual(x<=x, (bool)_converter.Convert([x, y], typeof(bool), "x<=x", new CultureInfo("de")));
+            Assert.AreEqual(x>x, (bool)_converter.Convert([x, y], typeof(bool), "x>x", new CultureInfo("de")));
+            Assert.AreEqual(x>=x, (bool)_converter.Convert([x, y], typeof(bool), "x>=x", new CultureInfo("de")));
+            Assert.AreEqual(x<y, (bool)_converter.Convert([x, y], typeof(bool), "x<y", new CultureInfo("de")));
+            Assert.AreEqual(x<=y, (bool)_converter.Convert([x, y], typeof(bool), "x<=y", new CultureInfo("de")));
+            Assert.AreEqual(x>y, (bool)_converter.Convert([x, y], typeof(bool), "x>y", new CultureInfo("de")));
+            Assert.AreEqual(x>=y, (bool)_converter.Convert([x, y], typeof(bool), "x>=y", new CultureInfo("de")));
+            Assert.AreEqual(y<y, (bool)_converter.Convert([x, y], typeof(bool), "y<y", new CultureInfo("de")));
+            Assert.AreEqual(y<=y, (bool)_converter.Convert([x, y], typeof(bool), "y<=y", new CultureInfo("de")));
+            Assert.AreEqual(y>y, (bool)_converter.Convert([x, y], typeof(bool), "y>y", new CultureInfo("de")));
+            Assert.AreEqual(y>=y, (bool)_converter.Convert([x, y], typeof(bool), "y>=y", new CultureInfo("de")));
         }
         [TestMethod]
         public void TestEquality()
@@ -407,22 +407,22 @@ namespace HexInnovation
             object x = 4;
             object y = 3;
 
-            Assert.AreEqual(x==x, (bool)_converter.Convert(new object[] { x, y }, typeof(bool), "x==x", new CultureInfo("de")));
-            Assert.AreEqual(x!=x, (bool)_converter.Convert(new object[] { x, y }, typeof(bool), "x!=x", new CultureInfo("de")));
-            Assert.AreEqual(x==y, (bool)_converter.Convert(new object[] { x, y }, typeof(bool), "x==y", new CultureInfo("de")));
-            Assert.AreEqual(x!=y, (bool)_converter.Convert(new object[] { x, y }, typeof(bool), "x!=y", new CultureInfo("de")));
-            Assert.AreEqual(y==y, (bool)_converter.Convert(new object[] { x, y }, typeof(bool), "y==y", new CultureInfo("de")));
-            Assert.AreEqual(y!=y, (bool)_converter.Convert(new object[] { x, y }, typeof(bool), "y!=y", new CultureInfo("de")));
+            Assert.AreEqual(x==x, (bool)_converter.Convert([x, y], typeof(bool), "x==x", new CultureInfo("de")));
+            Assert.AreEqual(x!=x, (bool)_converter.Convert([x, y], typeof(bool), "x!=x", new CultureInfo("de")));
+            Assert.AreEqual(x==y, (bool)_converter.Convert([x, y], typeof(bool), "x==y", new CultureInfo("de")));
+            Assert.AreEqual(x!=y, (bool)_converter.Convert([x, y], typeof(bool), "x!=y", new CultureInfo("de")));
+            Assert.AreEqual(y==y, (bool)_converter.Convert([x, y], typeof(bool), "y==y", new CultureInfo("de")));
+            Assert.AreEqual(y!=y, (bool)_converter.Convert([x, y], typeof(bool), "y!=y", new CultureInfo("de")));
 
             x = "x";
             y = "y";
 
-            Assert.AreEqual(x==x, (bool)_converter.Convert(new object[] { x, y }, typeof(bool), "x==x", new CultureInfo("de")));
-            Assert.AreEqual(x!=x, (bool)_converter.Convert(new object[] { x, y }, typeof(bool), "x!=x", new CultureInfo("de")));
-            Assert.AreEqual(x==y, (bool)_converter.Convert(new object[] { x, y }, typeof(bool), "x==y", new CultureInfo("de")));
-            Assert.AreEqual(x!=y, (bool)_converter.Convert(new object[] { x, y }, typeof(bool), "x!=y", new CultureInfo("de")));
-            Assert.AreEqual(y==y, (bool)_converter.Convert(new object[] { x, y }, typeof(bool), "y==y", new CultureInfo("de")));
-            Assert.AreEqual(y!=y, (bool)_converter.Convert(new object[] { x, y }, typeof(bool), "y!=y", new CultureInfo("de")));
+            Assert.AreEqual(x==x, (bool)_converter.Convert([x, y], typeof(bool), "x==x", new CultureInfo("de")));
+            Assert.AreEqual(x!=x, (bool)_converter.Convert([x, y], typeof(bool), "x!=x", new CultureInfo("de")));
+            Assert.AreEqual(x==y, (bool)_converter.Convert([x, y], typeof(bool), "x==y", new CultureInfo("de")));
+            Assert.AreEqual(x!=y, (bool)_converter.Convert([x, y], typeof(bool), "x!=y", new CultureInfo("de")));
+            Assert.AreEqual(y==y, (bool)_converter.Convert([x, y], typeof(bool), "y==y", new CultureInfo("de")));
+            Assert.AreEqual(y!=y, (bool)_converter.Convert([x, y], typeof(bool), "y!=y", new CultureInfo("de")));
         }
         [TestMethod]
         public void TestAnd()
@@ -430,9 +430,9 @@ namespace HexInnovation
             var x = true;
             var y = false;
 
-            Assert.AreEqual(x&&x, (bool)_converter.Convert(new object[] { x, y }, typeof(bool), "x&&x", new CultureInfo("de")));
-            Assert.AreEqual(x&&y, (bool)_converter.Convert(new object[] { x, y }, typeof(bool), "x&&y", new CultureInfo("de")));
-            Assert.AreEqual(y&&y, (bool)_converter.Convert(new object[] { x, y }, typeof(bool), "y&&y", new CultureInfo("de")));
+            Assert.AreEqual(x&&x, (bool)_converter.Convert([x, y], typeof(bool), "x&&x", new CultureInfo("de")));
+            Assert.AreEqual(x&&y, (bool)_converter.Convert([x, y], typeof(bool), "x&&y", new CultureInfo("de")));
+            Assert.AreEqual(y&&y, (bool)_converter.Convert([x, y], typeof(bool), "y&&y", new CultureInfo("de")));
         }
         [TestMethod]
         public void TestOr()
@@ -440,9 +440,9 @@ namespace HexInnovation
             var x = true;
             var y = false;
 
-            Assert.AreEqual(x||x, (bool)_converter.Convert(new object[] { x, y }, typeof(bool), "x||x", new CultureInfo("de")));
-            Assert.AreEqual(x||y, (bool)_converter.Convert(new object[] { x, y }, typeof(bool), "x||y", new CultureInfo("de")));
-            Assert.AreEqual(y||y, (bool)_converter.Convert(new object[] { x, y }, typeof(bool), "y||y", new CultureInfo("de")));
+            Assert.AreEqual(x||x, (bool)_converter.Convert([x, y], typeof(bool), "x||x", new CultureInfo("de")));
+            Assert.AreEqual(x||y, (bool)_converter.Convert([x, y], typeof(bool), "x||y", new CultureInfo("de")));
+            Assert.AreEqual(y||y, (bool)_converter.Convert([x, y], typeof(bool), "y||y", new CultureInfo("de")));
         }
         [TestMethod]
         public void TestNullCoalescing()
@@ -450,11 +450,11 @@ namespace HexInnovation
             int? x = null;
             var y = 3;
 
-            Assert.AreEqual(x ?? x, (int?)_converter.Convert(new object[] { x, y }, typeof(int?), "x??x", new CultureInfo("de")));
-            Assert.AreEqual(x ?? y, (int?)_converter.Convert(new object[] { x, y }, typeof(int?), "x??y", new CultureInfo("de")));
-            Assert.AreEqual(y, (int?)_converter.Convert(new object[] { x, y }, typeof(int?), "y??x", new CultureInfo("de")));
-            Assert.AreEqual(y, (int?)_converter.Convert(new object[] { x, y }, typeof(int?), "y??y", new CultureInfo("de")));
-            Assert.AreEqual(4, (int?)_converter.Convert(new object[] { x, y }, typeof(int?), "null??4", new CultureInfo("de")));
+            Assert.AreEqual(x ?? x, (int?)_converter.Convert([x, y], typeof(int?), "x??x", new CultureInfo("de")));
+            Assert.AreEqual(x ?? y, (int?)_converter.Convert([x, y], typeof(int?), "x??y", new CultureInfo("de")));
+            Assert.AreEqual(y, (int?)_converter.Convert([x, y], typeof(int?), "y??x", new CultureInfo("de")));
+            Assert.AreEqual(y, (int?)_converter.Convert([x, y], typeof(int?), "y??y", new CultureInfo("de")));
+            Assert.AreEqual(4, (int?)_converter.Convert([x, y], typeof(int?), "null??4", new CultureInfo("de")));
         }
         [TestMethod]
         public void TestTernary()
@@ -462,15 +462,15 @@ namespace HexInnovation
             int? x = 1;
             var y = 3;
 
-            Assert.AreEqual(true ? true ? 1.0 : 0 : 0, _converter.Convert(new object[0], typeof(object), "true ? true?1:0 : 0", new CultureInfo("de")));
-            Assert.AreEqual(true ? x : y, (int?)_converter.Convert(new object[] { x, y }, typeof(int?), "true ? x : y", new CultureInfo("de")));
-            Assert.AreEqual(false ? x : y, (int?)_converter.Convert(new object[] { x, y }, typeof(int?), "false ? x : y", new CultureInfo("de")));
-            Assert.AreEqual(true ? y : x, (int?)_converter.Convert(new object[] { x, y }, typeof(int?), "true ? y : x", new CultureInfo("de")));
-            Assert.AreEqual(false ? y : x, (int?)_converter.Convert(new object[] { x, y }, typeof(int?), "false ? y : x", new CultureInfo("de")));
+            Assert.AreEqual(true ? true ? 1.0 : 0 : 0, _converter.Convert([], typeof(object), "true ? true?1:0 : 0", new CultureInfo("de")));
+            Assert.AreEqual(true ? x : y, (int?)_converter.Convert([x, y], typeof(int?), "true ? x : y", new CultureInfo("de")));
+            Assert.AreEqual(false ? x : y, (int?)_converter.Convert([x, y], typeof(int?), "false ? x : y", new CultureInfo("de")));
+            Assert.AreEqual(true ? y : x, (int?)_converter.Convert([x, y], typeof(int?), "true ? y : x", new CultureInfo("de")));
+            Assert.AreEqual(false ? y : x, (int?)_converter.Convert([x, y], typeof(int?), "false ? y : x", new CultureInfo("de")));
 
             try
             {
-                _converter.Convert(new object[] { BindableProperty.UnsetValue }, typeof(int?), "x ? true : false", new CultureInfo("de"));
+                _converter.Convert([BindableProperty.UnsetValue], typeof(int?), "x ? true : false", new CultureInfo("de"));
 
 #if WPF
                 var dependencyPropertyClass = nameof(DependencyProperty);
@@ -487,18 +487,18 @@ namespace HexInnovation
         {
             foreach (var culture in new[] {CultureInfo.InvariantCulture, new CultureInfo("de")})
             {
-                Assert.AreEqual("x", _converter.Convert(new object[0], null, "\"x\"", culture));
-                Assert.AreEqual($"hello", _converter.Convert(new object[0], null, "$\"hello\"", culture));
-                Assert.AreEqual(0.0, _converter.Convert(new object[0], null, "0", culture));
-                Assert.AreEqual(true, _converter.Convert(new object[0], null, "true", culture));
-                Assert.AreEqual(null, _converter.Convert(new object[0], null, "null", culture));
+                Assert.AreEqual("x", _converter.Convert([], null, "\"x\"", culture));
+                Assert.AreEqual($"hello", _converter.Convert([], null, "$\"hello\"", culture));
+                Assert.AreEqual(0.0, _converter.Convert([], null, "0", culture));
+                Assert.AreEqual(true, _converter.Convert([], null, "true", culture));
+                Assert.AreEqual(null, _converter.Convert([], null, "null", culture));
             }
         }
 #if WPF
         [TestMethod]
         public void TestGeometry()
         {
-            var geometry = _converter.Convert(new object[] {100}, typeof(Geometry), "$`M{x},{x}L{2x},{2x}`", CultureInfo.InvariantCulture);
+            var geometry = _converter.Convert([100], typeof(Geometry), "$`M{x},{x}L{2x},{2x}`", CultureInfo.InvariantCulture);
             Assert.IsInstanceOfType(geometry, typeof(Geometry));
 
             if (geometry is Geometry geom)
@@ -514,7 +514,7 @@ namespace HexInnovation
                 Assert.Fail("MathConverter was expected to return a StreamGeometry when converting to Geometry.");
             }
 
-            Assert.IsInstanceOfType(_converter.Convert(new object[] { 100 }, typeof(Geometry), "$`M {0.1x},{x} C {x/10},{3x} {3x},-{4x/2} {3*x},{x}`", CultureInfo.InvariantCulture), typeof(Geometry));
+            Assert.IsInstanceOfType(_converter.Convert([100], typeof(Geometry), "$`M {0.1x},{x} C {x/10},{3x} {3x},-{4x/2} {3*x},{x}`", CultureInfo.InvariantCulture), typeof(Geometry));
         }
 #endif
         [TestMethod]
@@ -528,7 +528,7 @@ namespace HexInnovation
                 // The idea here is to test equations that would either have different values or would throw an exception if the operators were applied in the wrong order.
                 // And we test to make sure they're evaluated the same way as C#.
 
-                var args = new object[] { x, y, z };
+                object[] args = [x, y, z];
 
                 // ?? applied before ?:
                 Assert.AreEqual(x.Value ? y ?? x : z ?? (object)3.0, _converter.Convert(args, typeof(object), "x ? y ?? x : z ?? 3.0", new CultureInfo("de")));
@@ -660,7 +660,7 @@ namespace HexInnovation
                 double x2 = x * x;
                 double y = 2.0;
                 bool? z = true;
-                object[] args = { x, y, z };
+                object[] args = [x, y, z];
                 // ^ applied before ?:
                 Assert.AreEqual(true ? 0.0 : x2, _converter.Convert(args, typeof(object), "true ? 0.0 : x2", new CultureInfo("de")));
                 Assert.AreEqual(true ? 0.0 : x2, _converter.Convert(args, typeof(object), "true ? 0.0 : x^2", new CultureInfo("de")));
@@ -762,7 +762,7 @@ namespace HexInnovation
                 Assert.AreEqual((true ? false : true) || true, _converter.Convert(args, typeof(object), "(true ? false : true) || true", new CultureInfo("de")));
 
                 z = null;
-                args = new object[] { x, y, z };
+                args = [x, y, z];
                 // parentheses before ??
                 Assert.AreEqual(true ? null : (object)z ?? x, _converter.Convert(args, typeof(object), "true ? null : z ?? x", new CultureInfo("de")));
                 Assert.AreEqual((true ? null : (object)z) ?? x, _converter.Convert(args, typeof(object), "(true ? null : z) ?? x", new CultureInfo("de")));
@@ -781,7 +781,7 @@ namespace HexInnovation
         {
             double x = 1.25;
             double y = 2.15;
-            var args = new object[] { x, y };
+            object[] args = [x, y];
             var nill = new double?();
 
             Assert.AreEqual($"{(true?x:0):0}", _converter.Convert(args, typeof(object), "$`{(true?x:0):0}`", new CultureInfo("de")));
@@ -803,7 +803,7 @@ namespace HexInnovation
 
             // The following example comes from https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/tokens/interpolated
             const double speedOfLight = 299792.458;
-            args = new object[] { speedOfLight };
+            args = [speedOfLight];
             Assert.AreEqual($"The speed of light is {speedOfLight.ToString("N3", new CultureInfo("nl-NL"))} km/s.", _converter.Convert(args, typeof(object), @"$`The speed of light is {x:N3} km/s.`", new CultureInfo("nl-NL")));
             Assert.AreEqual($"The speed of light is {speedOfLight.ToString("N3", new CultureInfo("en-IN"))} km/s.", _converter.Convert(args, typeof(object), @"$`The speed of light is {x:N3} km/s.`", new CultureInfo("en-IN")));
             Assert.AreEqual($"The speed of light is {speedOfLight.ToString("N3", CultureInfo.InvariantCulture)} km/s.", _converter.Convert(args, typeof(object), @"$`The speed of light is {x:N3} km/s.`", CultureInfo.InvariantCulture));
@@ -835,53 +835,53 @@ namespace HexInnovation
             now = (DateTime)_converter.Convert(null, typeof(object), "Now()", new CultureInfo("de"));
             Assert.AreEqual(0, (now - DateTime.Now).TotalMilliseconds, allowWithinMillis);
 
-            Assert.AreEqual(3, _converter.Convert(new object[] { null, 3, 5 }, typeof(object), "IsNull(x,y)", new CultureInfo("de")));
-            Assert.AreEqual(5, _converter.Convert(new object[] { null, 3, 5 }, typeof(object), "IsNull(x,z)", new CultureInfo("de")));
-            Assert.AreEqual(5, _converter.Convert(new object[] { null, 3, 5 }, typeof(object), "IfNull(x,z)", new CultureInfo("de")));
-            Assert.AreEqual(3, _converter.Convert(new object[] { null, 3, 5 }, typeof(object), "IfNull(y,z)", new CultureInfo("de")));
-            Assert.IsNull(_converter.Convert(new object[] { null, 3, 5 }, typeof(object), "IfNull(x,x)", new CultureInfo("de")));
-            Assert.AreEqual(3, _converter.Convert(new object[] { null, 3, 5 }, typeof(object), "IfNull(x,IfNull(x??y,z))", new CultureInfo("de")));
-            Assert.AreEqual(3, _converter.Convert(new object[] { null, 3, 5 }, typeof(object), "IfNull(y,Throw(`If the first argument is not null, the second should not be evaluated.`))", new CultureInfo("de")));
-            Assert.AreEqual(5, _converter.Convert(new object[] { null, 3, 5 }, typeof(object), "Max(x;y;x;z)", new CultureInfo("de")));
-            Assert.AreEqual(5, _converter.Convert(new object[] { null, 3, 5 }, typeof(object), "Max(y;z;z;x;y;y;z)", new CultureInfo("de")));
-            Assert.AreEqual(100.0, _converter.Convert(new object[] { null, 3, 5 }, typeof(object), "Max(y;z;100)", new CultureInfo("de")));
-            Assert.AreEqual(0.0, _converter.Convert(new object[] { null, 3, 5 }, typeof(object), "Min(y;z;100;0)", new CultureInfo("de")));
-            Assert.AreEqual(3, _converter.Convert(new object[] { null, 3, 5 }, typeof(object), "Min(y;z;100)", new CultureInfo("de")));
-            Assert.AreEqual(3, _converter.Convert(new object[] { null, 3, 5 }, typeof(object), "Min(null,y;z;100)", new CultureInfo("de")));
-            Assert.AreEqual(null, _converter.Convert(new object[] { null, 3, 5 }, typeof(object), "Min(null,x)", new CultureInfo("de")));
-            Assert.AreEqual(4.0, _converter.Convert(new object[] { null, 3, 5 }, typeof(object), "Avg(y;z)", new CultureInfo("de")));
-            Assert.AreEqual(4.666666666666, (double)_converter.Convert(new object[] { null, 3, 5 }, typeof(object), "Avg(y;z;6)", new CultureInfo("de")), 0.00000001);
-            Assert.AreEqual(4.0, _converter.Convert(new object[] { null, 3, 5 }, typeof(object), "Avg(x;y;z)", new CultureInfo("de")));
-            Assert.AreEqual("35", _converter.Convert(new object[] { null, 3, 5 }, typeof(object), "Concat(x;y;z)", new CultureInfo("de")));
-            Assert.AreEqual("3x5", _converter.Convert(new object[] { null, 3, 5 }, typeof(object), "Concat(x;y;\"x\";z)", new CultureInfo("de")));
-            Assert.AreEqual("Hello, World!, ", _converter.Convert(new object[] { "Hello", "World!" }, typeof(object), "Join(', ', x, y, null)", new CultureInfo("de")));
-            Assert.AreEqual("Hello, World!, ", _converter.Convert(new object[] { new object[] { "Hello", "World!", null } }, typeof(object), "Join(', ', x)", new CultureInfo("de")));
-            Assert.AreEqual(true, _converter.Convert(new object[] { "Hello world", "Hello" }, typeof(object), "Contains(\"Hello world\", `Hello`)", new CultureInfo("de")));
-            Assert.AreEqual(true, _converter.Convert(new object[] { "Hello world", "Hello" }, typeof(object), "Contains(\"Hello world\", y)", new CultureInfo("de")));
-            Assert.AreEqual(true, _converter.Convert(new object[] { "Hello world", "Hello" }, typeof(object), "Contains(x, `Hello`)", new CultureInfo("de")));
-            Assert.AreEqual(true, _converter.Convert(new object[] { "Hello world", "Hello" }, typeof(object), "Contains(x, y)", new CultureInfo("de")));
-            Assert.AreEqual(false, _converter.Convert(new object[] { "Hello world", "hello" }, typeof(object), "Contains(\"Hello world\", `hello`)", new CultureInfo("de")));
-            Assert.AreEqual(false, _converter.Convert(new object[] { "Hello world", "hello" }, typeof(object), "Contains(\"Hello world\", y)", new CultureInfo("de")));
-            Assert.AreEqual(false, _converter.Convert(new object[] { "Hello world", "hello" }, typeof(object), "Contains(x, `hello`)", new CultureInfo("de")));
-            Assert.AreEqual(false, _converter.Convert(new object[] { "Hello world", "hello" }, typeof(object), "Contains(x, y)", new CultureInfo("de")));
+            Assert.AreEqual(3, _converter.Convert([null, 3, 5], typeof(object), "IsNull(x,y)", new CultureInfo("de")));
+            Assert.AreEqual(5, _converter.Convert([null, 3, 5], typeof(object), "IsNull(x,z)", new CultureInfo("de")));
+            Assert.AreEqual(5, _converter.Convert([null, 3, 5], typeof(object), "IfNull(x,z)", new CultureInfo("de")));
+            Assert.AreEqual(3, _converter.Convert([null, 3, 5], typeof(object), "IfNull(y,z)", new CultureInfo("de")));
+            Assert.IsNull(_converter.Convert([null, 3, 5], typeof(object), "IfNull(x,x)", new CultureInfo("de")));
+            Assert.AreEqual(3, _converter.Convert([null, 3, 5], typeof(object), "IfNull(x,IfNull(x??y,z))", new CultureInfo("de")));
+            Assert.AreEqual(3, _converter.Convert([null, 3, 5], typeof(object), "IfNull(y,Throw(`If the first argument is not null, the second should not be evaluated.`))", new CultureInfo("de")));
+            Assert.AreEqual(5, _converter.Convert([null, 3, 5], typeof(object), "Max(x;y;x;z)", new CultureInfo("de")));
+            Assert.AreEqual(5, _converter.Convert([null, 3, 5], typeof(object), "Max(y;z;z;x;y;y;z)", new CultureInfo("de")));
+            Assert.AreEqual(100.0, _converter.Convert([null, 3, 5], typeof(object), "Max(y;z;100)", new CultureInfo("de")));
+            Assert.AreEqual(0.0, _converter.Convert([null, 3, 5], typeof(object), "Min(y;z;100;0)", new CultureInfo("de")));
+            Assert.AreEqual(3, _converter.Convert([null, 3, 5], typeof(object), "Min(y;z;100)", new CultureInfo("de")));
+            Assert.AreEqual(3, _converter.Convert([null, 3, 5], typeof(object), "Min(null,y;z;100)", new CultureInfo("de")));
+            Assert.AreEqual(null, _converter.Convert([null, 3, 5], typeof(object), "Min(null,x)", new CultureInfo("de")));
+            Assert.AreEqual(4.0, _converter.Convert([null, 3, 5], typeof(object), "Avg(y;z)", new CultureInfo("de")));
+            Assert.AreEqual(4.666666666666, (double)_converter.Convert([null, 3, 5], typeof(object), "Avg(y;z;6)", new CultureInfo("de")), 0.00000001);
+            Assert.AreEqual(4.0, _converter.Convert([null, 3, 5], typeof(object), "Avg(x;y;z)", new CultureInfo("de")));
+            Assert.AreEqual("35", _converter.Convert([null, 3, 5], typeof(object), "Concat(x;y;z)", new CultureInfo("de")));
+            Assert.AreEqual("3x5", _converter.Convert([null, 3, 5], typeof(object), "Concat(x;y;\"x\";z)", new CultureInfo("de")));
+            Assert.AreEqual("Hello, World!, ", _converter.Convert(["Hello", "World!"], typeof(object), "Join(', ', x, y, null)", new CultureInfo("de")));
+            Assert.AreEqual("Hello, World!, ", _converter.Convert([new object[] { "Hello", "World!", null }], typeof(object), "Join(', ', x)", new CultureInfo("de")));
+            Assert.AreEqual(true, _converter.Convert(["Hello world", "Hello"], typeof(object), "Contains(\"Hello world\", `Hello`)", new CultureInfo("de")));
+            Assert.AreEqual(true, _converter.Convert(["Hello world", "Hello"], typeof(object), "Contains(\"Hello world\", y)", new CultureInfo("de")));
+            Assert.AreEqual(true, _converter.Convert(["Hello world", "Hello"], typeof(object), "Contains(x, `Hello`)", new CultureInfo("de")));
+            Assert.AreEqual(true, _converter.Convert(["Hello world", "Hello"], typeof(object), "Contains(x, y)", new CultureInfo("de")));
+            Assert.AreEqual(false, _converter.Convert(["Hello world", "hello"], typeof(object), "Contains(\"Hello world\", `hello`)", new CultureInfo("de")));
+            Assert.AreEqual(false, _converter.Convert(["Hello world", "hello"], typeof(object), "Contains(\"Hello world\", y)", new CultureInfo("de")));
+            Assert.AreEqual(false, _converter.Convert(["Hello world", "hello"], typeof(object), "Contains(x, `hello`)", new CultureInfo("de")));
+            Assert.AreEqual(false, _converter.Convert(["Hello world", "hello"], typeof(object), "Contains(x, y)", new CultureInfo("de")));
 
-            Assert.AreEqual(true, _converter.Convert(new object[] { new object[] { "hello", "world" } }, typeof(object), "Contains(x, `hello`)", new CultureInfo("de")));
-            Assert.AreEqual(false, _converter.Convert(new object[] { new object[] { "hello", "world" } }, typeof(object), "Contains(x, `Hello`)", new CultureInfo("de")));
+            Assert.AreEqual(true, _converter.Convert([new object[] { "hello", "world" }], typeof(object), "Contains(x, `hello`)", new CultureInfo("de")));
+            Assert.AreEqual(false, _converter.Convert([new object[] { "hello", "world" }], typeof(object), "Contains(x, `Hello`)", new CultureInfo("de")));
 
-            Assert.AreEqual(true, _converter.Convert(new object[] { "ψñíçθдë têsт", "ΨÑÍÇΘДË TÊSТ" }, typeof(object), "ToUpper(x) == y", new CultureInfo("de")));
-            Assert.AreEqual(true, _converter.Convert(new object[] { "ψñíçθдë têsт", "ΨÑÍÇΘДË TÊSТ" }, typeof(object), "ToLower(y) == x", new CultureInfo("de")));
-            Assert.AreEqual(true, _converter.Convert(new object[] { "ψñíçθдë têsт", "ΨÑÍÇΘДË TÊSТ" }, typeof(object), "ToUpper(y) == y", new CultureInfo("de")));
-            Assert.AreEqual(true, _converter.Convert(new object[] { "ψñíçθдë têsт", "ΨÑÍÇΘДË TÊSТ" }, typeof(object), "ToLower(x) == x", new CultureInfo("de")));
-            Assert.AreEqual(true, _converter.Convert(new object[] { "ψñíçθдë têsт", "ΨÑÍÇΘДË TÊSТ" }, typeof(object), "ToUpper(y) != ToLower(y)", new CultureInfo("de")));
-            Assert.AreEqual(true, _converter.Convert(new object[] { "ψñíçθдë têsт", "ΨÑÍÇΘДË TÊSТ" }, typeof(object), "ToUpper(x) != ToLower(x)", new CultureInfo("de")));
-            var possibleArgs = new object[] { new ArithmeticOperatorTester(2), new ArithmeticOperatorTester(0), false, true, null };
+            Assert.AreEqual(true, _converter.Convert(["ψñíçθдë têsт", "ΨÑÍÇΘДË TÊSТ"], typeof(object), "ToUpper(x) == y", new CultureInfo("de")));
+            Assert.AreEqual(true, _converter.Convert(["ψñíçθдë têsт", "ΨÑÍÇΘДË TÊSТ"], typeof(object), "ToLower(y) == x", new CultureInfo("de")));
+            Assert.AreEqual(true, _converter.Convert(["ψñíçθдë têsт", "ΨÑÍÇΘДË TÊSТ"], typeof(object), "ToUpper(y) == y", new CultureInfo("de")));
+            Assert.AreEqual(true, _converter.Convert(["ψñíçθдë têsт", "ΨÑÍÇΘДË TÊSТ"], typeof(object), "ToLower(x) == x", new CultureInfo("de")));
+            Assert.AreEqual(true, _converter.Convert(["ψñíçθдë têsт", "ΨÑÍÇΘДË TÊSТ"], typeof(object), "ToUpper(y) != ToLower(y)", new CultureInfo("de")));
+            Assert.AreEqual(true, _converter.Convert(["ψñíçθдë têsт", "ΨÑÍÇΘДË TÊSТ"], typeof(object), "ToUpper(x) != ToLower(x)", new CultureInfo("de")));
+            object[] possibleArgs = [new ArithmeticOperatorTester(2), new ArithmeticOperatorTester(0), false, true, null];
 
             foreach (var x in new bool[] { true, false })
             {
-                Assert.AreEqual(x, _converter.Convert(new object[] { x }, typeof(object), "And(And(true,true,true,true,true),x,true)", new CultureInfo("de")));
-                Assert.AreEqual(x, _converter.Convert(new object[] { x }, typeof(object), "Or(Or(false,false,false,false,false),x,false)", new CultureInfo("de")));
-                Assert.AreEqual(!x, _converter.Convert(new object[] { x }, typeof(object), "Nor(!Nor(false,false,false,false,false),x,false)", new CultureInfo("de")));
-                Assert.AreEqual(!x, _converter.Convert(new object[] { x }, typeof(object), "Nor(!Nor(false,false,false,false,false),x,false)", new CultureInfo("de")));
+                Assert.AreEqual(x, _converter.Convert([x], typeof(object), "And(And(true,true,true,true,true),x,true)", new CultureInfo("de")));
+                Assert.AreEqual(x, _converter.Convert([x], typeof(object), "Or(Or(false,false,false,false,false),x,false)", new CultureInfo("de")));
+                Assert.AreEqual(!x, _converter.Convert([x], typeof(object), "Nor(!Nor(false,false,false,false,false),x,false)", new CultureInfo("de")));
+                Assert.AreEqual(!x, _converter.Convert([x], typeof(object), "Nor(!Nor(false,false,false,false,false),x,false)", new CultureInfo("de")));
             }
 
             for (double x = -5; x < 5; x += 0.1)
@@ -892,38 +892,38 @@ namespace HexInnovation
 
                 // We evaluate each spelling of cos, sin, and tan. To avoid divide-by-zero errors, we do not evaluate 0.
                 // But because we're using doubles, we actually evalute -1.0269562977782698E-15, not 0
-                Assert.AreEqual(Math.Cos(x), (double)_converter.Convert(new object[] { x }, typeof(object), $"Cos(x) / Cos(x) * Cos(x)", new CultureInfo("de")), 0.00000001);
-                Assert.AreEqual(Math.Sin(x), (double)_converter.Convert(new object[] { x }, typeof(object), $"Sin(x) / Sin(x) * Sin(x)", new CultureInfo("de")), 0.00000001);
-                Assert.AreEqual(Math.Tan(x), (double)_converter.Convert(new object[] { x }, typeof(object), $"Tan(x) / Tan(x) * Tan(x)", new CultureInfo("de")), 0.00000001);
-                Assert.AreEqual(Math.Abs(x), (double)_converter.Convert(new object[] { x }, typeof(object), $"Abs(x) / Abs(x) * Abs(x)", new CultureInfo("de")), 0.00000001);
-                Assert.AreEqual(Math.Atan(x), (double)_converter.Convert(new object[] { x }, typeof(object), $"Atan(x) / Atan(x) * Atan(x)", new CultureInfo("de")), 0.00000001);
-                Assert.AreEqual(Math.Ceiling(x), (double)_converter.Convert(new object[] { x }, typeof(object), $"Ceil(x)", new CultureInfo("de")), 0.00000001);
-                Assert.AreEqual(Math.Ceiling(x), (double)_converter.Convert(new object[] { x }, typeof(object), $"Ceiling(x)", new CultureInfo("de")), 0.00000001);
-                Assert.AreEqual(Math.Floor(x), (double)_converter.Convert(new object[] { x }, typeof(object), $"Floor(x)", new CultureInfo("de")), 0.00000001);
-                Assert.AreEqual(x / Math.PI * 180, (double)_converter.Convert(new object[] { x }, typeof(object), $"Deg(x) / Degrees(x) * Deg(x)", new CultureInfo("de")), 0.00000001);
-                Assert.AreEqual(Math.Round(x), (double)_converter.Convert(new object[] { x }, typeof(object), $"Round(x)", new CultureInfo("de")), 0.00000001);
-                Assert.AreEqual(Math.Round(x, 1), (double)_converter.Convert(new object[] { x }, typeof(object), $"Round(x,1)", new CultureInfo("de")), 0.00000001);
+                Assert.AreEqual(Math.Cos(x), (double)_converter.Convert([x], typeof(object), $"Cos(x) / Cos(x) * Cos(x)", new CultureInfo("de")), 0.00000001);
+                Assert.AreEqual(Math.Sin(x), (double)_converter.Convert([x], typeof(object), $"Sin(x) / Sin(x) * Sin(x)", new CultureInfo("de")), 0.00000001);
+                Assert.AreEqual(Math.Tan(x), (double)_converter.Convert([x], typeof(object), $"Tan(x) / Tan(x) * Tan(x)", new CultureInfo("de")), 0.00000001);
+                Assert.AreEqual(Math.Abs(x), (double)_converter.Convert([x], typeof(object), $"Abs(x) / Abs(x) * Abs(x)", new CultureInfo("de")), 0.00000001);
+                Assert.AreEqual(Math.Atan(x), (double)_converter.Convert([x], typeof(object), $"Atan(x) / Atan(x) * Atan(x)", new CultureInfo("de")), 0.00000001);
+                Assert.AreEqual(Math.Ceiling(x), (double)_converter.Convert([x], typeof(object), $"Ceil(x)", new CultureInfo("de")), 0.00000001);
+                Assert.AreEqual(Math.Ceiling(x), (double)_converter.Convert([x], typeof(object), $"Ceiling(x)", new CultureInfo("de")), 0.00000001);
+                Assert.AreEqual(Math.Floor(x), (double)_converter.Convert([x], typeof(object), $"Floor(x)", new CultureInfo("de")), 0.00000001);
+                Assert.AreEqual(x / Math.PI * 180, (double)_converter.Convert([x], typeof(object), $"Deg(x) / Degrees(x) * Deg(x)", new CultureInfo("de")), 0.00000001);
+                Assert.AreEqual(Math.Round(x), (double)_converter.Convert([x], typeof(object), $"Round(x)", new CultureInfo("de")), 0.00000001);
+                Assert.AreEqual(Math.Round(x, 1), (double)_converter.Convert([x], typeof(object), $"Round(x,1)", new CultureInfo("de")), 0.00000001);
 
                 if (Math.Abs(x) <= 1)
                 {
-                    Assert.AreEqual(Math.Acos(x), (double)_converter.Convert(new object[] { x }, typeof(object), $"Acos(x) / Acos(x) * Acos(x)", new CultureInfo("de")), 0.00000001);
-                    Assert.AreEqual(Math.Asin(x), (double)_converter.Convert(new object[] { x }, typeof(object), $"Asin(x) / Asin(x) * Asin(x)", new CultureInfo("de")), 0.00000001);
+                    Assert.AreEqual(Math.Acos(x), (double)_converter.Convert([x], typeof(object), $"Acos(x) / Acos(x) * Acos(x)", new CultureInfo("de")), 0.00000001);
+                    Assert.AreEqual(Math.Asin(x), (double)_converter.Convert([x], typeof(object), $"Asin(x) / Asin(x) * Asin(x)", new CultureInfo("de")), 0.00000001);
                 }
 
                 if (x >= 0)
                 {
-                    Assert.AreEqual(Math.Sqrt(x), (double)_converter.Convert(new object[] { x }, typeof(object), $"Sqrt(x) / Sqrt(x) * Sqrt(x)", new CultureInfo("de")), 0.00000001);
+                    Assert.AreEqual(Math.Sqrt(x), (double)_converter.Convert([x], typeof(object), $"Sqrt(x) / Sqrt(x) * Sqrt(x)", new CultureInfo("de")), 0.00000001);
                 }
 
                 for (double y = -5; y < 5; y += 0.1)
                 {
-                    Assert.AreEqual(Math.Atan2(x, y), (double)_converter.Convert(new object[] { x, y }, typeof(object), $"Atan2(x,y) / ArcTan2(x,y) * Atan2(x;y)", new CultureInfo("de")));
-                    Assert.AreEqual(Math.Log(x, y), (double)_converter.Convert(new object[] { x, y }, typeof(object), $"Log(x,y) / Log(x,y) * Log(x;y)", new CultureInfo("de")));
+                    Assert.AreEqual(Math.Atan2(x, y), (double)_converter.Convert([x, y], typeof(object), $"Atan2(x,y) / ArcTan2(x,y) * Atan2(x;y)", new CultureInfo("de")));
+                    Assert.AreEqual(Math.Log(x, y), (double)_converter.Convert([x, y], typeof(object), $"Log(x,y) / Log(x,y) * Log(x;y)", new CultureInfo("de")));
                 }
 
                 foreach (var function in new string[] { "Contains", "StartsWith", "EndsWith" })
                 {
-                    foreach (var args in new[] { new object[] { "a", "a" }, new object[] { "123", 123 } })
+                    foreach (var args in new object[][] { ["a", "a"], ["123", 123] })
                     {
                         Assert.IsTrue((bool)_converter.Convert(args, typeof(object), $"{function}(x,y)", new CultureInfo("de")));
                     }
@@ -931,7 +931,7 @@ namespace HexInnovation
 
                 foreach (var function in new string[] { "Contains", "StartsWith" })
                 {
-                    foreach (var args in new[] { new object[] { "abc", "ab" }, new object[] { "123", 12 } })
+                    foreach (var args in new object[][] { ["abc", "ab"], ["123", 12] })
                     {
                         Assert.IsTrue((bool)_converter.Convert(args, typeof(object), $"{function}(x,y)", new CultureInfo("de")));
                     }
@@ -939,7 +939,7 @@ namespace HexInnovation
 
                 foreach (var function in new string[] { "Contains", "EndsWith" })
                 {
-                    foreach (var args in new[] { new object[] { "abc", "bc" }, new object[] { "123", 23 } })
+                    foreach (var args in new object[][] { ["abc", "bc"], ["123", 23] })
                     {
                         Assert.IsTrue((bool)_converter.Convert(args, typeof(object), $"{function}(x,y)", new CultureInfo("de")));
                     }
@@ -947,74 +947,74 @@ namespace HexInnovation
 
 #if WPF
                 // VisibleOrHidden and VisibleOrCollapsed are deprecated!
-                Assert.AreEqual(Visibility.Visible, _converter.Convert(new object[] { true }, typeof(object), "VisibleOrHidden(x)", new CultureInfo("de")));
-                Assert.AreEqual(Visibility.Visible, _converter.Convert(new object[] { true }, typeof(object), "VisibleOrCollapsed(x)", new CultureInfo("de")));
+                Assert.AreEqual(Visibility.Visible, _converter.Convert([true], typeof(object), "VisibleOrHidden(x)", new CultureInfo("de")));
+                Assert.AreEqual(Visibility.Visible, _converter.Convert([true], typeof(object), "VisibleOrCollapsed(x)", new CultureInfo("de")));
 
                 foreach (var arg in new object[] { false, null, "true", "false", "Hello World" })
                 {
-                    Assert.AreEqual(Visibility.Hidden, _converter.Convert(new object[] { arg }, typeof(object), "VisibleOrHidden(x)", new CultureInfo("de")));
-                    Assert.AreEqual(Visibility.Collapsed, _converter.Convert(new object[] { arg }, typeof(object), "VisibleOrCollapsed(x)", new CultureInfo("de")));
+                    Assert.AreEqual(Visibility.Hidden, _converter.Convert([arg], typeof(object), "VisibleOrHidden(x)", new CultureInfo("de")));
+                    Assert.AreEqual(Visibility.Collapsed, _converter.Convert([arg], typeof(object), "VisibleOrCollapsed(x)", new CultureInfo("de")));
                 }
 #endif
 
-                Assert.AreEqual(null, _converter.Convert(new object[] { null, 3, 5 }, typeof(object), "TryParseDouble(null)", new CultureInfo("de")));
-                Assert.AreEqual(null, _converter.Convert(new object[] { null, 3, 5 }, typeof(object), "TryParseDouble(` `)", new CultureInfo("de")));
-                Assert.AreEqual(3.425, _converter.Convert(new object[] { null, 3, 5 }, typeof(object), "TryParseDouble(`3,425`)", new CultureInfo("de")));
-                Assert.AreEqual(-3.425, _converter.Convert(new object[] { null, 3, 5 }, typeof(object), "TryParseDouble(`-3,425`)", new CultureInfo("de")));
-                Assert.AreEqual(null, _converter.Convert(new object[] { null, 3, 5 }, typeof(object), "TryParseDouble(`INVALID!`)", new CultureInfo("de")));
-                Assert.AreEqual(null, _converter.Convert(new object[] { TimeSpan.FromDays(3) }, typeof(object), "TryParseDouble(x)", new CultureInfo("de")));
+                Assert.AreEqual(null, _converter.Convert([null, 3, 5], typeof(object), "TryParseDouble(null)", new CultureInfo("de")));
+                Assert.AreEqual(null, _converter.Convert([null, 3, 5], typeof(object), "TryParseDouble(` `)", new CultureInfo("de")));
+                Assert.AreEqual(3.425, _converter.Convert([null, 3, 5], typeof(object), "TryParseDouble(`3,425`)", new CultureInfo("de")));
+                Assert.AreEqual(-3.425, _converter.Convert([null, 3, 5], typeof(object), "TryParseDouble(`-3,425`)", new CultureInfo("de")));
+                Assert.AreEqual(null, _converter.Convert([null, 3, 5], typeof(object), "TryParseDouble(`INVALID!`)", new CultureInfo("de")));
+                Assert.AreEqual(null, _converter.Convert([TimeSpan.FromDays(3)], typeof(object), "TryParseDouble(x)", new CultureInfo("de")));
 
                 Assert.AreEqual(BindableProperty.UnsetValue, _converter.Convert(null, typeof(string), "UnsetValue()", new CultureInfo("de")));
 
                 Assert.AreEqual(Binding.DoNothing, _converter.Convert(null, typeof(string), "DoNothing()", new CultureInfo("de")));
             }
 
-            Assert.AreEqual(null, _converter.Convert(new object[] { null, 3, 5.0, "Hello" }, typeof(object), "GetType(x)", new CultureInfo("de")));
-            Assert.AreEqual(typeof(int), _converter.Convert(new object[] { null, 3, 5.0, "Hello" }, typeof(object), "GetType(y)", new CultureInfo("de")));
-            Assert.AreEqual(typeof(double), _converter.Convert(new object[] { null, 3, 5.0, "Hello" }, typeof(object), "GetType(z)", new CultureInfo("de")));
-            Assert.AreEqual(typeof(string), _converter.Convert(new object[] { null, 3, 5.0, "Hello" }, typeof(object), "GetType([3])", new CultureInfo("de")));
-            Assert.AreEqual(typeof(string), _converter.Convert(new object[] { null, 3, 5.0, "Hello" }, typeof(object), "GetType(`Hello`)", new CultureInfo("de")));
-            Assert.AreEqual(typeof(DateTime), _converter.Convert(new object[] { null, 3, 5.0, "Hello" }, typeof(object), "GetType(Now())", new CultureInfo("de")));
+            Assert.AreEqual(null, _converter.Convert([null, 3, 5.0, "Hello"], typeof(object), "GetType(x)", new CultureInfo("de")));
+            Assert.AreEqual(typeof(int), _converter.Convert([null, 3, 5.0, "Hello"], typeof(object), "GetType(y)", new CultureInfo("de")));
+            Assert.AreEqual(typeof(double), _converter.Convert([null, 3, 5.0, "Hello"], typeof(object), "GetType(z)", new CultureInfo("de")));
+            Assert.AreEqual(typeof(string), _converter.Convert([null, 3, 5.0, "Hello"], typeof(object), "GetType([3])", new CultureInfo("de")));
+            Assert.AreEqual(typeof(string), _converter.Convert([null, 3, 5.0, "Hello"], typeof(object), "GetType(`Hello`)", new CultureInfo("de")));
+            Assert.AreEqual(typeof(DateTime), _converter.Convert([null, 3, 5.0, "Hello"], typeof(object), "GetType(Now())", new CultureInfo("de")));
 
-            Assert.AreEqual('x', _converter.Convert(new object[] { (int)'x', typeof(char) }, typeof(object), "ConvertType(x, y)", new CultureInfo("de")));
-            Assert.AreEqual(3, _converter.Convert(new object[] { 3.25, typeof(int) }, typeof(object), "ConvertType(x, y)", new CultureInfo("de")));
-            Assert.AreEqual(3, _converter.Convert(new object[] { 3.4999, typeof(int) }, typeof(object), "ConvertType(x, y)", new CultureInfo("de")));
-            Assert.AreEqual(4, _converter.Convert(new object[] { 3.5, typeof(int) }, typeof(object), "ConvertType(x, y)", new CultureInfo("de")));
-            Assert.AreEqual(4, _converter.Convert(new object[] { 4.4999, typeof(int) }, typeof(object), "ConvertType(x, y)", new CultureInfo("de")));
-            Assert.AreEqual(TimeSpan.FromHours(6), _converter.Convert(new object[] { "6:00:00", typeof(TimeSpan) }, typeof(object), "ConvertType(x, y)", new CultureInfo("de")));
-            Assert.AreEqual(DateTime.Parse("2022-04-24", CultureInfo.InvariantCulture), _converter.Convert(new object[] { "2022-04-24", typeof(DateTime) }, typeof(object), "ConvertType(x, y)", new CultureInfo("de")));
+            Assert.AreEqual('x', _converter.Convert([(int)'x', typeof(char)], typeof(object), "ConvertType(x, y)", new CultureInfo("de")));
+            Assert.AreEqual(3, _converter.Convert([3.25, typeof(int)], typeof(object), "ConvertType(x, y)", new CultureInfo("de")));
+            Assert.AreEqual(3, _converter.Convert([3.4999, typeof(int)], typeof(object), "ConvertType(x, y)", new CultureInfo("de")));
+            Assert.AreEqual(4, _converter.Convert([3.5, typeof(int)], typeof(object), "ConvertType(x, y)", new CultureInfo("de")));
+            Assert.AreEqual(4, _converter.Convert([4.4999, typeof(int)], typeof(object), "ConvertType(x, y)", new CultureInfo("de")));
+            Assert.AreEqual(TimeSpan.FromHours(6), _converter.Convert(["6:00:00", typeof(TimeSpan)], typeof(object), "ConvertType(x, y)", new CultureInfo("de")));
+            Assert.AreEqual(DateTime.Parse("2022-04-24", CultureInfo.InvariantCulture), _converter.Convert(["2022-04-24", typeof(DateTime)], typeof(object), "ConvertType(x, y)", new CultureInfo("de")));
             try
             {
-                _converter.Convert(new object[] { "24.04.2022", typeof(DateTime) }, typeof(object), "ConvertType(x, y)", new CultureInfo("de"));
+                _converter.Convert(["24.04.2022", typeof(DateTime)], typeof(object), "ConvertType(x, y)", new CultureInfo("de"));
                 Assert.Fail("Conversions should always happen from the because to maintain consistency when using TypeConverters.");
             }
             catch (Exception ex) when (ex is { InnerException: { InnerException: FormatException } }) { }
 
-            foreach (var x in new[] {
-                new { expectedValue = true, arguments = new object[] { OperatorTypes.Addition, "Addition" } },
-                new { expectedValue = true, arguments = new object[] { "Addition", OperatorTypes.Addition } },
-                new { expectedValue = false, arguments = new object[] { "Addition", OperatorTypes.Multiply } },
-                new { expectedValue = false, arguments = new object[] { OperatorTypes.Addition, OperatorTypes.Multiply } },
-                new { expectedValue = false, arguments = new object[] { Letters.A, Flags.A } },
-                new { expectedValue = true, arguments = new object[] { Letters.A, "A" } },
-                new { expectedValue = true, arguments = new object[] { "A", Letters.A } },
-                new { expectedValue = true, arguments = new object[] { Flags.A, "A" } },
-                new { expectedValue = true, arguments = new object[] { "A", Flags.A } },
-                new { expectedValue = true, arguments = new object[] { $"{Letters.A}", Flags.A } },
-                new { expectedValue = true, arguments = new object[] { Letters.A, $"{Flags.A}" } },
-                new { expectedValue = false, arguments = new object[] { $"{Letters.A}", $"{Flags.A}" } },
-                new { expectedValue = true, arguments = new object[] { "A,B", Flags.A | Flags.B } },
-                new { expectedValue = true, arguments = new object[] { "B,A", Flags.A | Flags.B } },
-                new { expectedValue = true, arguments = new object[] { (int)Flags.D, Flags.D } },
-                new { expectedValue = true, arguments = new object[] { (int)(Flags.D | Flags.F), Flags.F | Flags.D } },
-                new { expectedValue = true, arguments = new object[] { (int)(Flags.A | Flags.B), Flags.A | Flags.B } },
-                new { expectedValue = false, arguments = new object[] { "A", "A" } },
-                new { expectedValue = false, arguments = new object[] { false, false } },
-                new { expectedValue = false, arguments = new object[] { 3, 3 } },
-                new { expectedValue = false, arguments = new object[] { Flags.A, "Invalid Flags" } },
+            foreach (var (expectedValue, arguments) in new (bool, object[])[] {
+                (true, [OperatorTypes.Addition, "Addition"]),
+                (true, ["Addition", OperatorTypes.Addition]),
+                (false, ["Addition", OperatorTypes.Multiply]),
+                (false, [OperatorTypes.Addition, OperatorTypes.Multiply]),
+                (false, [Letters.A, Flags.A]),
+                (true, [Letters.A, "A"]),
+                (true, ["A", Letters.A]),
+                (true, [Flags.A, "A"]),
+                (true, ["A", Flags.A]),
+                (true, [$"{Letters.A}", Flags.A]),
+                (true, [Letters.A, $"{Flags.A}"]),
+                (false, [$"{Letters.A}", $"{Flags.A}"]),
+                (true, ["A,B", Flags.A | Flags.B]),
+                (true, ["B,A", Flags.A | Flags.B]),
+                (true, [(int)Flags.D, Flags.D]),
+                (true, [(int)(Flags.D | Flags.F), Flags.F | Flags.D]),
+                (true, [(int)(Flags.A | Flags.B), Flags.A | Flags.B]),
+                (false, ["A", "A"]),
+                (false, [false, false]),
+                (false, [3, 3]),
+                (false, [Flags.A, "Invalid Flags"])
             })
             {
-                Assert.AreEqual(x.expectedValue, _converter.Convert(x.arguments, typeof(object), "EnumEquals(x, y)", new CultureInfo("de")));
+                Assert.AreEqual(expectedValue, _converter.Convert(arguments, typeof(object), "EnumEquals(x, y)", new CultureInfo("de")));
             }
 
             Assert.AreEqual(1.0, _converter.Convert(typeof(Flags), typeof(object), "TryCatch(ConvertType('Invalid Flag', x), 1)", new CultureInfo("de")));
@@ -1028,7 +1028,7 @@ namespace HexInnovation
             catch (EvaluationException ex) when (ex is { InnerException: NodeEvaluationException { Node: ConvertTypeFunction } }) { }
 
             var result = new object();
-            Assert.AreEqual(result, new TryCatchFunction().Evaluate(new CultureInfo("de"), new Func<object>[] { () => result, () => throw new Exception("This will not be thrown, since the first function will not error.") }));
+            Assert.AreEqual(result, new TryCatchFunction().Evaluate(new CultureInfo("de"), [() => result, () => throw new Exception("This will not be thrown, since the first function will not error.")]));
         }
 
         [TestMethod]
@@ -1042,43 +1042,43 @@ namespace HexInnovation
 
             try
             {
-                _converter.Convert(new object[0], typeof(object), "Threearg()", new CultureInfo("de"));
+                _converter.Convert([], typeof(object), "Threearg()", new CultureInfo("de"));
                 Assert.Fail("Functions should be case-sensitive.");
             }
             catch (Exception ex) when (ex is { InnerException: ParsingException { InnerException: { Message: { } message } } } && message == "Functions are case-sensitive. \"Threearg\" is an invalid function name. Did you mean to call one of the following functions? \"ThreeArg\", \"threearg\"") { }
 
             try
             {
-                _converter.Convert(new object[0], typeof(object), "ThreeArg()", new CultureInfo("de"));
+                _converter.Convert([], typeof(object), "ThreeArg()", new CultureInfo("de"));
                 Assert.Fail("ThreeArg function should not parse when passed zero parameters.");
             }
             catch (Exception ex) when (ex is { InnerException: ParsingException { Message: { } message } } && message.Contains("The ThreeArg function cannot accept 0 parameters.")) { }
 
             try
             {
-                _converter.Convert(new object[0], typeof(object), "ThreeArg(1, 2)", new CultureInfo("de"));
+                _converter.Convert([], typeof(object), "ThreeArg(1, 2)", new CultureInfo("de"));
                 Assert.Fail("ThreeArg function should not parse when passed two parameters.");
             }
             catch (Exception ex) when (ex is { InnerException: ParsingException { Message: { } message } } && message.Contains("The ThreeArg function cannot accept 2 parameters.")) { }
 
             try
             {
-                _converter.Convert(new object[0], typeof(object), "ThreeArg(1, 2, 3, 4)", new CultureInfo("de"));
+                _converter.Convert([], typeof(object), "ThreeArg(1, 2, 3, 4)", new CultureInfo("de"));
                 Assert.Fail("ThreeArg function should not parse when passed four parameters.");
             }
             catch (Exception ex) when (ex is { InnerException: ParsingException { Message: { } message } } && message.Contains("The ThreeArg function cannot accept 4 parameters.")) { }
 
-            Assert.AreEqual(1.0, _converter.Convert(new object[0], typeof(object), "ThreeArg(1, 2, 3)", new CultureInfo("de")));
-            Assert.AreEqual(true, _converter.Convert(new object[0], typeof(object), "ThreeArg(true, 2, 3)", new CultureInfo("de")));
+            Assert.AreEqual(1.0, _converter.Convert([], typeof(object), "ThreeArg(1, 2, 3)", new CultureInfo("de")));
+            Assert.AreEqual(true, _converter.Convert([], typeof(object), "ThreeArg(true, 2, 3)", new CultureInfo("de")));
 
-            Assert.AreEqual(1.0, _converter.Convert(new object[0], typeof(object), "Max(-1, 1, 0)", new CultureInfo("de")));
+            Assert.AreEqual(1.0, _converter.Convert([], typeof(object), "Max(-1, 1, 0)", new CultureInfo("de")));
 
             // Override the Max function with our ThreeArgFunction.
             _converter.ClearCache();
             _converter.CustomFunctions.Remove("Max");
             _converter.CustomFunctions.Add(CustomFunctionDefinition.Create<ThreeArgFunction>("Max"));
 
-            Assert.AreEqual(-1.0, _converter.Convert(new object[0], typeof(object), "Max(-1, 1, 0)", new CultureInfo("de")));
+            Assert.AreEqual(-1.0, _converter.Convert([], typeof(object), "Max(-1, 1, 0)", new CultureInfo("de")));
 
             _converter.ClearCache();
             _converter.CustomFunctions.Clear();
@@ -1819,7 +1819,7 @@ namespace HexInnovation
         [TestMethod]
         public void TestAndOrOperators()
         {
-            var possibleArgs = new object[] { new ArithmeticOperatorTester(2), new ArithmeticOperatorTester(0), false, true, null };
+            object[] possibleArgs = [new ArithmeticOperatorTester(2), new ArithmeticOperatorTester(0), false, true, null];
             foreach (var x in possibleArgs)
             {
                 foreach (var y in possibleArgs)
@@ -2277,11 +2277,11 @@ namespace HexInnovation
         [TestMethod]
         public void TestTernaryOperator()
         {
-            AbstractSyntaxTree positiveShouldntBeEvaluated = new ThrowFunction() { FunctionName = "Throw", Parameters = new() { new StringNode("If the condition is false, the positive should not be evaluated.") } };
-            AbstractSyntaxTree negativeShouldntBeEvaluated = new ThrowFunction() { FunctionName = "Throw", Parameters = new() { new StringNode("If the condition is true, the negative should not be evaluated.") } };
+            AbstractSyntaxTree positiveShouldntBeEvaluated = new ThrowFunction() { FunctionName = "Throw", Parameters = [new StringNode("If the condition is false, the positive should not be evaluated.")] };
+            AbstractSyntaxTree negativeShouldntBeEvaluated = new ThrowFunction() { FunctionName = "Throw", Parameters = [new StringNode("If the condition is true, the negative should not be evaluated.")] };
 
-            Assert.AreEqual(true, TernaryOperator.Evaluate(new ValueNode(true), new ValueNode(true), negativeShouldntBeEvaluated, new CultureInfo("de"), new object[0]));
-            Assert.AreEqual(true, TernaryOperator.Evaluate(new ValueNode(false), positiveShouldntBeEvaluated, new ValueNode(true), new CultureInfo("de"), new object[0]));
+            Assert.AreEqual(true, TernaryOperator.Evaluate(new ValueNode(true), new ValueNode(true), negativeShouldntBeEvaluated, new CultureInfo("de"), []));
+            Assert.AreEqual(true, TernaryOperator.Evaluate(new ValueNode(false), positiveShouldntBeEvaluated, new ValueNode(true), new CultureInfo("de"), []));
 
             // There are no mathematical operations or operators being called (ternary is just syntactic sugar, not a real operator), so we shouldn't evaluate the operands as a double.
             Assert.AreEqual(1, UnitTestCompatibilityExtensions.TernaryEvaluate(true, 1, null));
@@ -2290,10 +2290,10 @@ namespace HexInnovation
             Assert.AreEqual('\0', UnitTestCompatibilityExtensions.TernaryEvaluate(false, null, '\0'));
 
             // The condition should implicitly convert to boolean if there is a false operator and/or an implicit bool operator
-            Assert.AreEqual(true, TernaryOperator.Evaluate(new ValueNode(new HaveValueClass1(1)), new ValueNode(true), negativeShouldntBeEvaluated, new CultureInfo("de"), new object[0]));
-            Assert.AreEqual(false, TernaryOperator.Evaluate(new ValueNode(new HaveValueClass1(0)), positiveShouldntBeEvaluated, new ValueNode(false), new CultureInfo("de"), new object[0]));
-            Assert.AreEqual(true, TernaryOperator.Evaluate(new ValueNode(new ArithmeticOperatorTester(1)), new ValueNode(true), negativeShouldntBeEvaluated, new CultureInfo("de"), new object[0]));
-            Assert.AreEqual(false, TernaryOperator.Evaluate(new ValueNode(new ArithmeticOperatorTester(0)), positiveShouldntBeEvaluated, new ValueNode(false), new CultureInfo("de"), new object[0]));
+            Assert.AreEqual(true, TernaryOperator.Evaluate(new ValueNode(new HaveValueClass1(1)), new ValueNode(true), negativeShouldntBeEvaluated, new CultureInfo("de"), []));
+            Assert.AreEqual(false, TernaryOperator.Evaluate(new ValueNode(new HaveValueClass1(0)), positiveShouldntBeEvaluated, new ValueNode(false), new CultureInfo("de"), []));
+            Assert.AreEqual(true, TernaryOperator.Evaluate(new ValueNode(new ArithmeticOperatorTester(1)), new ValueNode(true), negativeShouldntBeEvaluated, new CultureInfo("de"), []));
+            Assert.AreEqual(false, TernaryOperator.Evaluate(new ValueNode(new ArithmeticOperatorTester(0)), positiveShouldntBeEvaluated, new ValueNode(false), new CultureInfo("de"), []));
 
             try
             {
@@ -2389,11 +2389,11 @@ namespace HexInnovation
         }
         internal static object EvaluateThrowException(this BinaryOperator @operator, object x, string errorMessage)
         {
-            return @operator.Evaluate(new ValueNode(x), new ThrowFunction() { FunctionName = "Throw", Parameters = new() { new StringNode(errorMessage) } }, CultureInfo.InvariantCulture, new[] { x });
+            return @operator.Evaluate(new ValueNode(x), new ThrowFunction() { FunctionName = "Throw", Parameters = [new StringNode(errorMessage)] }, CultureInfo.InvariantCulture, [x]);
         }
         internal static object TernaryEvaluate(object condition, object positive, object negative)
         {
-            return TernaryOperator.Evaluate(new ValueNode(condition), new ValueNode(positive), new ValueNode(negative), CultureInfo.InvariantCulture, new object[0]);
+            return TernaryOperator.Evaluate(new ValueNode(condition), new ValueNode(positive), new ValueNode(negative), CultureInfo.InvariantCulture, []);
         }
     }
 
