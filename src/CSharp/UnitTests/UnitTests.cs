@@ -218,7 +218,7 @@ namespace HexInnovation
         [TestMethod]
         public void TestConstantNumbers()
         {
-            foreach (var culture in new CultureInfo[] { CultureInfo.InvariantCulture, new CultureInfo("de") })
+            foreach (var culture in new CultureInfo[] { CultureInfo.InvariantCulture, new("de") })
             {
                 foreach (var args in new object[][] { [], [3], [null, 7] })
                 {
@@ -252,7 +252,7 @@ namespace HexInnovation
         [TestMethod]
         public void TestConstants()
         {
-            foreach (var culture in new CultureInfo[] { CultureInfo.InvariantCulture, new CultureInfo("de") })
+            foreach (var culture in new CultureInfo[] { CultureInfo.InvariantCulture, new("de") })
             {
                 foreach (var args in new object[][] { [], [3], [null, 7] })
                 {
@@ -269,7 +269,7 @@ namespace HexInnovation
         [TestMethod]
         public void TestNot()
         {
-            foreach (var culture in new CultureInfo[] { CultureInfo.InvariantCulture, new CultureInfo("de") })
+            foreach (var culture in new CultureInfo[] { CultureInfo.InvariantCulture, new("de") })
             {
                 foreach (var args in new object[][] { [], [3], [null, 7] })
                 {
@@ -284,7 +284,7 @@ namespace HexInnovation
         [TestMethod]
         public void TestVariables()
         {
-            foreach (var culture in new CultureInfo[] { CultureInfo.InvariantCulture, new CultureInfo("de") })
+            foreach (var culture in new CultureInfo[] { CultureInfo.InvariantCulture, new("de") })
             {
                 Assert.IsNull(_converter.Convert([null], typeof(double), "x", culture));
                 Assert.IsNull(_converter.Convert([null], typeof(float), "x", culture));
@@ -311,7 +311,7 @@ namespace HexInnovation
         [TestMethod]
         public void TestStrings()
         {
-            foreach (var culture in new CultureInfo[] { CultureInfo.InvariantCulture, new CultureInfo("de") })
+            foreach (var culture in new CultureInfo[] { CultureInfo.InvariantCulture, new("de") })
             {
                 Assert.AreEqual("Hello", (string)_converter.Convert([3], typeof(string), @"""Hello""", culture));
                 Assert.AreEqual("Hello", (string)_converter.Convert([3], typeof(string), @"`Hello`", culture));
@@ -485,7 +485,7 @@ namespace HexInnovation
         [TestMethod]
         public void TestNullTargetType()
         {
-            foreach (var culture in new[] {CultureInfo.InvariantCulture, new CultureInfo("de")})
+            foreach (var culture in new[] {CultureInfo.InvariantCulture, new("de")})
             {
                 Assert.AreEqual("x", _converter.Convert([], null, "\"x\"", culture));
                 Assert.AreEqual($"hello", _converter.Convert([], null, "$\"hello\"", culture));
@@ -1104,7 +1104,7 @@ namespace HexInnovation
 
             Assert.AreEqual((Flags)Letters.A, MathConverter.ConvertType(Letters.A, typeof(Flags)));
 
-            foreach (var input in new object[] { DateTime.Now, new object() })
+            foreach (var input in new object[] { DateTime.Now, new() })
             {
                 Assert.AreEqual(input, MathConverter.ConvertType(input, typeof(Flags)));
             }
@@ -1202,7 +1202,7 @@ namespace HexInnovation
 
         public class ConstantValueFunction : ZeroArgFunction
         {
-            public static readonly object Value = new object();
+            public static readonly object Value = new();
             public override object Evaluate(CultureInfo cultureInfo)
             {
                 return Value;
@@ -2593,8 +2593,8 @@ namespace HexInnovation
             return new HaveValueClass1(x.Value);
         }
 
-        public static ArithmeticOperatorTester operator -(ArithmeticOperatorTester x) => new ArithmeticOperatorTester(-x.Value);
-        public static ArithmeticOperatorTester operator !(ArithmeticOperatorTester x) => ReferenceEquals(x, null) ? null : new ArithmeticOperatorTester(x.Value == 0 ? 1 : 0);
+        public static ArithmeticOperatorTester operator -(ArithmeticOperatorTester x) => new(-x.Value);
+        public static ArithmeticOperatorTester operator !(ArithmeticOperatorTester x) => ReferenceEquals(x, null) ? null : new(x.Value == 0 ? 1 : 0);
 
         public override bool Equals(object other)
         {
@@ -2813,7 +2813,7 @@ namespace HexInnovation
         public static bool operator false(HaveValueClass1 x) => (x?.Value ?? 1) == 0;
 
         public static implicit operator int(HaveValueClass1 value) => value.Value;
-        public static implicit operator HaveValueClass1(int value) => new HaveValueClass1(value);
+        public static implicit operator HaveValueClass1(int value) => new(value);
     }
     internal class HaveValueClass2 : IHaveValue, IHaveValue<int>
     {
