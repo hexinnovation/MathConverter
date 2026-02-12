@@ -370,7 +370,7 @@ namespace HexInnovation
                                         err = $"Functions are case-sensitive. \"{lex}\" is an invalid function name. Did you mean to call the function \"{caseInsensitiveMatches[0]}\"?";
                                         break;
                                     default:
-                                        err = $"Functions are case-sensitive. \"{lex}\" is an invalid function name. Did you mean to call one of the following functions? {string.Join(", ", caseInsensitiveMatches.Select(x => $"\"{x}\"").MyToArray())}";
+                                        err = $"Functions are case-sensitive. \"{lex}\" is an invalid function name. Did you mean to call one of the following functions? {string.Join(", ", caseInsensitiveMatches.Select(x => $"\"{x}\""))}";
                                         break;
                                 }
 

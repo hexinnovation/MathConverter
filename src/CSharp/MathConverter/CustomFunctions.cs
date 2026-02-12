@@ -270,8 +270,8 @@ namespace HexInnovation
             var xType = x.GetType();
             var yType = y.GetType();
 
-            var xIsEnum = xType.GetTypeInfo().IsEnum;
-            var yIsEnum = yType.GetTypeInfo().IsEnum;
+            var xIsEnum = xType.IsEnum;
+            var yIsEnum = yType.IsEnum;
 
             // Enums cannot be inherited, so two enums will only be equal if they are the same type.
             // Technically, this is different from the default behavior. By default, enums of disparate types
@@ -472,7 +472,7 @@ namespace HexInnovation
     {
         public override object Evaluate(CultureInfo cultureInfo, Func<object>[] arguments)
         {
-            return string.Concat((arguments.Length == 1 && arguments[0]() is IEnumerable enumerable ? enumerable.Cast<object>() : arguments.Select(x => x())).MyToArray());
+            return string.Concat<object>(arguments.Length == 1 && arguments[0]() is IEnumerable enumerable ? enumerable.Cast<object>() : arguments.Select(x => x()));
         }
     }
     sealed class JoinFunction : ArbitraryArgFunction
@@ -483,7 +483,7 @@ namespace HexInnovation
             {
                 var argVals = arguments.Skip(1).Select(x => x()).ToArray();
 
-                return string.Join(separator, (argVals.Length == 1 && argVals[0] is IEnumerable enumerable ? enumerable.Cast<object>() : argVals).MyToArray());
+                return string.Join(separator, argVals.Length == 1 && argVals[0] is IEnumerable enumerable ? enumerable.Cast<object>() : argVals);
             }
             else
             {
@@ -506,7 +506,7 @@ namespace HexInnovation
     {
         public override object Evaluate(CultureInfo cultureInfo, Func<object>[] arguments)
         {
-            throw new Exception($"The {FunctionName} function was called with {arguments.Length} argument{(arguments.Length == 1 ? "" : "s")}: {string.Join(", ", arguments.Select(x => x()).MyToArray())}");
+            throw new Exception($"The {FunctionName} function was called with {arguments.Length} argument{(arguments.Length == 1 ? "" : "s")}: {string.Join(", ", arguments.Select(x => x()))}");
         }
     }
     sealed class TryCatchFunction : ArbitraryArgFunction

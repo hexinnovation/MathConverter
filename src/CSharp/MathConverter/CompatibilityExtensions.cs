@@ -1,56 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 
-namespace HexInnovation
+namespace HexInnovation;
+
+internal static class CompatibilityExtensions
 {
-    internal static class CompatibilityExtensions
+    extension(string)
     {
 #if NET35
-        public static string[] MyToArray(this IEnumerable<AbstractSyntaxTree> objects)
+        public static string Join<T>(string separator, IEnumerable<T> objects)
         {
-            return objects.Cast<object>().MyToArray();
+            return string.Join(separator, [.. objects.Select(x => $"{x}")]);
         }
-        public static string[] MyToArray(this IEnumerable<object> objects)
+        public static string Concat<T>(IEnumerable<T> objects)
         {
-            return objects.Select(p => $"{p}").ToArray();
-        }
-        public static string[] MyToArray(this IEnumerable<string> strings)
-        {
-            return strings.ToArray();
+            return string.Concat([.. objects]);
         }
 #else
-        public static IEnumerable<object> MyToArray(this IEnumerable<object> objects)
+        public static string Concat<T>(IEnumerable<T> objects)
         {
-            return objects;
-        }
-        public static IEnumerable<string> MyToArray(this IEnumerable<string> strings)
-        {
-            return strings;
+            return string.Concat(objects);
         }
 #endif
-
-        public static IEnumerable<TAttribute> GetCustomAttributes<TAttribute>(this Type self) where TAttribute : Attribute
-        {
-            return
-                Attribute.GetCustomAttributes(self)
-                    .OfType<TAttribute>();
-        }
-
-        public static bool IsIConvertible(object self)
-        {
-            return self is IConvertible;
-        }
-
-        public static IEnumerable<MethodInfo> GetPublicStaticMethods(this Type self)
-        {
-            return self.GetMethods(BindingFlags.Public | BindingFlags.Static);
-        }
-
-        public static Type GetTypeInfo(this Type self)
-        {
-            return self;
-        }
     }
 }

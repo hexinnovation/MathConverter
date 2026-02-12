@@ -170,7 +170,7 @@ namespace HexInnovation
             // Now if there are more than one value, we will simply merge the values with commas, and use TypeConverter to handle the conversion to the appropriate type.
             // We do this in invariant culture to ensure that any type conversion (which must happen in InvariantCulture) succeeds.
             var stringJoinCulture = targetType == typeof(string) ? culture : CultureInfo.InvariantCulture;
-            var finalAnswerToConvert = evaluatedValues?.Count == 1 ? evaluatedValues[0] : string.Join(",", evaluatedValues.Select(p => string.Format(stringJoinCulture, "{0}", p)).MyToArray());
+            var finalAnswerToConvert = evaluatedValues?.Count == 1 ? evaluatedValues[0] : string.Join(",", evaluatedValues.Select(p => string.Format(stringJoinCulture, "{0}", p)));
 
             return ConvertType(finalAnswerToConvert, targetType);
         }
@@ -235,7 +235,7 @@ namespace HexInnovation
                     // The default TypeConverter doesn't support this conversion. Let's try an implicit conversion.
                     return Operator.DoImplicitConversion(value, targetType);
                 }
-                else if (CompatibilityExtensions.IsIConvertible(value))
+                else if (value is IConvertible)
                 {
                     if (targetType == typeof(char))
                     {
@@ -253,7 +253,7 @@ namespace HexInnovation
 
             try
             {
-                if (targetType.GetTypeInfo().IsEnum)
+                if (targetType.IsEnum)
                 {
                     return Enum.ToObject(targetType, value);
                 }
@@ -288,7 +288,7 @@ namespace HexInnovation
                 return PlatformTypeConverters[targetType];
             }
 
-            foreach (var attribute in targetType.GetCustomAttributes<TypeConverterAttribute>())
+            foreach (var attribute in Attribute.GetCustomAttributes(targetType).OfType<TypeConverterAttribute>())
             {
                 if (Type.GetType(attribute.ConverterTypeName, false) is { } converterType)
                 {

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 
 namespace HexInnovation
@@ -254,7 +253,7 @@ namespace HexInnovation
         {
             var convertToType = typeof(T);
 
-            if (Operator.DoesImplicitConversionExist(value?.GetType(), convertToType, true) && Operator.DoImplicitConversion(value, convertToType.GetTypeInfo().IsValueType ? typeof(Nullable<>).MakeGenericType(convertToType) : convertToType) is T a)
+            if (Operator.DoesImplicitConversionExist(value?.GetType(), convertToType, true) && Operator.DoImplicitConversion(value, convertToType.IsValueType ? typeof(Nullable<>).MakeGenericType(convertToType) : convertToType) is T a)
             {
                 convertedValue = a;
                 return true;
@@ -296,7 +295,7 @@ namespace HexInnovation
         }
         public override sealed string ToString()
         {
-            return $"{FunctionName}({string.Join(", ", Parameters.MyToArray())})";
+            return $"{FunctionName}({string.Join(", ", Parameters)})";
         }
     }
 

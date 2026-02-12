@@ -7,7 +7,7 @@ namespace HexInnovation
     {
         private static string ComputeMessage(Exception innerException, string converterParameter, object[] bindingValues)
         {
-            return $"MathConverter threw an exception while performing a conversion.{Environment.NewLine}{Environment.NewLine}{nameof(ConverterParameter)}:{Environment.NewLine}{converterParameter}{Environment.NewLine}{Environment.NewLine}{nameof(BindingValues)}:{string.Concat(bindingValues.Select((p, i) => $"{Environment.NewLine}[{i}]: {(p == null ? "null" : $"({p.GetType().FullName}):  {p}")}").MyToArray())}";
+            return $"MathConverter threw an exception while performing a conversion.{Environment.NewLine}{Environment.NewLine}{nameof(ConverterParameter)}:{Environment.NewLine}{converterParameter}{Environment.NewLine}{Environment.NewLine}{nameof(BindingValues)}:{string.Concat<string>(bindingValues.Select((p, i) => $"{Environment.NewLine}[{i}]: {(p == null ? "null" : $"({p.GetType().FullName}):  {p}")}"))}";
         }
         public EvaluationException(string converterParameter, object[] bindingValues, NodeEvaluationException inner) : base(ComputeMessage(inner, converterParameter, bindingValues), inner)
         {

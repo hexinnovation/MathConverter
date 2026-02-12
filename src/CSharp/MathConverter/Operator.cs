@@ -184,12 +184,12 @@ namespace HexInnovation
 
             yield return type;
 
-            if (type.GetTypeInfo().IsEnum)
+            if (type.IsEnum)
             {
                 yield return typeof(Enum);
             }
 
-            if (type.GetTypeInfo().IsValueType)
+            if (type.IsValueType)
             {
                 yield return typeof(ValueType);
                 yield return typeof(object);
@@ -206,7 +206,7 @@ namespace HexInnovation
             // Not sure what to do about delegate types.
 
             // Interface and classes...
-            while ((type = type.GetTypeInfo().BaseType) != null)
+            while ((type = type.BaseType) != null)
             {
                 yield return type;
             }
@@ -220,7 +220,7 @@ namespace HexInnovation
         {
             // https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/language-specification/expressions#candidate-user-defined-operators
             return GetTypeAndSubtypes(operandTypes).SelectMany(type =>
-                    type.GetPublicStaticMethods()
+                    type.GetMethods(BindingFlags.Public | BindingFlags.Static)
                         .Where(method => method.Name == operatorName)
                         .Select(method => new OperatorInfo
                         {
@@ -365,12 +365,12 @@ namespace HexInnovation
             if (GetTypeAndSubtypes(typeFrom).Contains(typeTo))
                 return true;
 
-            if (typeTo.GetTypeInfo().IsInterface && typeFrom.GetInterfaces().Contains(typeTo))
+            if (typeTo.IsInterface && typeFrom.GetInterfaces().Contains(typeTo))
                 return true;
 
             if (typeFrom.IsArray && typeTo.IsArray && typeFrom.GetArrayRank() == typeTo.GetArrayRank())
             {
-                return !typeFrom.GetTypeInfo().IsValueType && !typeTo.GetTypeInfo().IsValueType && DoesImplicitConversionExist(typeFrom.GetElementType(), typeTo.GetElementType(), true);
+                return !typeFrom.IsValueType && !typeTo.IsValueType && DoesImplicitConversionExist(typeFrom.GetElementType(), typeTo.GetElementType(), true);
             }
             if (typeFrom.IsArray && GetTypeAndSubtypes(typeof(Array)).Contains(typeTo))
             {
@@ -409,10 +409,10 @@ namespace HexInnovation
         /// <param name="typeTo">The type to convert to.</param>
         internal static object DoImplicitConversion(object from, Type typeTo)
         {
-            var typeToIsValueType = typeTo.GetTypeInfo().IsValueType;
+            var typeToIsValueType = typeTo.IsValueType;
 
             // If we're trying to convert null to a nullable type, let's just return null.
-            if (from == null && (!typeToIsValueType || Nullable.GetUnderlyingType(typeTo)?.GetTypeInfo().IsValueType == true))
+            if (from == null && (!typeToIsValueType || Nullable.GetUnderlyingType(typeTo)?.IsValueType == true))
             {
                 if (typeToIsValueType)
                 {
@@ -490,7 +490,7 @@ namespace HexInnovation
         {
             var argTypes = operands.Select(x => x == null ? "null" : $"'{x.GetType().FullName}'").ToList();
 
-            return new InvalidOperationException($"Cannot apply operator '{operatorSymbols}' to operand{(operands.Length == 1 ? "" : "s")} of type {string.Join(" ", argTypes.Take(argTypes.Count - 1).MyToArray())}{(argTypes.Count == 1 ? "" : " and ")}{argTypes.Last()}");
+            return new InvalidOperationException($"Cannot apply operator '{operatorSymbols}' to operand{(operands.Length == 1 ? "" : "s")} of type {string.Join(" ", argTypes.Take(argTypes.Count - 1))}{(argTypes.Count == 1 ? "" : " and ")}{argTypes.Last()}");
         }
         protected MethodInfo GetUserDefinedOperator(out bool convertToDoubles, params object[] operands)
         {
@@ -603,7 +603,7 @@ namespace HexInnovation
                     else
                     {
                         throw new AmbiguousMatchException(
-                            $"Could not identify which {OperatorType} operator to apply to type{(operands.Length == 1 ? "" : "s")} {string.Join(" and ", operands.Select(p => p.GetType().FullName ?? "null").MyToArray())} between the following options:{string.Concat(candidateUserDefinedOperators.Select(p => $"{Environment.NewLine}{p}").MyToArray())}");
+                            $"Could not identify which {OperatorType} operator to apply to type{(operands.Length == 1 ? "" : "s")} {string.Join(" and ", operands.Select(p => p.GetType().FullName ?? "null"))} between the following options:{string.Concat<string>(candidateUserDefinedOperators.Select(p => $"{Environment.NewLine}{p}"))}");
                     }
             }
         }
