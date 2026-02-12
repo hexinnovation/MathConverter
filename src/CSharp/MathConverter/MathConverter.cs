@@ -4,12 +4,9 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
-using System.Reflection;
 
 #if MAUI
-using Microsoft.Maui;
 using Microsoft.Maui.Controls;
-using PlatformTypeConverter = System.ComponentModel.TypeConverter;
 #elif WPF
 using BindableProperty = System.Windows.DependencyProperty;
 using System.Windows;
@@ -124,8 +121,7 @@ namespace HexInnovation
         /// </summary>
         private Dictionary<string, AbstractSyntaxTree[]> _cachedResults = new Dictionary<string, AbstractSyntaxTree[]>();
 #if !WPF
-        private static readonly Dictionary<Type, PlatformTypeConverter> PlatformTypeConverters = new()
-            { { typeof(GridLength), new GridLengthTypeConverter() } };
+        private static readonly Dictionary<Type, TypeConverter> PlatformTypeConverters = new();
 #endif
 
         /// <summary>
@@ -226,7 +222,7 @@ namespace HexInnovation
 
             if (typeConverter != null)
             {
-                // PlatformTypeConverters only convert from Invariant Strings. All other conversions are deprecated.
+                // TypeConverters only convert from Invariant Strings. All other conversions are deprecated.
                 string convertFrom = value as string ?? $"{value}";
                 return typeConverter.ConvertFromInvariantString(convertFrom);
             }
@@ -285,7 +281,7 @@ namespace HexInnovation
             throw new NotSupportedException();
         }
 #if !WPF
-        private static PlatformTypeConverter GetPlatformTypeConverter(Type targetType)
+        private static TypeConverter GetPlatformTypeConverter(Type targetType)
         {
             if (PlatformTypeConverters.ContainsKey(targetType))
             {
@@ -296,7 +292,7 @@ namespace HexInnovation
             {
                 if (Type.GetType(attribute.ConverterTypeName, false) is { } converterType)
                 {
-                    return PlatformTypeConverters[targetType] = (PlatformTypeConverter)Activator.CreateInstance(converterType);
+                    return PlatformTypeConverters[targetType] = (TypeConverter)Activator.CreateInstance(converterType);
                 }
             }
 
