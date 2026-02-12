@@ -2523,18 +2523,18 @@ namespace HexInnovation
 
         public static ArithmeticOperatorTester operator &(ArithmeticOperatorTester x, ArithmeticOperatorTester y)
         {
-            if (ReferenceEquals(null, x))
+            if (x is null)
                 return y ? null : y;
-            else if (ReferenceEquals(null, y))
+            else if (y is null)
                 return x ? null : x;
             else
                 return (x.Value != 0 && y.Value != 0) ? new ArithmeticOperatorTester(1) : new ArithmeticOperatorTester(0);
         }
         public static ArithmeticOperatorTester operator |(ArithmeticOperatorTester x, ArithmeticOperatorTester y)
         {
-            if (ReferenceEquals(null, x))
+            if (x is null)
                 return y ? y : null;
-            else if (ReferenceEquals(null, y))
+            else if (y is null)
                 return x ? x : null;
             else
                 return (x.Value != 0 && y.Value != 0) ? new ArithmeticOperatorTester(1) : new ArithmeticOperatorTester(0);
@@ -2546,27 +2546,27 @@ namespace HexInnovation
 
         public static bool operator ==(ArithmeticOperatorTester x, ArithmeticOperatorTester y)
         {
-            if (ReferenceEquals(x, null))
-                return ReferenceEquals(y, null);
-            else if (ReferenceEquals(y, null))
+            if (x is null)
+                return y is null;
+            else if (y is null)
                 return false;
             else
                 return x.Value == y.Value;
         }
         public static bool operator ==(ArithmeticOperatorTester x, IHaveValue y)
         {
-            if (ReferenceEquals(x, null))
-                return ReferenceEquals(y, null);
-            else if (ReferenceEquals(y, null))
+            if (x is null)
+                return y is null;
+            else if (y is null)
                 return false;
             else
                 return x.Value == y.Value;
         }
         public static bool operator ==(ArithmeticOperatorTester x, IHaveValue<int> y)
         {
-            if (ReferenceEquals(x, null))
-                return ReferenceEquals(y, null);
-            else if (ReferenceEquals(y, null))
+            if (x is null)
+                return y is null;
+            else if (y is null)
                 return false;
             else
                 return x.Value == y.Value;
@@ -2594,7 +2594,7 @@ namespace HexInnovation
         }
 
         public static ArithmeticOperatorTester operator -(ArithmeticOperatorTester x) => new(-x.Value);
-        public static ArithmeticOperatorTester operator !(ArithmeticOperatorTester x) => ReferenceEquals(x, null) ? null : new(x.Value == 0 ? 1 : 0);
+        public static ArithmeticOperatorTester operator !(ArithmeticOperatorTester x) => x is null ? null : new(x.Value == 0 ? 1 : 0);
 
         public override bool Equals(object other)
         {
@@ -2729,27 +2729,27 @@ namespace HexInnovation
 
         public static bool operator ==(ArithmeticOperatorTesterSubClass1 x, ArithmeticOperatorTester y)
         {
-            if (ReferenceEquals(x, null))
-                return ReferenceEquals(y, null);
-            else if (ReferenceEquals(y, null))
+            if (x is null)
+                return y is null;
+            else if (y is null)
                 return false;
             else
                 return x.Value == y.Value;
         }
         public static bool operator ==(ArithmeticOperatorTester x, ArithmeticOperatorTesterSubClass1 y)
         {
-            if (ReferenceEquals(x, null))
-                return ReferenceEquals(y, null);
-            else if (ReferenceEquals(y, null))
+            if (x is null)
+                return y is null;
+            else if (y is null)
                 return false;
             else
                 return x.Value == y.Value;
         }
         public static bool operator ==(ArithmeticOperatorTesterSubClass1 x, ArithmeticOperatorTesterSubClass1 y)
         {
-            if (ReferenceEquals(x, null))
-                return ReferenceEquals(y, null);
-            else if (ReferenceEquals(y, null))
+            if (x is null)
+                return y is null;
+            else if (y is null)
                 return false;
             else
                 return x.Value == y.Value;
@@ -2792,18 +2792,18 @@ namespace HexInnovation
 
         public static HaveValueClass1 operator &(HaveValueClass1 x, HaveValueClass1 y)
         {
-            if (ReferenceEquals(null, x))
+            if (x is null)
                 return y ? null : y;
-            else if (ReferenceEquals(null, y))
+            else if (y is null)
                 return x ? null : x;
             else
                 return (x.Value != 0 && y.Value != 0) ? new HaveValueClass1(1) : new HaveValueClass1(0);
         }
         public static HaveValueClass1 operator |(HaveValueClass1 x, HaveValueClass1 y)
         {
-            if (ReferenceEquals(null, x))
+            if (x is null)
                 return y ? y : null;
-            else if (ReferenceEquals(null, y))
+            else if (y is null)
                 return x ? x : null;
             else
                 return (x.Value != 0 || y.Value != 0) ? new HaveValueClass1(1) : new HaveValueClass1(0);
