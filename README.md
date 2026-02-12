@@ -188,7 +188,8 @@ Functions are case-sensitive (They were not case sensitive in version 1.x).
 
 Functions include:
 * `Now()` returns [`System.DateTime.Now`](https://learn.microsoft.com/dotnet/api/system.datetime.now)
-* `UnsetValue()` returns [`DependencyProperty.UnsetValue`](https://learn.microsoft.com/dotnet/api/system.windows.dependencyproperty.unsetvalue) or [`BindableProperty.UnsetValue`](https://learn.microsoft.com/dotnet/api/xamarin.forms.bindableproperty.unsetvalue)
+* `UnsetValue()` returns [`DependencyProperty.UnsetValue`](https://learn.microsoft.com/dotnet/api/system.windows.dependencyproperty.unsetvalue) or [`BindableProperty.UnsetValue`](https://learn.microsoft.com/dotnet/api/microsoft.maui.controls.bindableproperty.unsetvalue)
+* `DoNothing()` returns `Binding.DoNothing` ([WPF documentation](https://learn.microsoft.com/dotnet/api/system.windows.data.binding.donothing) / [Maui documentation](https://learn.microsoft.com/dotnet/api/microsoft.maui.controls.binding.donothing))
 * `Cos(x)`, `Sin(x)`, `Tan(x)`, `Abs(x)`, `Acos(x)`/`ArcCos(x)`, `Asin(x)`/`ArcSin(x)`, `Atan(x)`/`ArcTan(x)`, `Ceil(x)`/`Ceiling(x)`, `Floor(x)`, `Sqrt(x)`, `Log(x, y)`, `Atan2(x, y)`/`ArcTan2(x, y)`, `Round(x)`/`Round(x, y)` all behave like their counterparts in [`System.Math`](https://learn.microsoft.com/dotnet/api/system.math). They return `null` if at least one argument is `null`.
 * `Deg(x)`/`Degrees(x)` returns `x / pi * 180`
 * `Rad(x)`/`Radians(x)` returns `x / 180 * pi`

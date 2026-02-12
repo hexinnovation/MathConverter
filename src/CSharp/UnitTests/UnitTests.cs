@@ -961,6 +961,8 @@ namespace HexInnovation
                 Assert.AreEqual(null, _converter.Convert(new object[] { TimeSpan.FromDays(3) }, typeof(object), "TryParseDouble(x)", new CultureInfo("de")));
 
                 Assert.AreEqual(BindableProperty.UnsetValue, _converter.Convert(null, typeof(string), "UnsetValue()", new CultureInfo("de")));
+
+                Assert.AreEqual(Binding.DoNothing, _converter.Convert(null, typeof(string), "DoNothing()", new CultureInfo("de")));
             }
 
             Assert.AreEqual(null, _converter.Convert(new object[] { null, 3, 5.0, "Hello" }, typeof(object), "GetType(x)", new CultureInfo("de")));
@@ -1110,11 +1112,15 @@ namespace HexInnovation
         {
             // By default, MathConverter implicitly converts UnsetValue to null.
             Assert.IsNull(_converter.Convert(BindableProperty.UnsetValue, typeof(object), "x", new CultureInfo("de")));
+            Assert.IsNull(_converter.Convert(BindableProperty.UnsetValue, typeof(string), "x", new CultureInfo("de")));
+            Assert.IsNull(_converter.Convert(BindableProperty.UnsetValue, typeof(GridLength), "x", new CultureInfo("de")));
             Assert.IsFalse((bool)_converter.Convert(BindableProperty.UnsetValue, typeof(object), "x == UnsetValue()", new CultureInfo("de")));
             Assert.IsTrue((bool)_converter.Convert(BindableProperty.UnsetValue, typeof(object), "x == null", new CultureInfo("de")));
 
             _converter.AllowUnsetValue = true;
             Assert.AreEqual(BindableProperty.UnsetValue, _converter.Convert(BindableProperty.UnsetValue, typeof(object), "x", new CultureInfo("de")));
+            Assert.AreEqual(BindableProperty.UnsetValue, _converter.Convert(BindableProperty.UnsetValue, typeof(string), "x", new CultureInfo("de")));
+            Assert.AreEqual(BindableProperty.UnsetValue, _converter.Convert(BindableProperty.UnsetValue, typeof(GridLength), "x", new CultureInfo("de")));
             Assert.IsTrue((bool)_converter.Convert(BindableProperty.UnsetValue, typeof(object), "x == UnsetValue()", new CultureInfo("de")));
             Assert.IsFalse((bool)_converter.Convert(BindableProperty.UnsetValue, typeof(object), "x == null", new CultureInfo("de")));
 

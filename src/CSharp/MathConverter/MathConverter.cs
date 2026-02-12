@@ -190,7 +190,7 @@ namespace HexInnovation
             // However, we might need to do standard type conversion to convert it to a different type.
 
             // We don't need to convert null, and we can't convert if there's no type specified that we need to convert to.
-            if (value == null || targetType == null)
+            if (value == null || targetType == null || value == BindableProperty.UnsetValue || value == Binding.DoNothing)
                 return value;
 
             // We might not need to convert.

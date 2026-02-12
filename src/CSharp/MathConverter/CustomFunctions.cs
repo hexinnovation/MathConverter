@@ -3,10 +3,12 @@ using System.Collections;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
-using System.Reflection;
 
 #if WPF
 using System.Windows;
+using System.Windows.Data;
+#else
+using Microsoft.Maui.Controls;
 #endif
 
 namespace HexInnovation
@@ -20,10 +22,17 @@ namespace HexInnovation
         public override object Evaluate(CultureInfo cultureInfo)
         {
 #if MAUI
-            return Microsoft.Maui.Controls.BindableProperty.UnsetValue;
+            return BindableProperty.UnsetValue;
 #elif WPF
             return DependencyProperty.UnsetValue;
 #endif
+        }
+    }
+    sealed class DoNothingFunction : ZeroArgFunction
+    {
+        public override object Evaluate(CultureInfo cultureInfo)
+        {
+            return Binding.DoNothing;
         }
     }
     sealed class CosFunction : OneDoubleFunction
