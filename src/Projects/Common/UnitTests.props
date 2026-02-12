@@ -1,9 +1,15 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project>
+
+  <PropertyGroup>
+    <AssemblyName>MathConverter.UnitTests</AssemblyName>
+    <RootNamespace>HexInnovation.UnitTests</RootNamespace>
+  </PropertyGroup>
+
   <ItemGroup>
     <None Include="$(MSBuildThisFileFullPath)" Link="Props\$(MSBuildThisFile)" />
     <Compile Include="$(MSBuildThisFileDirectory)..\..\CSharp\UnitTests\**\*.cs" Link="src\%(RecursiveDir)%(FileName)%(Extension)" />
   </ItemGroup>
 
   <Import Project="$(MSBuildThisFileDirectory)Common.props" />
+
 </Project>

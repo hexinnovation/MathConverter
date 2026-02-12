@@ -1,0 +1,21 @@
+﻿<Project>
+
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
+
+    <DefineConstants Condition="'$(DefineConstants)' != ''">$(DefineConstants);MAUI</DefineConstants>
+    <DefineConstants Condition="'$(DefineConstants)' == ''">MAUI</DefineConstants>
+
+    <UseMaui>true</UseMaui>
+    <NoWarn>$(NoWarn);CS8002</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Maui.Controls" Version="10.0.31" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileFullPath)" Link="Props\$(MSBuildThisFile)" />
+  </ItemGroup>
+
+</Project>

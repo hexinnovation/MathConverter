@@ -1,11 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <AssemblyName>MathConverter.UnitTests</AssemblyName>
-    <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
-    <UseMaui>true</UseMaui>
-    <DefineConstants>XUNIT;MAUI</DefineConstants>
+    <DefineConstants>XUNIT</DefineConstants>
   </PropertyGroup>
+
+  <Import Project="..\..\Common\Maui.props" />
+  <Import Project="..\..\Common\UnitTests.props" />
 
   <ItemGroup>
     <ProjectReference Include="..\App\MathConverter.Maui.csproj" />
@@ -13,12 +13,6 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
     <PackageReference Include="xunit.v3" Version="3.2.2" />
     <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5" />
-    <PackageReference Include="Microsoft.Maui.Controls" Version="10.0.31" />
   </ItemGroup>
 
-  <Import Project="..\..\Common\UnitTests.props" />
-
-  <PropertyGroup>
-    <RootNamespace>HexInnovation.UnitTests</RootNamespace>
-  </PropertyGroup>
 </Project>

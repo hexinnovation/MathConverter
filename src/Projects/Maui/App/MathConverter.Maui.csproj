@@ -1,16 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
-    <UseMaui>true</UseMaui>
     <PackageTags>Maui</PackageTags>
-    <DefineConstants>MAUI</DefineConstants>
   </PropertyGroup>
 
+  <Import Project="..\..\Common\Maui.props" />
   <Import Project="..\..\Common\App.props" />
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Maui.Controls" Version="10.0.31" />
-  </ItemGroup>
 
 </Project>

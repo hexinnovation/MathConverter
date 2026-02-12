@@ -15,7 +15,7 @@
     <PackageIcon>smalllogo.png</PackageIcon>
     <RepositoryType>GitHub</RepositoryType>
     <PackageTags>$(PackageTags) Converter Math Arbitrary Expressions XAML ConverterParameter IValueConverter IMultiValueConverter</PackageTags>
-    <PackageReadmeFile Condition="'$(MSBuildRuntimeType)' != 'Mono'">README.md</PackageReadmeFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <IncludeSymbols>true</IncludeSymbols>
@@ -25,6 +25,7 @@
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <TargetFrameworkMonikerAssemblyAttributesPath>$([System.IO.Path]::Combine('$(BaseIntermediateOutputPath)', '$(Configuration)', '$(TargetFramework)', '$(AssemblyName).GeneratedAssemblyAttributes.cs'))</TargetFrameworkMonikerAssemblyAttributesPath>
     <DeterministicSourcePaths Condition="'$(EnableSourceLink)' == ''">false</DeterministicSourcePaths>
+    <RootNamespace>HexInnovation</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

@@ -1,13 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <Import Project="..\..\Common\WPF.props" />
-
   <PropertyGroup>
-    <AssemblyName>MathConverter.UnitTests</AssemblyName>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <IsPackable>false</IsPackable>
-    <DefineConstants>$(DefineConstants);NUNIT</DefineConstants>
+    <DefineConstants>NUNIT</DefineConstants>
   </PropertyGroup>
+
+  <Import Project="..\..\Common\WPF.props" />
+  <Import Project="..\..\Common\UnitTests.props" />
 
   <ItemGroup>
     <ProjectReference Include="..\App\MathConverter.WPF.csproj" />
@@ -50,7 +50,5 @@
       </ItemGroup>
     </Otherwise>
   </Choose>
-
-  <Import Project="..\..\Common\UnitTests.props" />
 
 </Project>
