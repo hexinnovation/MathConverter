@@ -1,0 +1,31 @@
+<Solution>
+  <Folder Name="/App/">
+    <Project Path="Projects/Maui/App/MathConverter.Maui.csproj" />
+    <Project Path="Projects/WPF/App/MathConverter.WPF.csproj" />
+  </Folder>
+  <Folder Name="/Demos/">
+    <Project Path="Demos/WPF/MathConverter.Demo.WPF.csproj" />
+  </Folder>
+  <Folder Name="/Readme/">
+    <File Path="../Nuget README.md" />
+    <File Path="../README.md" />
+  </Folder>
+  <Folder Name="/Readme/Assets/">
+    <File Path="../ReadmeAssets/Banner.svg" />
+    <File Path="../ReadmeAssets/Boolean to Visibility.gif" />
+    <File Path="../ReadmeAssets/Custom Function Animation.gif" />
+    <File Path="../ReadmeAssets/Custom Function.png" />
+    <File Path="../ReadmeAssets/Evenly-Spaced Rectangles.png" />
+    <File Path="../ReadmeAssets/Flattened Oval.png" />
+    <File Path="../ReadmeAssets/Interpolated String Animation.gif" />
+    <File Path="../ReadmeAssets/No ConverterParameter.png" />
+    <File Path="../ReadmeAssets/Now Plus Six Hours.png" />
+    <File Path="../ReadmeAssets/smalllogo.png" />
+    <File Path="../ReadmeAssets/True Rounded Rectangle.png" />
+    <File Path="../ReadmeAssets/Wide Rounded Rectangle.png" />
+  </Folder>
+  <Folder Name="/UnitTests/">
+    <Project Path="Projects/Maui/UnitTests/MathConverter.UnitTests.Maui.csproj" />
+    <Project Path="Projects/WPF/UnitTests/MathConverter.UnitTests.WPF.csproj" />
+  </Folder>
+</Solution>
