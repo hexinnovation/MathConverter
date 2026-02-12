@@ -1,4 +1,4 @@
-﻿<Project Sdk="MSBuild.Sdk.Extras/3.0.44">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <Import Project="..\..\Common\WPF.props" />
 
@@ -24,7 +24,7 @@
         <DefineConstants>$(DefineConstants);NUNIT4</DefineConstants>
       </PropertyGroup>
       <ItemGroup>
-        <PackageReference Include="NUnit" Version="4.0.1" />
+        <PackageReference Include="NUnit" Version="4.4.0" />
       </ItemGroup>
     </Otherwise>
   </Choose>
@@ -36,10 +36,17 @@
         <PackageReference Include="NUnit3TestAdapter" Version="4.3.0" />
       </ItemGroup>
     </When>
+    <When Condition="'$(TargetFramework)' == 'netcoreapp3.1' Or $(TargetFramework.StartsWith('net5')) Or $(TargetFramework.StartsWith('net6')) Or $(TargetFramework.StartsWith('net7'))">
+      <ItemGroup>
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
+        <PackageReference Include="NUnit3TestAdapter" Version="5.2.0" />
+      </ItemGroup>
+    </When>
     <Otherwise>
       <ItemGroup>
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
-        <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
+        <PackageReference Condition="'$(TargetFramework)' == 'net35'" Include="Microsoft.NET.Test.Sdk" Version="17.14.0" />
+        <PackageReference Condition="'$(TargetFramework)' != 'net35'" Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
+        <PackageReference Include="NUnit3TestAdapter" Version="6.1.0" />
       </ItemGroup>
     </Otherwise>
   </Choose>
