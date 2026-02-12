@@ -827,11 +827,13 @@ namespace HexInnovation
             const int allowWithinMillis = 4;
 
             // Assert that the now function returns within 4ms of DateTime.Now (100ms is the time between evaluating the AbstractSyntaxTree [The NowFunction] and getting the DateTime.Now property).
-            Assert.AreEqual(0, ((DateTime)_converter.Convert(null, typeof(object), "Now()", new CultureInfo("de")) - DateTime.Now).TotalMilliseconds, allowWithinMillis);
+            var now = (DateTime)_converter.Convert(null, typeof(object), "Now()", new CultureInfo("de"));
+            Assert.AreEqual(0, (now - DateTime.Now).TotalMilliseconds, allowWithinMillis);
             UnitTestCompatibilityExtensions.Sleep(allowWithinMillis * 2);
 
             // We evaluate this again 8ms later, knowing that the same [cached] AbstractSyntaxTree [NowFunction] gave a different value 8ms later when it was evaluated a second time.
-            Assert.AreEqual(0, ((DateTime)_converter.Convert(null, typeof(object), "Now()", new CultureInfo("de")) - DateTime.Now).TotalMilliseconds, allowWithinMillis);
+            now = (DateTime)_converter.Convert(null, typeof(object), "Now()", new CultureInfo("de"));
+            Assert.AreEqual(0, (now - DateTime.Now).TotalMilliseconds, allowWithinMillis);
 
             Assert.AreEqual(3, _converter.Convert(new object[] { null, 3, 5 }, typeof(object), "IsNull(x,y)", new CultureInfo("de")));
             Assert.AreEqual(5, _converter.Convert(new object[] { null, 3, 5 }, typeof(object), "IsNull(x,z)", new CultureInfo("de")));
@@ -1275,12 +1277,14 @@ namespace HexInnovation
             try
             {
                 Operator.Addition.Evaluate(1, new StringBuilder("X"));
+                Assert.Fail("Should have thrown");
             }
             catch (Exception ex) when (ex.Message == "Cannot apply operator '+' to operands of type 'System.Int32' and 'System.Text.StringBuilder'") { }
 
             try
             {
                 Operator.Addition.Evaluate(1, true);
+                Assert.Fail("Should have thrown");
             }
             catch (Exception ex) when (ex.Message == "Cannot apply operator '+' to operands of type 'System.Int32' and 'System.Boolean'") { }
         }
@@ -1334,24 +1338,28 @@ namespace HexInnovation
             try
             {
                 Operator.Subtraction.Evaluate("a", 3D);
+                Assert.Fail("Should have thrown");
             }
             catch (Exception ex) when (ex.Message == "Cannot apply operator '-' to operands of type 'System.String' and 'System.Double'") { }
 
             try
             {
                 Operator.Subtraction.Evaluate("1", new StringBuilder("X"));
+                Assert.Fail("Should have thrown");
             }
             catch (Exception ex) when (ex.Message == "Cannot apply operator '-' to operands of type 'System.String' and 'System.Text.StringBuilder'") { }
 
             try
             {
                 Operator.Subtraction.Evaluate(1, new StringBuilder("X"));
+                Assert.Fail("Should have thrown");
             }
             catch (Exception ex) when (ex.Message == "Cannot apply operator '-' to operands of type 'System.Int32' and 'System.Text.StringBuilder'") { }
 
             try
             {
                 Operator.Subtraction.Evaluate(1, true);
+                Assert.Fail("Should have thrown");
             }
             catch (Exception ex) when (ex.Message == "Cannot apply operator '-' to operands of type 'System.Int32' and 'System.Boolean'") { }
         }
@@ -1404,36 +1412,42 @@ namespace HexInnovation
             try
             {
                 Operator.Multiply.Evaluate(january1, oneDay);
+                Assert.Fail("Should have thrown");
             }
             catch (Exception ex) when (ex.Message == "Cannot apply operator '*' to operands of type 'System.DateTime' and 'System.TimeSpan'") { }
 
             try
             {
                 Operator.Multiply.Evaluate(twoDays, oneDay);
+                Assert.Fail("Should have thrown");
             }
             catch (Exception ex) when (ex.Message == "Cannot apply operator '*' to operands of type 'System.TimeSpan' and 'System.TimeSpan'") { }
 
             try
             {
                 Operator.Multiply.Evaluate("a", 3D);
+                Assert.Fail("Should have thrown");
             }
             catch (Exception ex) when (ex.Message == "Cannot apply operator '*' to operands of type 'System.String' and 'System.Double'") { }
 
             try
             {
                 Operator.Multiply.Evaluate("1", new StringBuilder("X"));
+                Assert.Fail("Should have thrown");
             }
             catch (Exception ex) when (ex.Message == "Cannot apply operator '*' to operands of type 'System.String' and 'System.Text.StringBuilder'") { }
 
             try
             {
                 Operator.Multiply.Evaluate(1, new StringBuilder("X"));
+                Assert.Fail("Should have thrown");
             }
             catch (Exception ex) when (ex.Message == "Cannot apply operator '*' to operands of type 'System.Int32' and 'System.Text.StringBuilder'") { }
 
             try
             {
                 Operator.Multiply.Evaluate(1, true);
+                Assert.Fail("Should have thrown");
             }
             catch (Exception ex) when (ex.Message == "Cannot apply operator '*' to operands of type 'System.Int32' and 'System.Boolean'") { }
         }
@@ -1485,36 +1499,46 @@ namespace HexInnovation
             try
             {
                 Operator.Division.Evaluate(january1, oneDay);
+                Assert.Fail("Should have thrown");
             }
             catch (Exception ex) when (ex.Message == "Cannot apply operator '/' to operands of type 'System.DateTime' and 'System.TimeSpan'") { }
 
+#if NET35
             try
             {
                 Operator.Division.Evaluate(twoDays, oneDay);
+                Assert.Fail("Should have thrown");
             }
             catch (Exception ex) when (ex.Message == "Cannot apply operator '/' to operands of type 'System.TimeSpan' and 'System.TimeSpan'") { }
+#else
+            Assert.AreEqual(2.0, Operator.Division.Evaluate(twoDays, oneDay));
+#endif
 
             try
             {
                 Operator.Division.Evaluate("a", 3D);
+                Assert.Fail("Should have thrown");
             }
             catch (Exception ex) when (ex.Message == "Cannot apply operator '/' to operands of type 'System.String' and 'System.Double'") { }
 
             try
             {
                 Operator.Division.Evaluate("1", new StringBuilder("X"));
+                Assert.Fail("Should have thrown");
             }
             catch (Exception ex) when (ex.Message == "Cannot apply operator '/' to operands of type 'System.String' and 'System.Text.StringBuilder'") { }
 
             try
             {
                 Operator.Division.Evaluate(1, new StringBuilder("X"));
+                Assert.Fail("Should have thrown");
             }
             catch (Exception ex) when (ex.Message == "Cannot apply operator '/' to operands of type 'System.Int32' and 'System.Text.StringBuilder'") { }
 
             try
             {
                 Operator.Division.Evaluate(1, true);
+                Assert.Fail("Should have thrown");
             }
             catch (Exception ex) when (ex.Message == "Cannot apply operator '/' to operands of type 'System.Int32' and 'System.Boolean'") { }
         }
@@ -1567,36 +1591,42 @@ namespace HexInnovation
             try
             {
                 Operator.Remainder.Evaluate(january1, oneDay);
+                Assert.Fail("Should have thrown");
             }
             catch (Exception ex) when (ex.Message == "Cannot apply operator '%' to operands of type 'System.DateTime' and 'System.TimeSpan'") { }
 
             try
             {
                 Operator.Remainder.Evaluate(twoDays, oneDay);
+                Assert.Fail("Should have thrown");
             }
             catch (Exception ex) when (ex.Message == "Cannot apply operator '%' to operands of type 'System.TimeSpan' and 'System.TimeSpan'") { }
 
             try
             {
                 Operator.Remainder.Evaluate("a", 3D);
+                Assert.Fail("Should have thrown");
             }
             catch (Exception ex) when (ex.Message == "Cannot apply operator '%' to operands of type 'System.String' and 'System.Double'") { }
 
             try
             {
                 Operator.Remainder.Evaluate("1", new StringBuilder("X"));
+                Assert.Fail("Should have thrown");
             }
             catch (Exception ex) when (ex.Message == "Cannot apply operator '%' to operands of type 'System.String' and 'System.Text.StringBuilder'") { }
 
             try
             {
                 Operator.Remainder.Evaluate(1, new StringBuilder("X"));
+                Assert.Fail("Should have thrown");
             }
             catch (Exception ex) when (ex.Message == "Cannot apply operator '%' to operands of type 'System.Int32' and 'System.Text.StringBuilder'") { }
 
             try
             {
                 Operator.Remainder.Evaluate(1, true);
+                Assert.Fail("Should have thrown");
             }
             catch (Exception ex) when (ex.Message == "Cannot apply operator '%' to operands of type 'System.Int32' and 'System.Boolean'") { }
         }
@@ -1649,36 +1679,42 @@ namespace HexInnovation
             try
             {
                 Operator.And.Evaluate(january1, oneDay);
+                Assert.Fail("Should have thrown");
             }
             catch (Exception ex) when (ex.Message == "Cannot apply operator '&&' to operands of type 'System.DateTime' and 'System.TimeSpan'") { }
 
             try
             {
                 Operator.And.Evaluate(twoDays, oneDay);
+                Assert.Fail("Should have thrown");
             }
             catch (Exception ex) when (ex.Message == "Cannot apply operator '&&' to operands of type 'System.TimeSpan' and 'System.TimeSpan'") { }
 
             try
             {
                 Operator.And.Evaluate("a", 3D);
+                Assert.Fail("Should have thrown");
             }
             catch (Exception ex) when (ex.Message == "Cannot apply operator '&&' to operands of type 'System.String' and 'System.Double'") { }
 
             try
             {
                 Operator.And.Evaluate("1", new StringBuilder("X"));
+                Assert.Fail("Should have thrown");
             }
             catch (Exception ex) when (ex.Message == "Cannot apply operator '&&' to operands of type 'System.String' and 'System.Text.StringBuilder'") { }
 
             try
             {
                 Operator.And.Evaluate(1, new StringBuilder("X"));
+                Assert.Fail("Should have thrown");
             }
             catch (Exception ex) when (ex.Message == "Cannot apply operator '&&' to operands of type 'System.Int32' and 'System.Text.StringBuilder'") { }
 
             try
             {
                 Operator.And.Evaluate(1, true);
+                Assert.Fail("Should have thrown");
             }
             catch (Exception ex) when (ex.Message == "Cannot apply operator '&&' to operands of type 'System.Int32' and 'System.Boolean'") { }
         }
@@ -1730,36 +1766,42 @@ namespace HexInnovation
             try
             {
                 Operator.Or.Evaluate(january1, oneDay);
+                Assert.Fail("Should have thrown");
             }
             catch (Exception ex) when (ex.Message == "Cannot apply operator '||' to operands of type 'System.DateTime' and 'System.TimeSpan'") { }
 
             try
             {
                 Operator.Or.Evaluate(twoDays, oneDay);
+                Assert.Fail("Should have thrown");
             }
             catch (Exception ex) when (ex.Message == "Cannot apply operator '||' to operands of type 'System.TimeSpan' and 'System.TimeSpan'") { }
 
             try
             {
                 Operator.Or.Evaluate("a", 3D);
+                Assert.Fail("Should have thrown");
             }
             catch (Exception ex) when (ex.Message == "Cannot apply operator '||' to operands of type 'System.String' and 'System.Double'") { }
 
             try
             {
                 Operator.Or.Evaluate("1", new StringBuilder("X"));
+                Assert.Fail("Should have thrown");
             }
             catch (Exception ex) when (ex.Message == "Cannot apply operator '||' to operands of type 'System.String' and 'System.Text.StringBuilder'") { }
 
             try
             {
                 Operator.Or.Evaluate(1, new StringBuilder("X"));
+                Assert.Fail("Should have thrown");
             }
             catch (Exception ex) when (ex.Message == "Cannot apply operator '||' to operands of type 'System.Int32' and 'System.Text.StringBuilder'") { }
 
             try
             {
                 Operator.Or.Evaluate(1, true);
+                Assert.Fail("Should have thrown");
             }
             catch (Exception ex) when (ex.Message == "Cannot apply operator '||' to operands of type 'System.Int32' and 'System.Boolean'") { }
         }
@@ -1938,36 +1980,37 @@ namespace HexInnovation
             try
             {
                 Operator.LessThan.Evaluate(january1, oneDay);
+                Assert.Fail("Should have thrown");
             }
             catch (Exception ex) when (ex.Message == "Cannot apply operator '<' to operands of type 'System.DateTime' and 'System.TimeSpan'") { }
 
-            try
-            {
-                Operator.LessThan.Evaluate(twoDays, oneDay);
-            }
-            catch (Exception ex) when (ex.Message == "Cannot apply operator '<' to operands of type 'System.TimeSpan' and 'System.TimeSpan'") { }
+            Assert.AreEqual(false, Operator.LessThan.Evaluate(twoDays, oneDay));
 
             try
             {
                 Operator.LessThan.Evaluate("a", 3D);
+                Assert.Fail("Should have thrown");
             }
             catch (Exception ex) when (ex.Message == "Cannot apply operator '<' to operands of type 'System.String' and 'System.Double'") { }
 
             try
             {
                 Operator.LessThan.Evaluate("1", new StringBuilder("X"));
+                Assert.Fail("Should have thrown");
             }
             catch (Exception ex) when (ex.Message == "Cannot apply operator '<' to operands of type 'System.String' and 'System.Text.StringBuilder'") { }
 
             try
             {
                 Operator.LessThan.Evaluate(1, new StringBuilder("X"));
+                Assert.Fail("Should have thrown");
             }
             catch (Exception ex) when (ex.Message == "Cannot apply operator '<' to operands of type 'System.Int32' and 'System.Text.StringBuilder'") { }
 
             try
             {
                 Operator.LessThan.Evaluate(1, true);
+                Assert.Fail("Should have thrown");
             }
             catch (Exception ex) when (ex.Message == "Cannot apply operator '<' to operands of type 'System.Int32' and 'System.Boolean'") { }
         }
@@ -2020,36 +2063,37 @@ namespace HexInnovation
             try
             {
                 Operator.GreaterThan.Evaluate(january1, oneDay);
+                Assert.Fail("Should have thrown");
             }
             catch (Exception ex) when (ex.Message == "Cannot apply operator '>' to operands of type 'System.DateTime' and 'System.TimeSpan'") { }
 
-            try
-            {
-                Operator.GreaterThan.Evaluate(twoDays, oneDay);
-            }
-            catch (Exception ex) when (ex.Message == "Cannot apply operator '>' to operands of type 'System.TimeSpan' and 'System.TimeSpan'") { }
+            Assert.AreEqual(true, Operator.GreaterThan.Evaluate(twoDays, oneDay));
 
             try
             {
                 Operator.GreaterThan.Evaluate("a", 3D);
+                Assert.Fail("Should have thrown");
             }
             catch (Exception ex) when (ex.Message == "Cannot apply operator '>' to operands of type 'System.String' and 'System.Double'") { }
 
             try
             {
                 Operator.GreaterThan.Evaluate("1", new StringBuilder("X"));
+                Assert.Fail("Should have thrown");
             }
             catch (Exception ex) when (ex.Message == "Cannot apply operator '>' to operands of type 'System.String' and 'System.Text.StringBuilder'") { }
 
             try
             {
                 Operator.GreaterThan.Evaluate(1, new StringBuilder("X"));
+                Assert.Fail("Should have thrown");
             }
             catch (Exception ex) when (ex.Message == "Cannot apply operator '>' to operands of type 'System.Int32' and 'System.Text.StringBuilder'") { }
 
             try
             {
                 Operator.GreaterThan.Evaluate(1, true);
+                Assert.Fail("Should have thrown");
             }
             catch (Exception ex) when (ex.Message == "Cannot apply operator '>' to operands of type 'System.Int32' and 'System.Boolean'") { }
         }
@@ -2102,36 +2146,37 @@ namespace HexInnovation
             try
             {
                 Operator.LessThanOrEqual.Evaluate(january1, oneDay);
+                Assert.Fail("Should have thrown");
             }
             catch (Exception ex) when (ex.Message == "Cannot apply operator '<=' to operands of type 'System.DateTime' and 'System.TimeSpan'") { }
 
-            try
-            {
-                Operator.LessThanOrEqual.Evaluate(twoDays, oneDay);
-            }
-            catch (Exception ex) when (ex.Message == "Cannot apply operator '<=' to operands of type 'System.TimeSpan' and 'System.TimeSpan'") { }
+            Assert.AreEqual(false, Operator.LessThanOrEqual.Evaluate(twoDays, oneDay));
 
             try
             {
                 Operator.LessThanOrEqual.Evaluate("a", 3D);
+                Assert.Fail("Should have thrown");
             }
             catch (Exception ex) when (ex.Message == "Cannot apply operator '<=' to operands of type 'System.String' and 'System.Double'") { }
 
             try
             {
                 Operator.LessThanOrEqual.Evaluate("1", new StringBuilder("X"));
+                Assert.Fail("Should have thrown");
             }
             catch (Exception ex) when (ex.Message == "Cannot apply operator '<=' to operands of type 'System.String' and 'System.Text.StringBuilder'") { }
 
             try
             {
                 Operator.LessThanOrEqual.Evaluate(1, new StringBuilder("X"));
+                Assert.Fail("Should have thrown");
             }
             catch (Exception ex) when (ex.Message == "Cannot apply operator '<=' to operands of type 'System.Int32' and 'System.Text.StringBuilder'") { }
 
             try
             {
                 Operator.LessThanOrEqual.Evaluate(1, true);
+                Assert.Fail("Should have thrown");
             }
             catch (Exception ex) when (ex.Message == "Cannot apply operator '<=' to operands of type 'System.Int32' and 'System.Boolean'") { }
         }
@@ -2184,36 +2229,37 @@ namespace HexInnovation
             try
             {
                 Operator.GreaterThanOrEqual.Evaluate(january1, oneDay);
+                Assert.Fail("Should have thrown");
             }
             catch (Exception ex) when (ex.Message == "Cannot apply operator '>=' to operands of type 'System.DateTime' and 'System.TimeSpan'") { }
 
-            try
-            {
-                Operator.GreaterThanOrEqual.Evaluate(twoDays, oneDay);
-            }
-            catch (Exception ex) when (ex.Message == "Cannot apply operator '>=' to operands of type 'System.TimeSpan' and 'System.TimeSpan'") { }
+            Assert.AreEqual(true, Operator.GreaterThanOrEqual.Evaluate(twoDays, oneDay));
 
             try
             {
                 Operator.GreaterThanOrEqual.Evaluate("a", 3D);
+                Assert.Fail("Should have thrown");
             }
             catch (Exception ex) when (ex.Message == "Cannot apply operator '>=' to operands of type 'System.String' and 'System.Double'") { }
 
             try
             {
                 Operator.GreaterThanOrEqual.Evaluate("1", new StringBuilder("X"));
+                Assert.Fail("Should have thrown");
             }
             catch (Exception ex) when (ex.Message == "Cannot apply operator '>=' to operands of type 'System.String' and 'System.Text.StringBuilder'") { }
 
             try
             {
                 Operator.GreaterThanOrEqual.Evaluate(1, new StringBuilder("X"));
+                Assert.Fail("Should have thrown");
             }
             catch (Exception ex) when (ex.Message == "Cannot apply operator '>=' to operands of type 'System.Int32' and 'System.Text.StringBuilder'") { }
 
             try
             {
                 Operator.GreaterThanOrEqual.Evaluate(1, true);
+                Assert.Fail("Should have thrown");
             }
             catch (Exception ex) when (ex.Message == "Cannot apply operator '>=' to operands of type 'System.Int32' and 'System.Boolean'") { }
         }
