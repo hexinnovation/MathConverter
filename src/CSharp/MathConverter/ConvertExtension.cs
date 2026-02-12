@@ -13,9 +13,6 @@ using System.Collections.Generic;
 #if MAUI
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Controls.Xaml;
-#elif XAMARIN
-using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
 #endif
 
 namespace HexInnovation;

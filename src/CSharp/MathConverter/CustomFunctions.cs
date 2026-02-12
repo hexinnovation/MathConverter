@@ -19,9 +19,7 @@ namespace HexInnovation
     {
         public override object Evaluate(CultureInfo cultureInfo)
         {
-#if XAMARIN
-            return Xamarin.Forms.BindableProperty.UnsetValue;
-#elif MAUI
+#if MAUI
             return Microsoft.Maui.Controls.BindableProperty.UnsetValue;
 #elif WPF
             return DependencyProperty.UnsetValue;

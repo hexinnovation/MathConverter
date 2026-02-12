@@ -20,11 +20,7 @@ using Assert = HexInnovation.MyAssert;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 #endif
 
-#if XAMARIN
-using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
-using Rect = Xamarin.Forms.Rectangle;
-#elif WPF
+#if WPF
 using BindableProperty = System.Windows.DependencyProperty;
 using System.Windows;
 using System.Windows.Data;

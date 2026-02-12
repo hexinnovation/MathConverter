@@ -6,11 +6,7 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 
-#if XAMARIN
-using Xamarin.Forms;
-using TypeConverterAttribute = Xamarin.Forms.TypeConverterAttribute;
-using PlatformTypeConverter = Xamarin.Forms.TypeConverter;
-#elif MAUI
+#if MAUI
 using Microsoft.Maui;
 using Microsoft.Maui.Controls;
 using PlatformTypeConverter = System.ComponentModel.TypeConverter;
@@ -129,10 +125,7 @@ namespace HexInnovation
         private Dictionary<string, AbstractSyntaxTree[]> _cachedResults = new Dictionary<string, AbstractSyntaxTree[]>();
 #if !WPF
         private static readonly Dictionary<Type, PlatformTypeConverter> PlatformTypeConverters = new()
-#if MAUI
-            { { typeof(GridLength), new GridLengthTypeConverter() } }
-#endif
-            ;
+            { { typeof(GridLength), new GridLengthTypeConverter() } };
 #endif
 
         /// <summary>

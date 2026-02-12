@@ -1,9 +1,7 @@
 ﻿using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-#if XAMARIN
-using Xamarin.Forms;
-#elif MAUI
+#if MAUI
 using Microsoft.Maui.Controls;
 #else
 using System.Windows;
@@ -15,9 +13,7 @@ using System.Windows.Markup;
 [assembly: ComVisible(false)]
 
 [assembly: XmlnsPrefix("http://hexinnovation.com/math", "math")]
-#if !WINDOWS_UWP && !NETSTANDARD1_0 && !NETSTANDARD1_3
 [assembly: XmlnsDefinition("http://hexinnovation.com/math", "HexInnovation")]
-#endif
 
 [assembly: InternalsVisibleTo("MathConverter.UnitTests,PublicKey=" +
     "0024000004800000940000000602000000240000525341310004000001000100056bb3f4bc6f27" +
