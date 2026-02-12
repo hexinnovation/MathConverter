@@ -49,7 +49,7 @@ namespace HexInnovation
     static class MyAssert
     {
         public static void AreEqual(object expected, object actual) => Xunit.Assert.Equal(expected, actual);
-        public static void Fail(string message) => Xunit.Assert.True(false, message);
+        public static void Fail(string message) => Xunit.Assert.Fail(message);
         public static void IsInstanceOfType(object actual, Type expected) => Xunit.Assert.IsType(expected, actual);
         public static void IsTrue(bool condition) => Xunit.Assert.True(condition);
         public static void IsFalse(bool condition) => Xunit.Assert.False(condition);
