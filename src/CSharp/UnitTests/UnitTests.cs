@@ -1036,6 +1036,14 @@ namespace HexInnovation
             Assert.IsTrue(ReferenceEquals(ConstantValueFunction.Value, _converter.Convert(null, typeof(object), "ConstValue()", CultureInfo.InvariantCulture)));
 
             _converter.CustomFunctions.Add(CustomFunctionDefinition.Create<ThreeArgFunction>("ThreeArg"));
+            _converter.CustomFunctions.Add(CustomFunctionDefinition.Create<ThreeArgFunction>("threearg"));
+
+            try
+            {
+                _converter.Convert(new object[0], typeof(object), "Threearg()", new CultureInfo("de"));
+                Assert.Fail("Functions should be case-sensitive.");
+            }
+            catch (Exception ex) when (ex is { InnerException: ParsingException { InnerException: { Message: { } message } } } && message == "Functions are case-sensitive. \"Threearg\" is an invalid function name. Did you mean to call one of the following functions? \"ThreeArg\", \"threearg\"") { }
 
             try
             {
