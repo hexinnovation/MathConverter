@@ -854,6 +854,8 @@ namespace HexInnovation
             Assert.AreEqual(4.0, _converter.Convert(new object[] { null, 3, 5 }, typeof(object), "Avg(x;y;z)", new CultureInfo("de")));
             Assert.AreEqual("35", _converter.Convert(new object[] { null, 3, 5 }, typeof(object), "Concat(x;y;z)", new CultureInfo("de")));
             Assert.AreEqual("3x5", _converter.Convert(new object[] { null, 3, 5 }, typeof(object), "Concat(x;y;\"x\";z)", new CultureInfo("de")));
+            Assert.AreEqual("Hello, World!, ", _converter.Convert(new object[] { "Hello", "World!" }, typeof(object), "Join(', ', x, y, null)", new CultureInfo("de")));
+            Assert.AreEqual("Hello, World!, ", _converter.Convert(new object[] { new object[] { "Hello", "World!", null } }, typeof(object), "Join(', ', x)", new CultureInfo("de")));
             Assert.AreEqual(true, _converter.Convert(new object[] { "Hello world", "Hello" }, typeof(object), "Contains(\"Hello world\", `Hello`)", new CultureInfo("de")));
             Assert.AreEqual(true, _converter.Convert(new object[] { "Hello world", "Hello" }, typeof(object), "Contains(\"Hello world\", y)", new CultureInfo("de")));
             Assert.AreEqual(true, _converter.Convert(new object[] { "Hello world", "Hello" }, typeof(object), "Contains(x, `Hello`)", new CultureInfo("de")));
