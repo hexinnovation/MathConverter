@@ -72,12 +72,16 @@ namespace HexInnovation
     [TestClass]
     public class MathConverterTests
     {
+
+#if XUNIT
+        private readonly MathConverter _converter;
+        private readonly MathConverter _converterNoCache;
+
+        public MathConverterTests()
+#else
         private MathConverter _converter;
         private MathConverter _converterNoCache;
 
-#if XUNIT
-        public MathConverterTests()
-#else
         [TestInitialize]
         public void Initialize()
 #endif
@@ -110,7 +114,7 @@ namespace HexInnovation
                 _converter.Convert([], typeof(object), "x++x", new CultureInfo("de"));
                 Assert.Fail("The ++ operator should is not supported, so this statement should throw an exception.");
             }
-            catch (Exception ex) when (ex is { InnerException: ParsingException { InnerException.Message: "The ++ operator is not supported." } }) { }
+            catch (Exception ex) when (ex is { InnerException: ParsingException { Message: { } message } } && message.Contains("The ++ operator is not supported.")) { }
 
             Assert.AreEqual(-4*-x, _converter.Convert(args, typeof(object), "-4*-x", new CultureInfo("de")));
             Assert.AreEqual(-4*(-x), _converter.Convert(args, typeof(object), "-4(-x)", new CultureInfo("de")));
@@ -127,7 +131,7 @@ namespace HexInnovation
                 _converter.Convert([], typeof(object), "4--x", new CultureInfo("de"));
                 Assert.Fail("The -- operator should is not supported, so this statement should throw an exception.");
             }
-            catch (Exception ex) when (ex is { InnerException: ParsingException { InnerException.Message: "The -- operator is not supported." } }) { }
+            catch (Exception ex) when (ex is { InnerException: ParsingException { Message: { } message } } && message.Contains("The -- operator is not supported.")) { }
 
             Assert.AreEqual(+4 -+x+-+-+-+ +-x, _converter.Convert(args, typeof(object), "+4 -+x+-+-+-+ +-x", new CultureInfo("de")));
             Assert.AreEqual(+4+ +-+x+-+-+-+ +-x, _converter.Convert(args, typeof(object), "+4+ +-+x+-+-+-+ +-x", new CultureInfo("de")));
@@ -520,6 +524,7 @@ namespace HexInnovation
         [TestMethod]
         public void TestOrderOfOperations()
         {
+#pragma warning disable IDE0075 // Simplify conditional expression
             {
                 bool? x = true;
                 bool? y = false;
@@ -775,6 +780,7 @@ namespace HexInnovation
                 Assert.AreEqual((true ? false : true) ? false : true, _converter.Convert(args, typeof(object), "(true ? false : true) ? false : true", new CultureInfo("de")));
                 Assert.AreEqual(true ? false : (true ? false : true), _converter.Convert(args, typeof(object), "true ? false : (true ? false : true)", new CultureInfo("de")));
             }
+#pragma warning restore IDE0075 // Simplify conditional expression
         }
         [TestMethod]
         public void TestInterpolatedStrings()
@@ -1052,21 +1058,21 @@ namespace HexInnovation
                 _converter.Convert([], typeof(object), "ThreeArg()", new CultureInfo("de"));
                 Assert.Fail("ThreeArg function should not parse when passed zero parameters.");
             }
-            catch (Exception ex) when (ex is { InnerException: ParsingException { InnerException.Message: "The ThreeArg function cannot accept 0 parameters." } }) { }
+            catch (Exception ex) when (ex is { InnerException: ParsingException { Message: { } message } } && message.Contains("The ThreeArg function cannot accept 0 parameters.")) { }
 
             try
             {
                 _converter.Convert([], typeof(object), "ThreeArg(1, 2)", new CultureInfo("de"));
                 Assert.Fail("ThreeArg function should not parse when passed two parameters.");
             }
-            catch (Exception ex) when (ex is { InnerException: ParsingException { InnerException.Message: "The ThreeArg function cannot accept 2 parameters." } }) { }
+            catch (Exception ex) when (ex is { InnerException: ParsingException { Message: { } message } }  && message.Contains("The ThreeArg function cannot accept 2 parameters.")) { }
 
             try
             {
                 _converter.Convert([], typeof(object), "ThreeArg(1, 2, 3, 4)", new CultureInfo("de"));
                 Assert.Fail("ThreeArg function should not parse when passed four parameters.");
             }
-            catch (Exception ex) when (ex is { InnerException: ParsingException { InnerException.Message: "The ThreeArg function cannot accept 4 parameters." } }) { }
+            catch (Exception ex) when (ex is { InnerException: ParsingException { Message: { } message } } && message.Contains("The ThreeArg function cannot accept 4 parameters.")) { }
 
             Assert.AreEqual(1.0, _converter.Convert([], typeof(object), "ThreeArg(1, 2, 3)", new CultureInfo("de")));
             Assert.AreEqual(true, _converter.Convert([], typeof(object), "ThreeArg(true, 2, 3)", new CultureInfo("de")));
@@ -1088,18 +1094,21 @@ namespace HexInnovation
         [TestMethod]
         public void TestEnumConversion()
         {
-#pragma warning disable IDE0001 // Simplify name Nullable<Flags>
-
             foreach (var flags in new object[] { Flags.A, Flags.D, Flags.B | Flags.C, (Flags)294381, Letters.A, Letters.B, Letters.B | Letters.C })
             {
-                Assert.AreEqual((Flags)flags, MathConverter.ConvertType(flags is Flags ? (int)(Flags)flags : (int)(Letters)flags, typeof(Flags)));
-                Assert.AreEqual((Flags)flags, MathConverter.ConvertType(flags is Flags ? (int)(Flags)flags : (int)(Letters)flags, typeof(Nullable<Flags>)));
+                Assert.AreEqual((Flags)flags, MathConverter.ConvertType(flags switch { Flags f => (int)f, Letters l => (int)l, _ => throw new ArgumentOutOfRangeException() }, typeof(Flags)));
+                Assert.AreEqual((Flags)flags, MathConverter.ConvertType(flags switch { Flags f => (int)f, Letters l => (int)l, _ => throw new ArgumentOutOfRangeException() }, typeof(Flags?)));
 
                 Assert.AreEqual((Flags)flags, MathConverter.ConvertType(flags, typeof(Flags)));
-                Assert.AreEqual((Flags)flags, MathConverter.ConvertType(flags, typeof(Nullable<Flags>)));
+                Assert.AreEqual((Flags)flags, MathConverter.ConvertType(flags, typeof(Flags?)));
 
-                Assert.AreEqual((Flags)Enum.Parse(typeof(Flags), flags.ToString()), MathConverter.ConvertType(flags.ToString(), typeof(Flags)));
-                Assert.AreEqual((Flags)Enum.Parse(typeof(Flags), flags.ToString()), MathConverter.ConvertType(flags.ToString(), typeof(Nullable<Flags>)));
+#if NET9_0_OR_GREATER
+                Assert.AreEqual(Enum.Parse<Flags>(flags.ToString()), MathConverter.ConvertType(flags.ToString(), typeof(Flags)));
+                Assert.AreEqual(Enum.Parse<Flags>(flags.ToString()), MathConverter.ConvertType(flags.ToString(), typeof(Flags?)));
+#else
+                Assert.AreEqual(Enum.Parse(typeof(Flags), flags.ToString()), MathConverter.ConvertType(flags.ToString(), typeof(Flags)));
+                Assert.AreEqual(Enum.Parse(typeof(Flags), flags.ToString()), MathConverter.ConvertType(flags.ToString(), typeof(Flags?)));
+#endif
             }
 
             Assert.AreEqual((Flags)Letters.A, MathConverter.ConvertType(Letters.A, typeof(Flags)));
@@ -1115,8 +1124,6 @@ namespace HexInnovation
                 Assert.Fail("The TypeConverter fails to convert invalid strings to enum.");
             }
             catch (FormatException) { }
-
-#pragma warning restore IDE0001 // Simplify name Nullable<Flags>
         }
 
         [TestMethod]
@@ -2319,16 +2326,16 @@ namespace HexInnovation
             Assert.AreEqual(typeof(bool), convertToBool[0].ReturnType);
 
             // We can convert directly from ArithmeticOperatorTester to HaveValueClass1.
-            var convertToHaveValue1 = Operator.GetImplicitOperatorPath("op_Implicit", typeof(ArithmeticOperatorTester),
+            var convertToHaveValueClass1 = Operator.GetImplicitOperatorPath("op_Implicit", typeof(ArithmeticOperatorTester),
                 typeof(HaveValueClass1));
-            Assert.AreEqual(1, convertToHaveValue1.Count);
-            Assert.AreEqual(typeof(HaveValueClass1), convertToHaveValue1[0].ReturnType);
+            Assert.AreEqual(1, convertToHaveValueClass1.Count);
+            Assert.AreEqual(typeof(HaveValueClass1), convertToHaveValueClass1[0].ReturnType);
 
             // We can convert directly from ArithmeticOperatorTester to HaveValueClass1, which implements IHaveValue.
             var convertToIHaveValue = Operator.GetImplicitOperatorPath("op_Implicit", typeof(ArithmeticOperatorTester),
                 typeof(IHaveValue));
-            Assert.AreEqual(1, convertToHaveValue1.Count);
-            Assert.AreEqual(typeof(HaveValueClass1), convertToHaveValue1[0].ReturnType);
+            Assert.AreEqual(1, convertToIHaveValue.Count);
+            Assert.AreEqual(typeof(HaveValueClass1), convertToIHaveValue[0].ReturnType);
 
             // We can convert to int, but we have to go through HaveValueClass1 to get there.
             var convertToInt =
@@ -2397,13 +2404,9 @@ namespace HexInnovation
         }
     }
 
-    internal class ArithmeticOperatorTester
+    internal class ArithmeticOperatorTester(int value)
     {
-        public ArithmeticOperatorTester(int value)
-        {
-            Value = value;
-        }
-        public int Value { get; }
+        public int Value { get; } = value;
         public static ArithmeticOperatorTester operator +(ArithmeticOperatorTester x, ArithmeticOperatorTester y)
         {
             return new ArithmeticOperatorTester(x.Value + y.Value);
@@ -2607,9 +2610,8 @@ namespace HexInnovation
 
         public override string ToString() => $"{GetType().Name}: {Value}";
     }
-    internal class ArithmeticOperatorTesterSubClass1 : ArithmeticOperatorTester
+    internal class ArithmeticOperatorTesterSubClass1(int value) : ArithmeticOperatorTester(value)
     {
-        public ArithmeticOperatorTesterSubClass1(int value) : base(value) { }
         public static ArithmeticOperatorTester operator +(ArithmeticOperatorTesterSubClass1 x, ArithmeticOperatorTester y)
         {
             return new ArithmeticOperatorTester(x.Value + y.Value);
@@ -2777,17 +2779,12 @@ namespace HexInnovation
             return Value.GetHashCode();
         }
     }
-    internal class ArithmeticOperatorTesterSubClass2 : ArithmeticOperatorTesterSubClass1, IHaveValue, IHaveValue<int>
+    internal class ArithmeticOperatorTesterSubClass2(int value) : ArithmeticOperatorTesterSubClass1(value), IHaveValue, IHaveValue<int>
     {
-        public ArithmeticOperatorTesterSubClass2(int value) : base(value) { }
     }
-    internal class HaveValueClass1 : IHaveValue
+    internal class HaveValueClass1(int value) : IHaveValue
     {
-        public HaveValueClass1(int value)
-        {
-            Value = value;
-        }
-        public int Value { get; }
+        public int Value { get; } = value;
         public override string ToString() => $"{GetType().Name}: {Value}";
 
         public static HaveValueClass1 operator &(HaveValueClass1 x, HaveValueClass1 y)
@@ -2815,13 +2812,9 @@ namespace HexInnovation
         public static implicit operator int(HaveValueClass1 value) => value.Value;
         public static implicit operator HaveValueClass1(int value) => new(value);
     }
-    internal class HaveValueClass2 : IHaveValue, IHaveValue<int>
+    internal class HaveValueClass2(int value) : IHaveValue, IHaveValue<int>
     {
-        public HaveValueClass2(int value)
-        {
-            Value = value;
-        }
-        public int Value { get; }
+        public int Value { get; } = value;
         public override string ToString() => $"{GetType().Name}: {Value}";
     }
     internal interface IHaveValue
