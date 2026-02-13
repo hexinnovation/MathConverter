@@ -9,7 +9,6 @@ using System.Linq;
 using Microsoft.Maui.Controls;
 #elif WPF
 using BindableProperty = System.Windows.DependencyProperty;
-using System.Windows;
 using System.Windows.Data;
 using System.Windows.Markup;
 #endif
@@ -28,22 +27,15 @@ namespace HexInnovation
         /// </summary>
         /// <param name="number">The number for which we want to compute the ordinal value.</param>
         /// <returns>A string that indicates to a human what position a number is in (1st, 2nd, 3rd, etc.)</returns>
-        internal static string ComputeOrdinal(int number)
-        {
-            if (number % 100 < 11 || number % 100 > 13)
+        internal static string ComputeOrdinal(int number) =>
+            (number % 100 is < 11 or > 13, number % 10) switch
             {
-                switch (number % 10)
-                {
-                    case 1:
-                        return $"{number}st";
-                    case 2:
-                        return $"{number}nd";
-                    case 3:
-                        return $"{number}rd";
-                }
-            }
-            return $"{number}th";
-        }
+                (true, 1) => $"{number}st",
+                (true, 2) => $"{number}nd",
+                (true, 3) => $"{number}rd",
+                _ => $"{number}th",
+            };
+
         /// <summary>
         /// Sanitizes an argument as specified by a Binding.
         /// Converts DependencyProperty.UnsetValue with a warning to identify to a developer which Binding might not be correctly configured.
@@ -78,20 +70,14 @@ namespace HexInnovation
         /// </summary>
         public MathConverter()
         {
-            CustomFunctions = new CustomFunctionCollection();
+            CustomFunctions = [];
             CustomFunctions.RegisterDefaultFunctions();
         }
 
         /// <summary>
         /// If <see cref="UseCache"/> is set to true, clears the cache of this MathConverter object; If <see cref="UseCache"/> is false, this method does nothing.
         /// </summary>
-        public void ClearCache()
-        {
-            if (UseCache)
-            {
-                _cachedResults.Clear();
-            }
-        }
+        public void ClearCache() => _cachedResults?.Clear();
 
         /// <summary>
         /// True to use a cache, false to parse every expression every time.
@@ -102,9 +88,9 @@ namespace HexInnovation
             get => _cachedResults != null;
             set
             {
-                if (value && _cachedResults == null)
-                    _cachedResults = new Dictionary<string, AbstractSyntaxTree[]>();
-                else if (!value)
+                if (value)
+                    _cachedResults ??= [];
+                else
                     _cachedResults = null;
             }
         }
@@ -113,64 +99,62 @@ namespace HexInnovation
         /// Defaults to <c>false</c>, which implicitly converts <see cref="BindableProperty.UnsetValue"/> to <c>null</c> with a debug warning.
         /// Set to <c>true</c> to actually allow UnsetValue to be used to convert.
         /// </summary>
-        public bool AllowUnsetValue { get; set; } = false;
+        public bool AllowUnsetValue { get; set; }
 
         /// <summary>
         /// A dictionary which stores a cache of AbstractSyntaxTrees for given ConverterParameter strings.
         /// This eliminates the need to parse the same statement over and over.
         /// </summary>
-        private Dictionary<string, AbstractSyntaxTree[]> _cachedResults = new Dictionary<string, AbstractSyntaxTree[]>();
+        private Dictionary<string, AbstractSyntaxTree[]> _cachedResults = [];
 #if !WPF
-        private static readonly Dictionary<Type, TypeConverter> PlatformTypeConverters = new();
+        private static readonly Dictionary<Type, TypeConverter> PlatformTypeConverters = [];
 #endif
 
         /// <summary>
         /// The conversion for a single value.
         /// </summary>
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            return Convert(new[] { value }, targetType, parameter, culture);
-        }
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture) => Convert([value], targetType, parameter, culture);
+
         /// <summary>
         /// The actual convert method, for zero or more parameters.
         /// </summary>
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            var sanitizedValues = values?.Select((v, i) => SanitizeBinding(v, i, values.Length, parameter, targetType)).ToArray();
+            object[] sanitizedValues = values?.Select((v, i) => SanitizeBinding(v, i, values.Length, parameter, targetType)).ToArray() ?? [];
 
-            List<object> evaluatedValues;
+            object[] evaluatedValues;
 
-            if (parameter is string param)
+            switch (parameter)
             {
-                // We start by evaluating the parameter passed in. For certain types (e.g. Rect), we allow multiple values to be specified in the parameter, separated by either commas or semicolons.
-                // So the parameter "x,2x,x+y,2y" has four parts, which each parse to their own AbstractSyntaxTree: "x", "2x", "x+y", and "2y".
-                var parameterParts = ParseParameter(param);
+                case string param:
+                    // We start by evaluating the parameter passed in. For certain types (e.g. Rect), we allow multiple values to be specified in the parameter, separated by either commas or semicolons.
+                    // So the parameter "x,2x,x+y,2y" has four parts, which each parse to their own AbstractSyntaxTree: "x", "2x", "x+y", and "2y".
+                    var parameterParts = ParseParameter(param);
 
-                // We now compute the evaluated values. In the above example, the parts would evaluate to four doubles: values[0], 2*values[0], values[0]+values[1], and 2*values[1].
-                try
-                {
-                    evaluatedValues = parameterParts.Select(p => p.Evaluate(culture, sanitizedValues)).ToList();
-                }
-                catch (NodeEvaluationException ex)
-                {
-                    throw new EvaluationException(param, values, ex);
-                }
-            }
-            else if (parameter == null)
-            {
-                // If there is no parameter, we'll just use the value(s) specified by the (Multi)Binding.
-                // In this case, MathConverter is merely used for type conversion (e.g. turning 4 doubles into a Rect).
-                evaluatedValues = sanitizedValues?.ToList() ?? new List<object>();
-            }
-            else
-            {
-                throw new ArgumentException("The Converter Parameter must be a string.", nameof(parameter));
+                    // We now compute the evaluated values. In the above example, the parts would evaluate to four doubles: values[0], 2*values[0], values[0]+values[1], and 2*values[1].
+                    try
+                    {
+                        evaluatedValues = [.. parameterParts.Select(p => p.Evaluate(culture, sanitizedValues))];
+                    }
+                    catch (NodeEvaluationException ex)
+                    {
+                        throw new EvaluationException(param, values, ex);
+                    }
+                    break;
+
+                case null:
+                    // If there is no parameter, we'll just use the value(s) specified by the (Multi)Binding.
+                    // In this case, MathConverter is merely used for type conversion (e.g. turning 4 doubles into a Rect).
+                    evaluatedValues = sanitizedValues ?? [];
+                    break;
+                default:
+                    throw new ArgumentException("The Converter Parameter must be a string.", nameof(parameter));
             }
 
             // Now if there are more than one value, we will simply merge the values with commas, and use TypeConverter to handle the conversion to the appropriate type.
             // We do this in invariant culture to ensure that any type conversion (which must happen in InvariantCulture) succeeds.
             var stringJoinCulture = targetType == typeof(string) ? culture : CultureInfo.InvariantCulture;
-            var finalAnswerToConvert = evaluatedValues?.Count == 1 ? evaluatedValues[0] : string.Join(",", evaluatedValues.Select(p => string.Format(stringJoinCulture, "{0}", p)));
+            var finalAnswerToConvert = evaluatedValues switch { [null] => null, [{ } onlyItem] => onlyItem, _ => string.Join(",", evaluatedValues.Select(x => string.Format(stringJoinCulture, "{0}", x))) };
 
             return ConvertType(finalAnswerToConvert, targetType);
         }
@@ -195,26 +179,19 @@ namespace HexInnovation
 
             // We might not need to convert.
             if (targetType.IsInstanceOfType(value))
-            {
                 return value;
-            }
 
             // We need to convert the answer to the appropriate type. Let's start with the default TypeConverter.
             var converter = TypeDescriptor.GetConverter(targetType);
 
             if (converter.CanConvertFrom(value.GetType()))
-            {
                 // We don't want to use the CultureInfo here when converting, because Rect conversion is broken in some cultures.
                 // We'll keep these conversions working in InvariantCulture.
                 return converter.ConvertFrom(null, CultureInfo.InvariantCulture, value);
-            }
 
             // We know we're not returning null... If we're trying to convert to a Nullable<SomeStruct>, let's just convert to SomeStruct instead.
-            var newTarget = Nullable.GetUnderlyingType(targetType);
-            if (newTarget != null)
-            {
+            if (Nullable.GetUnderlyingType(targetType) is { } newTarget)
                 targetType = newTarget;
-            }
 
 #if !WPF
             // Let's try PlatformTypeConverter
@@ -231,22 +208,17 @@ namespace HexInnovation
             try
             {
                 if (Operator.DoesImplicitConversionExist(value.GetType(), targetType, true))
-                {
                     // The default TypeConverter doesn't support this conversion. Let's try an implicit conversion.
                     return Operator.DoImplicitConversion(value, targetType);
-                }
-                else if (value is IConvertible)
+
+                if (value is IConvertible)
                 {
                     if (targetType == typeof(char))
-                    {
                         // We'll add a special cast for conversions to char, where we'll convert to int first.
-                        return System.Convert.ToChar((int)System.Convert.ChangeType(value, typeof(int)));
-                    }
-                    else
-                    {
-                        // Let's try System.Convert. This might throw an exception.
-                        return System.Convert.ChangeType(value, targetType);
-                    }
+                        return System.Convert.ToChar((int)System.Convert.ChangeType(value, typeof(int), CultureInfo.InvariantCulture));
+
+                    // Let's try System.Convert. This might throw an exception.
+                    return System.Convert.ChangeType(value, targetType, CultureInfo.InvariantCulture);
                 }
             }
             catch (InvalidCastException) { }
@@ -254,9 +226,7 @@ namespace HexInnovation
             try
             {
                 if (targetType.IsEnum)
-                {
                     return Enum.ToObject(targetType, value);
-                }
             }
             catch (ArgumentException) { }
 
@@ -280,20 +250,17 @@ namespace HexInnovation
             // WE CAN'T CONVERT BACK
             throw new NotSupportedException();
         }
+
 #if !WPF
         private static TypeConverter GetPlatformTypeConverter(Type targetType)
         {
-            if (PlatformTypeConverters.ContainsKey(targetType))
-            {
-                return PlatformTypeConverters[targetType];
-            }
+            if (PlatformTypeConverters.TryGetValue(targetType, out var x))
+                return x;
 
             foreach (var attribute in Attribute.GetCustomAttributes(targetType).OfType<TypeConverterAttribute>())
             {
                 if (Type.GetType(attribute.ConverterTypeName, false) is { } converterType)
-                {
                     return PlatformTypeConverters[targetType] = (TypeConverter)Activator.CreateInstance(converterType);
-                }
             }
 
             return PlatformTypeConverters[targetType] = null;
@@ -307,12 +274,7 @@ namespace HexInnovation
         /// </summary>
         /// <param name="parameter">The parameter that we're parsing</param>
         /// <returns>A syntax tree that can be evaluated later.</returns>
-        internal AbstractSyntaxTree[] ParseParameter(string parameter)
-        {
-            if (_cachedResults == null)
-                return Parser.Parse(CustomFunctions, parameter);
-
-            return _cachedResults.ContainsKey(parameter) ? _cachedResults[parameter] : (_cachedResults[parameter] = Parser.Parse(CustomFunctions, parameter));
-        }
+        internal AbstractSyntaxTree[] ParseParameter(string parameter) =>
+            _cachedResults?.TryGetValue(parameter, out var x) is true ? x : Parser.Parse(CustomFunctions, parameter) is { } y ? _cachedResults is null ? y : _cachedResults[parameter] = y : (_cachedResults?[parameter] = null);
     }
 }
