@@ -71,13 +71,9 @@ internal sealed class VariableNode(int index) : AbstractSyntaxTree
 {
     public override object DoEvaluate(CultureInfo cultureInfo, object[] bindingValues) =>
         bindingValues.Length <= index ?
-#if NET5_0_OR_GREATER
 #pragma warning disable CA2201 // Do not raise reserved exception types
-#endif
             throw new IndexOutOfRangeException($"Error accessing binding value {this}. {bindingValues.Length switch { 0 => "No values were", 1 => "Only one value was", { } n => $"Only {n} values were" }} specified.") :
-#if NET5_0_OR_GREATER
 #pragma warning restore CA2201 // Do not raise reserved exception types
-#endif
             bindingValues[index];
     public override string ToString() =>
         index switch

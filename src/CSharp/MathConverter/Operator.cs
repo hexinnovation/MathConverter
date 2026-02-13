@@ -6,13 +6,9 @@ using System.Reflection;
 
 namespace HexInnovation
 {
-#if NET5_0_OR_GREATER
 #pragma warning disable CA1716 // Identifiers should not match keywords
-#endif
     public abstract class Operator
-#if NET5_0_OR_GREATER
 #pragma warning restore CA1716 // Identifiers should not match keywords
-#endif
     {
         /// <summary>
         /// The binary "^" operator. This operator returns the first operand raised to the power of the second.
@@ -173,15 +169,11 @@ namespace HexInnovation
             CompletelyCustom = 0,
             Number = 1,
             Boolean = 2,
-#if NET5_0_OR_GREATER
 #pragma warning disable CA1720 // Identifier contains type name
-#endif
             String = 4,
             StringObject = 8,
             Object = 16,
-#if NET5_0_OR_GREATER
 #pragma warning restore CA1720 // Identifier contains type name
-#endif
         }
         private static IEnumerable<Type> GetTypeAndSubtypes(Type type)
         {

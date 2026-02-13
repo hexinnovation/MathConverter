@@ -24,6 +24,9 @@
     <File Path="../ReadmeAssets/True Rounded Rectangle.png" />
     <File Path="../ReadmeAssets/Wide Rounded Rectangle.png" />
   </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+  </Folder>
   <Folder Name="/UnitTests/">
     <Project Path="Projects/Maui/UnitTests/MathConverter.UnitTests.Maui.csproj" />
     <Project Path="Projects/WPF/UnitTests/MathConverter.UnitTests.WPF.csproj" />

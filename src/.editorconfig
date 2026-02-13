@@ -1,0 +1,19 @@
+root = true
+
+[*]
+dotnet_analyzer_diagnostic.severity = warning
+
+dotnet_diagnostic.IDE0008.severity = none # Use explicit type // don't use var
+dotnet_diagnostic.IDE0010.severity = none # Add missing cases // require all cases on a switch (enum)
+dotnet_diagnostic.IDE0072.severity = none # Add missing cases // require all cases on a switch (enum)
+dotnet_diagnostic.IDE0011.severity = none # Add braces // require curly brackets after if/else/for/while
+dotnet_diagnostic.IDE0058.severity = none # Expression value is never used // don't require non-void method call to be assigned
+dotnet_diagnostic.IDE0021.severity = none # Use block body for constructor // Don't require curly brackets for constructor bodies
+dotnet_diagnostic.IDE0022.severity = none # Use block body for method // Don't require curly brackets for method bodies
+dotnet_diagnostic.IDE0023.severity = none # Use block body for conversion operator // Don't require curly brackets for conversion operator bodies
+dotnet_diagnostic.IDE0024.severity = none # Use block body for operator // Don't require curly brackets for operator bodies
+dotnet_diagnostic.IDE0160.severity = none # Convert to block scoped namespace // Don't require curly brackets for namespace bodies
+dotnet_diagnostic.IDE0079.severity = none # Remove unnecessary suppression // Don't require removal of unnecessary suppression attributes. They're necessary for some frameworks.
+
+[*.xml]
+indent_size = 2
