@@ -8,46 +8,28 @@ namespace HexInnovation
 {
     public class CustomFunctionCollection : ICollection<CustomFunctionDefinition>, IList
     {
-        private readonly Dictionary<string, Type> _functions = new Dictionary<string, Type>();
+        private readonly Dictionary<string, Type> _functions = [];
         public int Count => _functions.Count;
         public bool IsReadOnly => false;
 
         public void Add(CustomFunctionDefinition item)
         {
-            if (item == null)
-            {
-                throw new NullReferenceException($"The {nameof(CustomFunctionDefinition)} cannot be null.");
-            }
-            else if (item.Function == null || !typeof(CustomFunction).IsAssignableFrom(item.Function))
-            {
-                throw new NullReferenceException($"The {nameof(CustomFunctionDefinition.Function)} property must be an instance of {nameof(CustomFunction)}.");
-            }
-            else
-            {
-                if (item.Name == null)
-                {
-                    throw new NullReferenceException($"The {nameof(CustomFunctionDefinition.Name)} property must not be null.");
-                }
-                else if (_functions.ContainsKey(item.Name))
-                {
-                    throw new ArgumentException($"A function with the name \"{item.Name}\" has already been added.");
-                }
-                else
-                {
-                    switch (item.Name)
-                    {
-                        case "e":
-                        case "pi":
-                        case "null":
-                        case "true":
-                        case "x":
-                        case "y":
-                        case "z":
-                            throw new ArgumentException($"\"{item.Name}\" is a reserved keyword. You cannot add a function with that name.");
-                    }
-                    _functions[item.Name] = item.Function;
-                }
-            }
+            if (item is null)
+                throw new ArgumentNullException(nameof(item), $"The {nameof(CustomFunctionDefinition)} cannot be null.");
+
+            if (item.Function == null || !typeof(CustomFunction).IsAssignableFrom(item.Function))
+                throw new ArgumentException($"The {nameof(CustomFunctionDefinition.Function)} property must be an instance of {nameof(CustomFunction)}.", nameof(item));
+
+            if (item.Name == null)
+                throw new ArgumentException($"The {nameof(CustomFunctionDefinition.Name)} property must not be null.", nameof(item));
+
+            if (_functions.ContainsKey(item.Name))
+                throw new ArgumentException($"A function with the name \"{item.Name}\" has already been added.", nameof(item));
+
+            if (item.Name is "e" or "pi" or "null" or "true" or "x" or "y" or "z")
+                throw new ArgumentException($"\"{item.Name}\" is a reserved keyword. You cannot add a function with that name.", nameof(item));
+
+            _functions[item.Name] = item.Function;
         }
         public void Clear()
         {
@@ -117,60 +99,19 @@ namespace HexInnovation
             Add(CustomFunctionDefinition.Create<DoNothingFunction>("DoNothing"));
             Add(CustomFunctionDefinition.Create<TryCatchFunction>("TryCatch"));
         }
-        public bool Contains(CustomFunctionDefinition item)
-        {
-            if (item == null)
-                throw new NullReferenceException($"The {nameof(CustomFunctionDefinition)} must not be null.");
-            return _functions.TryGetValue(item.Name, out var @type) && type == item.Function;
-        }
-        private IEnumerable<CustomFunctionDefinition> ToIEnumerable()
-        {
-            return _functions.Select(x => new CustomFunctionDefinition { Name = x.Key, Function = x.Value });
-        }
-        public void CopyTo(CustomFunctionDefinition[] array, int arrayIndex)
-        {
-            CopyTo((Array)array, arrayIndex);
-        }
-        public IEnumerator<CustomFunctionDefinition> GetEnumerator()
-        {
-            return ToIEnumerable().GetEnumerator();
-        }
-        public bool Remove(CustomFunctionDefinition item)
-        {
-            if (Contains(item))
-            {
-                // ReSharper disable once PossibleNullReferenceException => if item is null, Contains(item) will throw.
-                return _functions.Remove(item.Name);
-            }
-            else
-            {
-                return false;
-            }
-        }
-        public bool Remove(string functionName)
-        {
-            return _functions.Remove(functionName);
-        }
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return ToIEnumerable().GetEnumerator();
-        }
+        public bool Contains(CustomFunctionDefinition item) => item is null ? throw new ArgumentNullException(nameof(item), $"The {nameof(CustomFunctionDefinition)} must not be null.") : _functions.TryGetValue(item.Name, out var @type) && type == item.Function;
+        private IEnumerable<CustomFunctionDefinition> ToIEnumerable() => _functions.Select(x => new CustomFunctionDefinition { Name = x.Key, Function = x.Value });
+        public void CopyTo(CustomFunctionDefinition[] array, int arrayIndex) => CopyTo((Array)array, arrayIndex);
+        public IEnumerator<CustomFunctionDefinition> GetEnumerator() => ToIEnumerable().GetEnumerator();
+        public bool Remove(CustomFunctionDefinition item) => Remove(item.Name);
+        public bool Remove(string functionName) => _functions.Remove(functionName);
+        IEnumerator IEnumerable.GetEnumerator() => ToIEnumerable().GetEnumerator();
 
         public bool TryGetFunction(string functionName, out CustomFunction function)
         {
-            if (_functions.TryGetValue(functionName, out var type))
-            {
-                function = Activator.CreateInstance(type) as CustomFunction;
+            function = _functions.TryGetValue(functionName, out var type) ? Activator.CreateInstance(type) as CustomFunction : null;
 
-                if (function != null)
-                {
-                    function.FunctionName = functionName;
-                }
-            }
-            else
-            {
-                function = null;
-            }
+            function?.FunctionName = functionName;
 
             return function != null;
         }
@@ -185,53 +126,27 @@ namespace HexInnovation
             set => throw new NotSupportedException();
         }
 
-        public void CopyTo(Array array, int index)
-        {
-            Array.Copy(ToIEnumerable().ToArray(), 0, array, index, Count);
-        }
+        public void CopyTo(Array array, int index) => Array.Copy(ToIEnumerable().ToArray(), 0, array, index, Count);
 
         public int Add(object value)
         {
-            if (value is CustomFunctionDefinition x)
-            {
-                Add(x);
-                return Count - 1;
-            }
-            else
+            if (value is not CustomFunctionDefinition x)
                 throw new ArgumentException("You can only add {CustomFunctionDefinition} objects.", nameof(value));
+
+            Add(x);
+            return Count - 1;
         }
 
-        public bool Contains(object value)
-        {
-            if (value is CustomFunctionDefinition x)
-                return Contains(x);
-            else
-                return false;
-        }
-
-        public int IndexOf(object value)
-        {
-            if (value is CustomFunctionDefinition x)
-                return IndexOf(x);
-            else
-                return -1;
-        }
-
-        public void Insert(int index, object value)
-        {
-            Add(value);
-        }
+        public bool Contains(object value) => value is CustomFunctionDefinition x && Contains(x);
+        public int IndexOf(object value) => value is CustomFunctionDefinition x ? IndexOf(x) : -1;
+        public void Insert(int index, object value) => Add(value);
 
         public void Remove(object value)
         {
             if (value is CustomFunctionDefinition x)
                 Remove(x);
         }
-
-        public void RemoveAt(int index)
-        {
-            throw new NotSupportedException();
-        }
+        public void RemoveAt(int index) => throw new NotSupportedException();
     }
     public class CustomFunctionDefinition
     {
