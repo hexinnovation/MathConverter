@@ -1,5 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+
+#if NET35
 using System.Linq;
+#endif
 
 namespace HexInnovation;
 
@@ -16,11 +20,11 @@ internal static class CompatibilityExtensions
         {
             return string.Concat([.. objects]);
         }
-#else
-        public static string Concat<T>(IEnumerable<T> objects)
-        {
-            return string.Concat(objects);
-        }
 #endif
+
+        public static string Format<T>(IFormatProvider provider, string format, IEnumerable<T> args)
+        {
+            return string.Format(provider, format, [.. args]);
+        }
     }
 }
