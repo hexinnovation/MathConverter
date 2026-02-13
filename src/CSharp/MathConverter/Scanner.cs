@@ -372,7 +372,7 @@ internal class Scanner : IDisposable
                                                             '`' => ScannerState.CaretString,
                                                             '"' => ScannerState.DoubleQuoteString,
                                                             '\'' => ScannerState.SingleQuoteString,
-                                                            _ => throw new NotImplementedException("MathConverter internal exception: Parser is in an invalid state.")
+                                                            _ => throw new InvalidOperationException("Unreachable: bad string type.")
                                                         };
 
                                                         if ((state & ~ScannerState.InterpolatedString) == endOfStringState)
@@ -392,7 +392,7 @@ internal class Scanner : IDisposable
                                             continue;
 
                                         default:
-                                            throw new NotImplementedException(); // This should never ever happen because of the body of Parser.ParseInterpolatedStringArg().
+                                            throw new InvalidOperationException("Unreachable due to Parser.ParseInterpolatedStringArg() implementation");
                                     }
                                 }
                                 catch (Exception e)
@@ -473,7 +473,7 @@ internal class Scanner : IDisposable
                     }
 
                 default:
-                    throw new NotImplementedException($"MathConverter internal exception: Parser is in an invalid state.");
+                    throw new InvalidOperationException($"Unreachable: Bad token state.");
             }
         }
     }

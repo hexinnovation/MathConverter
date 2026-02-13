@@ -19,6 +19,7 @@ namespace HexInnovation
             Position = scanner.Position;
             Expression = scanner.Expression;
         }
+
         /// <summary>
         /// The position in the string at which an exception was thrown.
         /// </summary>

@@ -541,8 +541,7 @@ namespace HexInnovation
                                     j = candidateUserDefinedOperators.Count;
                                     break;
                                 default:
-                                    throw new NotImplementedException(
-                                        $"MathConverter internal exception: {nameof(GetUserDefinedOperator)} is in an invalid state.");
+                                    throw new InvalidOperationException($"Unreachable: {nameof(GetUserDefinedOperator)} is in an invalid state.");
                             }
                         }
                     }

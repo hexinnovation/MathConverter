@@ -128,7 +128,7 @@ namespace HexInnovation
         public CustomFunctionDefinition this[int index]
         {
             get => ToIEnumerable().Skip(index).First();
-            set => throw new NotImplementedException();
+            set => throw new NotSupportedException();
         }
 
         public void CopyTo(Array array, int index) => Array.Copy(ToIEnumerable().ToArray(), 0, array, index, Count);
