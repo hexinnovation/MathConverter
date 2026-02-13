@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace HexInnovation
 {
-    public class CustomFunctionCollection : ICollection<CustomFunctionDefinition>, IList
+    public class CustomFunctionCollection : ICollection<CustomFunctionDefinition>, IList<CustomFunctionDefinition>, IList
     {
         private readonly Dictionary<string, Type> _functions = [];
         public int Count => _functions.Count;
@@ -120,10 +120,15 @@ namespace HexInnovation
         public bool IsSynchronized => false;
         public bool IsFixedSize => false;
 
-        public object this[int index]
+        object IList.this[int index]
+        {
+            get => this[index];
+            set => throw new NotSupportedException();
+        }
+        public CustomFunctionDefinition this[int index]
         {
             get => ToIEnumerable().Skip(index).First();
-            set => throw new NotSupportedException();
+            set => throw new NotImplementedException();
         }
 
         public void CopyTo(Array array, int index) => Array.Copy(ToIEnumerable().ToArray(), 0, array, index, Count);
@@ -147,8 +152,11 @@ namespace HexInnovation
                 Remove(x);
         }
         public void RemoveAt(int index) => throw new NotSupportedException();
+        public int IndexOf(CustomFunctionDefinition item) => ToIEnumerable().ToList().IndexOf(item);
+
+        public void Insert(int index, CustomFunctionDefinition item) => Add(item);
     }
-    public class CustomFunctionDefinition
+    public class CustomFunctionDefinition : IEquatable<CustomFunctionDefinition>
     {
         /// <summary>
         /// The name of the function. For example, if we choose "MyCustomFunction",
@@ -160,10 +168,28 @@ namespace HexInnovation
         /// </summary>
         public Type Function { get; set; }
 
+
         public static CustomFunctionDefinition Create<T>(string name)
             where T : CustomFunction
         {
             return new CustomFunctionDefinition { Name = name, Function = typeof(T) };
         }
+
+        public override int GetHashCode()
+        {
+#if NET35
+            unchecked // Overflow is fine, just wrap
+            {
+                int hash = 17;
+                hash = (hash * 397) ^ (Name?.GetHashCode() ?? 0);
+                hash = (hash * 397) ^ (Function?.GetHashCode() ?? 0);
+                return hash;
+            }
+#else
+            return HashCode.Combine(Name, Function);
+#endif
+        }
+        public override bool Equals(object obj) => obj is CustomFunctionDefinition o && Equals(o);
+        public bool Equals(CustomFunctionDefinition other) => Name == other?.Name && Function == other?.Function;
     }
 }
