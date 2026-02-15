@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 
@@ -7,7 +8,7 @@ namespace HexInnovation;
 
 public abstract class AbstractSyntaxTree
 {
-    public object Evaluate(CultureInfo cultureInfo, object[] bindingValues)
+    public object? Evaluate(CultureInfo cultureInfo, object?[] bindingValues)
     {
         try
         {
@@ -18,12 +19,12 @@ public abstract class AbstractSyntaxTree
             throw new NodeEvaluationException(this, ex);
         }
     }
-    public abstract object DoEvaluate(CultureInfo cultureInfo, object[] bindingValues);
+    public abstract object? DoEvaluate(CultureInfo cultureInfo, object?[] bindingValues);
     public abstract override string ToString();
 }
 internal abstract class BinaryNode(BinaryOperator @operator, AbstractSyntaxTree left, AbstractSyntaxTree right) : AbstractSyntaxTree
 {
-    public sealed override object DoEvaluate(CultureInfo cultureInfo, object[] bindingValues) => @operator.Evaluate(left, right, cultureInfo, bindingValues);
+    public sealed override object? DoEvaluate(CultureInfo cultureInfo, object?[] bindingValues) => @operator.Evaluate(left, right, cultureInfo, bindingValues);
     public sealed override string ToString() => $"({left} {@operator} {right})";
 }
 internal sealed class ExponentNode(AbstractSyntaxTree left, AbstractSyntaxTree right) : BinaryNode(Operator.Exponentiation, left, right) { }
@@ -43,20 +44,20 @@ internal sealed class GreaterThanNode(AbstractSyntaxTree left, AbstractSyntaxTre
 internal sealed class GreaterThanEqualNode(AbstractSyntaxTree left, AbstractSyntaxTree right) : BinaryNode(Operator.GreaterThanOrEqual, left, right) { }
 internal sealed class TernaryNode(AbstractSyntaxTree condition, AbstractSyntaxTree positive, AbstractSyntaxTree negative) : AbstractSyntaxTree
 {
-    public override object DoEvaluate(CultureInfo cultureInfo, object[] bindingValues) => TernaryOperator.Evaluate(condition, positive, negative, cultureInfo, bindingValues);
+    public override object? DoEvaluate(CultureInfo cultureInfo, object?[] bindingValues) => TernaryOperator.Evaluate(condition, positive, negative, cultureInfo, bindingValues);
     public override string ToString() => $"({condition} ? {positive} : {negative})";
 }
 internal abstract class UnaryNode(UnaryOperator @operator, AbstractSyntaxTree node) : AbstractSyntaxTree
 {
-    public sealed override object DoEvaluate(CultureInfo cultureInfo, object[] bindingValues) => @operator.Evaluate(node.Evaluate(cultureInfo, bindingValues));
+    public sealed override object? DoEvaluate(CultureInfo cultureInfo, object?[] bindingValues) => @operator.Evaluate(node.Evaluate(cultureInfo, bindingValues));
     public sealed override string ToString() => $"{@operator}({node})";
 }
 internal sealed class NotNode(AbstractSyntaxTree node) : UnaryNode(Operator.LogicalNot, node) { }
 internal sealed class NegativeNode(AbstractSyntaxTree node) : UnaryNode(Operator.UnaryNegation, node) { }
-internal class ValueNode(object value) : AbstractSyntaxTree
+internal class ValueNode(object? value) : AbstractSyntaxTree
 {
-    protected object Value { get; } = value;
-    public sealed override object DoEvaluate(CultureInfo cultureInfo, object[] bindingValues) => Value;
+    protected object? Value => value;
+    public sealed override object? DoEvaluate(CultureInfo cultureInfo, object?[] bindingValues) => Value;
     public override string ToString() => $"{Value}";
 }
 internal sealed class NullNode() : ValueNode(null)
@@ -69,7 +70,7 @@ internal sealed class StringNode(string value) : ValueNode(value)
 }
 internal sealed class VariableNode(int index) : AbstractSyntaxTree
 {
-    public override object DoEvaluate(CultureInfo cultureInfo, object[] bindingValues) =>
+    public override object? DoEvaluate(CultureInfo cultureInfo, object?[] bindingValues) =>
         bindingValues.Length <= index ?
 #pragma warning disable CA2201 // Do not raise reserved exception types
             throw new IndexOutOfRangeException($"Error accessing binding value {this}. {bindingValues.Length switch { 0 => "No values were", 1 => "Only one value was", { } n => $"Only {n} values were" }} specified.") :
@@ -100,7 +101,7 @@ public abstract class CustomFunction : AbstractSyntaxTree
     /// The name of the function.
     /// There could potentially be multiple names for same function.
     /// </summary>
-    public string FunctionName { get; internal set; }
+    public string? FunctionName { get; internal set; }
     /// <summary>
     /// Converts an object to a specified type. Returns true if the conversion was successful; otherwise false.
     /// </summary>
@@ -108,7 +109,7 @@ public abstract class CustomFunction : AbstractSyntaxTree
     /// <param name="value">The value to convert.</param>
     /// <param name="convertedValue">The value, casted to the specified type, or the default value, if the conversion was unsuccessful.</param>
     /// <returns>True if the conversion was successful; otherwise false.</returns>
-    protected static bool TryConvert<T>(object value, out T convertedValue)
+    protected static bool TryConvert<T>(object? value, [NotNullWhen(true)] out T? convertedValue)
     {
         var convertToType = typeof(T);
 
@@ -129,7 +130,7 @@ public abstract class CustomFunction : AbstractSyntaxTree
     /// <param name="value">The value to try to convert to string</param>
     /// <param name="convertedValue">The converted string, or null if <c><paramref name="value"/>?.ToString()</c> is null or empty</param>
     /// <returns>True if <paramref name="convertedValue"/> is not null; Otherwise false.</returns>
-    protected static bool ConvertToString(object value, out string convertedValue) =>
+    protected static bool ConvertToString(object? value, [NotNullWhen(true)] out string? convertedValue) =>
         (convertedValue = value switch
         {
             string s => s,
@@ -141,11 +142,11 @@ public abstract class CustomFunction : AbstractSyntaxTree
     /// <summary>
     /// The actual parameters passed to this function.
     /// </summary>
-    internal List<AbstractSyntaxTree> Parameters { get; set; }
+    internal List<AbstractSyntaxTree>? Parameters { get; set; }
     /// <summary>
     /// Gets the number of parameters passed to the function.
     /// </summary>
-    protected int NumParameters => Parameters.Count;
+    protected int NumParameters => Parameters!.Count;
     /// <summary>
     /// Evaluates a specific parameter passed into the function.
     /// </summary>
@@ -153,7 +154,7 @@ public abstract class CustomFunction : AbstractSyntaxTree
     /// <param name="cultureInfo">The CultureInfo to use when evaluating the parameter.</param>
     /// <param name="bindingValues">The values being converted by MathConverter.</param>
     /// <returns></returns>
-    protected object EvaluateParameter(int whichParameter, CultureInfo cultureInfo, object[] bindingValues) => Parameters[whichParameter].Evaluate(cultureInfo, bindingValues);
+    protected object? EvaluateParameter(int whichParameter, CultureInfo cultureInfo, object?[] bindingValues) => Parameters![whichParameter].Evaluate(cultureInfo, bindingValues);
 
     /// <summary>
     /// A method that can be overridden in base classes that specifies if a ParsingException should be thrown while parsing the parameters to this function.
@@ -161,7 +162,7 @@ public abstract class CustomFunction : AbstractSyntaxTree
     /// <param name="numParams">The number of parameters parsed.</param>
     /// <returns>True if the number of parameters is valid; otherwise false.</returns>
     public virtual bool IsValidNumberOfParameters(int numParams) => true;
-    public sealed override string ToString() => $"{FunctionName}({string.Join(", ", Parameters)})";
+    public sealed override string ToString() => $"{FunctionName}({string.Join(", ", Parameters!)})";
 }
 
 /// <summary>
@@ -169,12 +170,12 @@ public abstract class CustomFunction : AbstractSyntaxTree
 /// </summary>
 public abstract class ZeroArgFunction : CustomFunction
 {
-    public sealed override object DoEvaluate(CultureInfo cultureInfo, object[] bindingValues) => Evaluate(cultureInfo);
+    public sealed override object? DoEvaluate(CultureInfo cultureInfo, object?[] bindingValues) => Evaluate(cultureInfo);
     /// <summary>
     /// The actual function.
     /// </summary>
     /// <param name="cultureInfo">The culture to evaluate with.</param>
-    public abstract object Evaluate(CultureInfo cultureInfo);
+    public abstract object? Evaluate(CultureInfo cultureInfo);
 
     /// <inheritdoc />
     public sealed override bool IsValidNumberOfParameters(int numParams) => numParams == 0;
@@ -186,13 +187,13 @@ public abstract class ZeroArgFunction : CustomFunction
 /// </summary>
 public abstract class OneArgFunction : CustomFunction
 {
-    public sealed override object DoEvaluate(CultureInfo cultureInfo, object[] bindingValues) => Evaluate(cultureInfo, Parameters[0].Evaluate(cultureInfo, bindingValues));
+    public sealed override object? DoEvaluate(CultureInfo cultureInfo, object?[] bindingValues) => Evaluate(cultureInfo, Parameters![0].Evaluate(cultureInfo, bindingValues));
     /// <summary>
     /// The actual function.
     /// </summary>
     /// <param name="cultureInfo">The culture to evaluate with.</param>
     /// <param name="argument">The argument passed to the function.</param>
-    public abstract object Evaluate(CultureInfo cultureInfo, object argument);
+    public abstract object? Evaluate(CultureInfo cultureInfo, object? argument);
     /// <inheritdoc />
     public sealed override bool IsValidNumberOfParameters(int numParams) => numParams == 1;
 }
@@ -202,7 +203,7 @@ public abstract class OneArgFunction : CustomFunction
 public abstract class OneDoubleFunction : OneArgFunction
 {
     /// <inheritdoc />
-    public sealed override object Evaluate(CultureInfo cultureInfo, object argument) => argument is null ? EvaluateNullArgument(cultureInfo) : TryConvert<double>(argument, out var x) ? Evaluate(cultureInfo, x) : throw new ArgumentException($"{FunctionName} accepts only a numeric input or null.");
+    public sealed override object? Evaluate(CultureInfo cultureInfo, object? argument) => argument is null ? EvaluateNullArgument(cultureInfo) : TryConvert<double>(argument, out var x) ? Evaluate(cultureInfo, x) : throw new ArgumentException($"{FunctionName} accepts only a numeric input or null.");
     /// <summary>
     /// The actual function.
     /// </summary>
@@ -221,9 +222,9 @@ public abstract class OneDoubleFunction : OneArgFunction
 /// </summary>
 public abstract class TwoArgFunction : CustomFunction
 {
-    public sealed override object DoEvaluate(CultureInfo cultureInfo, object[] bindingValues)
+    public sealed override object? DoEvaluate(CultureInfo cultureInfo, object?[] bindingValues)
     {
-        return Evaluate(cultureInfo, Parameters[0].Evaluate(cultureInfo, bindingValues), Parameters[1].Evaluate(cultureInfo, bindingValues));
+        return Evaluate(cultureInfo, Parameters![0].Evaluate(cultureInfo, bindingValues), Parameters[1].Evaluate(cultureInfo, bindingValues));
     }
     /// <summary>
     /// The actual function.
@@ -231,7 +232,7 @@ public abstract class TwoArgFunction : CustomFunction
     /// <param name="cultureInfo">The culture to evaluate with.</param>
     /// <param name="x">The first argument passed to the function.</param>
     /// <param name="y">The second argument passed to the function.</param>
-    public abstract object Evaluate(CultureInfo cultureInfo, object x, object y);
+    public abstract object? Evaluate(CultureInfo cultureInfo, object? x, object? y);
     /// <inheritdoc/>
     public sealed override bool IsValidNumberOfParameters(int numParams) => numParams == 2;
 }
@@ -240,14 +241,14 @@ public abstract class TwoArgFunction : CustomFunction
 /// </summary>
 public abstract class ArbitraryArgFunction : CustomFunction
 {
-    public sealed override object DoEvaluate(CultureInfo cultureInfo, object[] bindingValues)
+    public sealed override object? DoEvaluate(CultureInfo cultureInfo, object?[] bindingValues)
     {
-        return Evaluate(cultureInfo, [.. Enumerable.Range(0, NumParameters).Select(i => new Func<object>(() => EvaluateParameter(i, cultureInfo, bindingValues)))]);
+        return Evaluate(cultureInfo, [.. Enumerable.Range(0, NumParameters).Select(i => new Func<object?>(() => EvaluateParameter(i, cultureInfo, bindingValues)))]);
     }
     /// <summary>
     /// The actual function.
     /// </summary>
     /// <param name="cultureInfo">The culture to evaluate with.</param>
     /// <param name="getArgument">A function that can be used to get arbitrary arguments passed to the function.</param>
-    public abstract object Evaluate(CultureInfo cultureInfo, Func<object>[] getArgument);
+    public abstract object? Evaluate(CultureInfo cultureInfo, Func<object?>[] getArgument);
 }

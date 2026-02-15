@@ -14,8 +14,17 @@
     <None Include="$(MSBuildThisFileFullPath)" Link="Props\$(MSBuildThisFile)" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net35'">
-    <PackageReference Include="PolySharp" Version="1.15.0" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers" />
-    <PackageReference Include="Portable.System.ValueTuple" Version="1.0.1" />
-  </ItemGroup>
+  <Choose>
+    <When Condition="'$(TargetFramework)' == 'net35'">
+      <ItemGroup>
+        <PackageReference Include="PolySharp" Version="1.15.0" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers" />
+        <PackageReference Include="Portable.System.ValueTuple" Version="1.0.1" />
+      </ItemGroup>
+    </When>
+    <When Condition="$(TargetFramework.StartsWith('netcoreapp')) Or $(TargetFramework.StartsWith('net5')) Or $(TargetFramework.StartsWith('net6'))">
+      <ItemGroup>
+        <PackageReference Include="PolySharp" Version="1.15.0" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers" />
+      </ItemGroup>
+    </When>
+  </Choose>
 </Project>

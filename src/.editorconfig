@@ -14,6 +14,7 @@ dotnet_diagnostic.IDE0023.severity = none # Use block body for conversion operat
 dotnet_diagnostic.IDE0024.severity = none # Use block body for operator // Don't require curly brackets for operator bodies
 dotnet_diagnostic.IDE0160.severity = none # Convert to block scoped namespace // Don't require curly brackets for namespace bodies
 dotnet_diagnostic.IDE0079.severity = none # Remove unnecessary suppression // Don't require removal of unnecessary suppression attributes. They're necessary for some frameworks.
+dotnet_diagnostic.IDE0370.severity = none # Remove unnecessary suppression // Don't require removal of unnecessary null suppression attributes. They're necessary for some frameworks.
 
 [*.xml]
 indent_size = 2

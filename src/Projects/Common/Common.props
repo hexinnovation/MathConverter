@@ -4,6 +4,7 @@
     <LangVersion>14</LangVersion>
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)StrongNamedAssemblyKey.snk</AssemblyOriginatorKeyFile>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>

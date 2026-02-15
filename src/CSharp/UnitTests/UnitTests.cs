@@ -38,28 +38,28 @@ namespace HexInnovation;
 #if NUNIT
 internal static class MyAssert
 {
-    public static void AreEqual(object expected, object actual) => NUnitAssert.AreEqual(expected, actual);
+    public static void AreEqual(object? expected, object? actual) => NUnitAssert.AreEqual(expected, actual);
     public static void Fail(string message) =>
 #if NET6_0_OR_GREATER
         NUnit.Framework.Assert.Fail(message);
 #else
         NUnitAssert.Fail(message);
 #endif
-    public static void IsInstanceOfType(object actual, Type expected) => NUnitAssert.IsInstanceOf(expected, actual);
+    public static void IsInstanceOfType(object? actual, Type expected) => NUnitAssert.IsInstanceOf(expected, actual);
     public static void IsTrue(bool condition) => NUnitAssert.IsTrue(condition);
     public static void IsFalse(bool condition) => NUnitAssert.IsFalse(condition);
-    public static void IsNull(object anObject) => NUnitAssert.IsNull(anObject);
+    public static void IsNull(object? anObject) => NUnitAssert.IsNull(anObject);
     public static void AreEqual(double expected, double actual, double delta) => NUnitAssert.AreEqual(expected, actual, delta);
 }
 #elif XUNIT
 internal static class MyAssert
 {
-    public static void AreEqual(object expected, object actual) => Xunit.Assert.Equal(expected, actual);
+    public static void AreEqual(object? expected, object? actual) => Xunit.Assert.Equal(expected, actual);
     public static void Fail(string message) => Xunit.Assert.Fail(message);
-    public static void IsInstanceOfType(object actual, Type expected) => Xunit.Assert.IsType(expected, actual);
+    public static void IsInstanceOfType(object? actual, Type expected) => Xunit.Assert.IsType(expected, actual);
     public static void IsTrue(bool condition) => Xunit.Assert.True(condition);
     public static void IsFalse(bool condition) => Xunit.Assert.False(condition);
-    public static void IsNull(object anObject) => Xunit.Assert.Null(anObject);
+    public static void IsNull(object? anObject) => Xunit.Assert.Null(anObject);
     public static void AreEqual(double expected, double actual, double delta) => Xunit.Assert.InRange(actual, expected - delta, expected + delta);
 }
 
@@ -85,8 +85,8 @@ public class MathConverterTests
 
     public MathConverterTests()
 #else
-    private MathConverter _converter;
-    private MathConverter _converterNoCache;
+    private MathConverter _converter = new();
+    private MathConverter _converterNoCache = new() { UseCache = false };
 
     [TestInitialize]
     public void Initialize()
@@ -95,8 +95,8 @@ public class MathConverterTests
         // Set the current culture to Japanese. Most of our tests occur in de culture.
         Thread.CurrentThread.CurrentCulture = Thread.CurrentThread.CurrentUICulture = new("ja-JP");
 
-        _converter = new MathConverter();
-        _converterNoCache = new MathConverter { UseCache = false };
+        _converter = new();
+        _converterNoCache = new() { UseCache = false };
     }
 
     [TestMethod]
@@ -209,13 +209,13 @@ public class MathConverterTests
         Assert.AreEqual(new Point(1, 2), _converter.Convert([1, 2], typeof(Point), "1,2", new CultureInfo("de")));
         Assert.AreEqual(new Point(1, 2), _converter.Convert([1, 2], typeof(Point), null, new CultureInfo("de")));
 
-        Assert.IsTrue((bool)_converter.Convert([true], typeof(bool), null, new CultureInfo("de")));
-        Assert.IsFalse((bool)_converter.Convert([false], typeof(bool), null, new CultureInfo("de")));
-        Assert.IsTrue((bool)_converter.Convert([], typeof(bool), "true", new CultureInfo("de")));
-        Assert.IsFalse((bool)_converter.Convert([], typeof(bool), "false", new CultureInfo("de")));
+        Assert.IsTrue((bool)_converter.Convert([true], typeof(bool), null, new CultureInfo("de"))!);
+        Assert.IsFalse((bool)_converter.Convert([false], typeof(bool), null, new CultureInfo("de"))!);
+        Assert.IsTrue((bool)_converter.Convert([], typeof(bool), "true", new CultureInfo("de"))!);
+        Assert.IsFalse((bool)_converter.Convert([], typeof(bool), "false", new CultureInfo("de"))!);
 
 #if WPF
-        Assert.AreEqual(Geometry.Parse("M 0,0 L 100,100 L 100,0 Z").ToString(new CultureInfo("de")), ((Geometry)_converter.Convert([], typeof(Geometry), "`M 0,0 L 100,100 L 100,0 Z`", new CultureInfo("de"))).ToString(new CultureInfo("de")));
+        Assert.AreEqual(Geometry.Parse("M 0,0 L 100,100 L 100,0 Z").ToString(new CultureInfo("de")), ((Geometry)_converter.Convert([], typeof(Geometry), "`M 0,0 L 100,100 L 100,0 Z`", new CultureInfo("de"))!).ToString(new CultureInfo("de")));
 #endif
     }
     [TestMethod]
@@ -232,7 +232,7 @@ public class MathConverterTests
     {
         foreach (var culture in new CultureInfo[] { CultureInfo.InvariantCulture, new("de") })
         {
-            foreach (var args in new object[][] { [], [3], [null, 7] })
+            foreach (var args in new object?[][] { [], [3], [null, 7] })
             {
                 Assert.AreEqual(4.63, _converter.Convert(args, typeof(double), "4.63", culture));
                 Assert.AreEqual(-4.63, _converter.Convert(args, typeof(double), "-4.63", culture));
@@ -266,15 +266,15 @@ public class MathConverterTests
     {
         foreach (var culture in new CultureInfo[] { CultureInfo.InvariantCulture, new("de") })
         {
-            foreach (var args in new object[][] { [], [3], [null, 7] })
+            foreach (var args in new object?[][] { [], [3], [null, 7] })
             {
                 Assert.AreEqual(Math.E, _converter.Convert(args, typeof(object), "e", culture));
 
                 Assert.AreEqual(Math.PI, _converter.Convert(args, typeof(object), "pi", culture));
 
                 Assert.IsNull(_converter.Convert(args, typeof(object), "null", culture));
-                Assert.IsFalse((bool)_converter.Convert(args, typeof(object), "false", culture));
-                Assert.IsTrue((bool)_converter.Convert(args, typeof(object), "true", culture));
+                Assert.IsFalse((bool)_converter.Convert(args, typeof(object), "false", culture)!);
+                Assert.IsTrue((bool)_converter.Convert(args, typeof(object), "true", culture)!);
             }
         }
     }
@@ -283,13 +283,13 @@ public class MathConverterTests
     {
         foreach (var culture in new CultureInfo[] { CultureInfo.InvariantCulture, new("de") })
         {
-            foreach (var args in new object[][] { [], [3], [null, 7] })
+            foreach (var args in new object?[][] { [], [3], [null, 7] })
             {
-                Assert.IsFalse((bool)_converter.Convert(args, typeof(bool), "!true", culture));
-                Assert.IsTrue((bool)_converter.Convert(args, typeof(bool), "!!true", culture));
+                Assert.IsFalse((bool)_converter.Convert(args, typeof(bool), "!true", culture)!);
+                Assert.IsTrue((bool)_converter.Convert(args, typeof(bool), "!!true", culture)!);
 
-                Assert.IsTrue((bool)_converter.Convert(args, typeof(bool), "!false", culture));
-                Assert.IsFalse((bool)_converter.Convert(args, typeof(bool), "!!false", culture));
+                Assert.IsTrue((bool)_converter.Convert(args, typeof(bool), "!false", culture)!);
+                Assert.IsFalse((bool)_converter.Convert(args, typeof(bool), "!!false", culture)!);
             }
         }
     }
@@ -300,24 +300,24 @@ public class MathConverterTests
         {
             Assert.IsNull(_converter.Convert([null], typeof(double), "x", culture));
             Assert.IsNull(_converter.Convert([null], typeof(float), "x", culture));
-            Assert.AreEqual(3.0, (double)_converter.Convert([3], typeof(double), "x", culture));
-            Assert.AreEqual(0, (int)_converter.Convert([0, 1, 2, 3, 4, 5, 6], typeof(int), "x", culture));
-            Assert.AreEqual(0, (int)_converter.Convert([0, 1, 2, 3, 4, 5, 6], typeof(int), "[0]", culture));
-            Assert.AreEqual(1, (int)_converter.Convert([0, 1, 2, 3, 4, 5, 6], typeof(int), "y", culture));
-            Assert.AreEqual(1, (int)_converter.Convert([0, 1, 2, 3, 4, 5, 6], typeof(int), "[1]", culture));
-            Assert.AreEqual(2, (int)_converter.Convert([0, 1, 2, 3, 4, 5, 6], typeof(int), "z", culture));
-            Assert.AreEqual(2, (int)_converter.Convert([0, 1, 2, 3, 4, 5, 6], typeof(int), "[2]", culture));
-            Assert.AreEqual(3, (int)_converter.Convert([0, 1, 2, 3, 4, 5, 6], typeof(int), "[3]", culture));
-            Assert.AreEqual(4, (int)_converter.Convert([0, 1, 2, 3, 4, 5, 6], typeof(int), "[4]", culture));
-            Assert.AreEqual(5, (int)_converter.Convert([0, 1, 2, 3, 4, 5, 6], typeof(int), "[5]", culture));
-            Assert.AreEqual(6, (int)_converter.Convert([0, 1, 2, 3, 4, 5, 6], typeof(int), "[6]", culture));
+            Assert.AreEqual(3.0, _converter.Convert([3], typeof(double), "x", culture));
+            Assert.AreEqual(0, _converter.Convert([0, 1, 2, 3, 4, 5, 6], typeof(int), "x", culture));
+            Assert.AreEqual(0, _converter.Convert([0, 1, 2, 3, 4, 5, 6], typeof(int), "[0]", culture));
+            Assert.AreEqual(1, _converter.Convert([0, 1, 2, 3, 4, 5, 6], typeof(int), "y", culture));
+            Assert.AreEqual(1, _converter.Convert([0, 1, 2, 3, 4, 5, 6], typeof(int), "[1]", culture));
+            Assert.AreEqual(2, _converter.Convert([0, 1, 2, 3, 4, 5, 6], typeof(int), "z", culture));
+            Assert.AreEqual(2, _converter.Convert([0, 1, 2, 3, 4, 5, 6], typeof(int), "[2]", culture));
+            Assert.AreEqual(3, _converter.Convert([0, 1, 2, 3, 4, 5, 6], typeof(int), "[3]", culture));
+            Assert.AreEqual(4, _converter.Convert([0, 1, 2, 3, 4, 5, 6], typeof(int), "[4]", culture));
+            Assert.AreEqual(5, _converter.Convert([0, 1, 2, 3, 4, 5, 6], typeof(int), "[5]", culture));
+            Assert.AreEqual(6, _converter.Convert([0, 1, 2, 3, 4, 5, 6], typeof(int), "[6]", culture));
 
             try
             {
-                var invalid = (int)_converter.Convert([0, 1, 2, 3, 4, 5, 6], typeof(int), "[7]", culture);
+                var invalid = _converter.Convert([0, 1, 2, 3, 4, 5, 6], typeof(int), "[7]", culture);
                 Assert.Fail("Should have thrown a IndexOutOfRangeException.");
             }
-            catch (EvaluationException ex) when (ex.InnerException.InnerException is IndexOutOfRangeException) { }
+            catch (EvaluationException ex) when (ex.InnerException?.InnerException is IndexOutOfRangeException) { }
         }
     }
     [TestMethod]
@@ -325,20 +325,20 @@ public class MathConverterTests
     {
         foreach (var culture in new CultureInfo[] { CultureInfo.InvariantCulture, new("de") })
         {
-            Assert.AreEqual("Hello", (string)_converter.Convert([3], typeof(string), @"""Hello""", culture));
-            Assert.AreEqual("Hello", (string)_converter.Convert([3], typeof(string), @"`Hello`", culture));
-            Assert.AreEqual("Hello", (string)_converter.Convert([3], typeof(string), @"'Hello'", culture));
-            Assert.AreEqual("H\"e'l\"l`o", (string)_converter.Convert([3], typeof(string), @"`H\""e'l""l\`o`", culture));
-            Assert.AreEqual("Hel`lo", (string)_converter.Convert([3], typeof(string), @"`Hel\`lo`", culture));
-            Assert.AreEqual("He`l'l\"o\t", (string)_converter.Convert([3], typeof(string), @"""He`l'l\""o\t""", culture));
-            Assert.AreEqual("\a\b\f\n\r\t\v\\`\"'", (string)_converter.Convert([3], typeof(string), @"""\a\b\f\n\r\t\v\\\`\""'""", culture));
+            Assert.AreEqual("Hello", _converter.Convert([3], typeof(string), @"""Hello""", culture));
+            Assert.AreEqual("Hello", _converter.Convert([3], typeof(string), @"`Hello`", culture));
+            Assert.AreEqual("Hello", _converter.Convert([3], typeof(string), @"'Hello'", culture));
+            Assert.AreEqual("H\"e'l\"l`o", _converter.Convert([3], typeof(string), @"`H\""e'l""l\`o`", culture));
+            Assert.AreEqual("Hel`lo", _converter.Convert([3], typeof(string), @"`Hel\`lo`", culture));
+            Assert.AreEqual("He`l'l\"o\t", _converter.Convert([3], typeof(string), @"""He`l'l\""o\t""", culture));
+            Assert.AreEqual("\a\b\f\n\r\t\v\\`\"'", _converter.Convert([3], typeof(string), @"""\a\b\f\n\r\t\v\\\`\""'""", culture));
 
             try
             {
-                var invalid = (int)_converter.Convert([0, 1, 2, 3, 4, 5, 6], typeof(int), "[7]", culture);
+                var invalid = _converter.Convert([0, 1, 2, 3, 4, 5, 6], typeof(int), "[7]", culture);
                 Assert.Fail("Should have thrown a IndexOutOfRangeException.");
             }
-            catch (EvaluationException ex) when (ex.InnerException.InnerException is IndexOutOfRangeException) { }
+            catch (EvaluationException ex) when (ex.InnerException?.InnerException is IndexOutOfRangeException) { }
         }
     }
     [TestMethod]
@@ -347,14 +347,14 @@ public class MathConverterTests
         const double x = 4;
         const double y = 3;
 
-        Assert.AreEqual(Math.Pow(x, 3), (double)_converter.Convert([x, y], typeof(double), "x^3", new CultureInfo("de")));
-        Assert.AreEqual(Math.Pow(y, 3), (double)_converter.Convert([x, y], typeof(double), "y^3", new CultureInfo("de")));
-        Assert.AreEqual(Math.Pow(y, x), (double)_converter.Convert([x, y], typeof(double), "y^x", new CultureInfo("de")));
-        Assert.AreEqual(Math.Pow(y, x / 3), (double)_converter.Convert([x, y], typeof(double), "y^(x/3)", new CultureInfo("de")));
-        Assert.AreEqual(Math.Pow(y, 2), (double)_converter.Convert([x, y], typeof(double), "y2", new CultureInfo("de")));
-        Assert.AreEqual(Math.Pow(y, 2), (double)_converter.Convert([x, y], typeof(double), "y^2", new CultureInfo("de")));
-        Assert.AreEqual(Math.Pow(x, 2), (double)_converter.Convert([x, y], typeof(double), "x2", new CultureInfo("de")));
-        Assert.AreEqual(Math.Pow(x, 2), (double)_converter.Convert([x, y], typeof(double), "x^2", new CultureInfo("de")));
+        Assert.AreEqual(Math.Pow(x, 3), _converter.Convert([x, y], typeof(double), "x^3", new CultureInfo("de")));
+        Assert.AreEqual(Math.Pow(y, 3), _converter.Convert([x, y], typeof(double), "y^3", new CultureInfo("de")));
+        Assert.AreEqual(Math.Pow(y, x), _converter.Convert([x, y], typeof(double), "y^x", new CultureInfo("de")));
+        Assert.AreEqual(Math.Pow(y, x / 3), _converter.Convert([x, y], typeof(double), "y^(x/3)", new CultureInfo("de")));
+        Assert.AreEqual(Math.Pow(y, 2), _converter.Convert([x, y], typeof(double), "y2", new CultureInfo("de")));
+        Assert.AreEqual(Math.Pow(y, 2), _converter.Convert([x, y], typeof(double), "y^2", new CultureInfo("de")));
+        Assert.AreEqual(Math.Pow(x, 2), _converter.Convert([x, y], typeof(double), "x2", new CultureInfo("de")));
+        Assert.AreEqual(Math.Pow(x, 2), _converter.Convert([x, y], typeof(double), "x^2", new CultureInfo("de")));
     }
     [TestMethod]
     public void TestMultiplicative()
@@ -363,26 +363,26 @@ public class MathConverterTests
         const double y = 3;
 
 #pragma warning disable format
-        Assert.AreEqual(4 * x*3*y, (double)_converter.Convert([x, y], typeof(double), "4x*3y", new CultureInfo("de")));
-        Assert.AreEqual(x*x*y, (double)_converter.Convert([x, y], typeof(double), "xxy", new CultureInfo("de")));
-        Assert.AreEqual(x*x*y, (double)_converter.Convert([x, y], typeof(double), "x*xy", new CultureInfo("de")));
-        Assert.AreEqual(x*x*y, (double)_converter.Convert([x, y], typeof(double), "xx*y", new CultureInfo("de")));
-        Assert.AreEqual(x*x*y, (double)_converter.Convert([x, y], typeof(double), "x*x*y", new CultureInfo("de")));
+        Assert.AreEqual(4 * x*3*y, _converter.Convert([x, y], typeof(double), "4x*3y", new CultureInfo("de")));
+        Assert.AreEqual(x*x*y, _converter.Convert([x, y], typeof(double), "xxy", new CultureInfo("de")));
+        Assert.AreEqual(x*x*y, _converter.Convert([x, y], typeof(double), "x*xy", new CultureInfo("de")));
+        Assert.AreEqual(x*x*y, _converter.Convert([x, y], typeof(double), "xx*y", new CultureInfo("de")));
+        Assert.AreEqual(x*x*y, _converter.Convert([x, y], typeof(double), "x*x*y", new CultureInfo("de")));
 
-        Assert.AreEqual(x*2*y, (double)_converter.Convert([x, y], typeof(double), "x(2)[1]", new CultureInfo("de")));
-        Assert.AreEqual(x*x*y, (double)_converter.Convert([x, y], typeof(double), "[0]x[1]", new CultureInfo("de")));
-        Assert.AreEqual(x*x*y, (double)_converter.Convert([x, y], typeof(double), "x*[0][1]", new CultureInfo("de")));
-        Assert.AreEqual(x*x*y, (double)_converter.Convert([x, y], typeof(double), "[0][0]*[1]", new CultureInfo("de")));
-        Assert.AreEqual(x*x*y, (double)_converter.Convert([x, y], typeof(double), "x*x*[1]", new CultureInfo("de")));
+        Assert.AreEqual(x*2*y, _converter.Convert([x, y], typeof(double), "x(2)[1]", new CultureInfo("de")));
+        Assert.AreEqual(x*x*y, _converter.Convert([x, y], typeof(double), "[0]x[1]", new CultureInfo("de")));
+        Assert.AreEqual(x*x*y, _converter.Convert([x, y], typeof(double), "x*[0][1]", new CultureInfo("de")));
+        Assert.AreEqual(x*x*y, _converter.Convert([x, y], typeof(double), "[0][0]*[1]", new CultureInfo("de")));
+        Assert.AreEqual(x*x*y, _converter.Convert([x, y], typeof(double), "x*x*[1]", new CultureInfo("de")));
 
-        Assert.AreEqual(x*2*y*2, (double)_converter.Convert([x, y], typeof(double), "x(2)*y(2)", new CultureInfo("de")));
-        Assert.AreEqual(x*x*y*y, (double)_converter.Convert([x, y], typeof(double), "xx*yy", new CultureInfo("de")));
-        Assert.AreEqual(x*x*x%y, (double)_converter.Convert([x, y], typeof(double), "xxx%y", new CultureInfo("de")));
-        Assert.AreEqual(x*x*x%y*x, (double)_converter.Convert([x, y], typeof(double), "xxx%yx", new CultureInfo("de")));
-        Assert.AreEqual(x%y, (double)_converter.Convert([x, y], typeof(double), "x%y", new CultureInfo("de")));
-        Assert.AreEqual(y%x, (double)_converter.Convert([x, y], typeof(double), "y%x", new CultureInfo("de")));
-        Assert.AreEqual(y/x, (double)_converter.Convert([x, y], typeof(double), "y/x", new CultureInfo("de")));
-        Assert.AreEqual(y/y*x%y, (double)_converter.Convert([x, y], typeof(double), "y/yx%y", new CultureInfo("de")));
+        Assert.AreEqual(x*2*y*2, _converter.Convert([x, y], typeof(double), "x(2)*y(2)", new CultureInfo("de")));
+        Assert.AreEqual(x*x*y*y, _converter.Convert([x, y], typeof(double), "xx*yy", new CultureInfo("de")));
+        Assert.AreEqual(x*x*x%y, _converter.Convert([x, y], typeof(double), "xxx%y", new CultureInfo("de")));
+        Assert.AreEqual(x*x*x%y*x, _converter.Convert([x, y], typeof(double), "xxx%yx", new CultureInfo("de")));
+        Assert.AreEqual(x%y, _converter.Convert([x, y], typeof(double), "x%y", new CultureInfo("de")));
+        Assert.AreEqual(y%x, _converter.Convert([x, y], typeof(double), "y%x", new CultureInfo("de")));
+        Assert.AreEqual(y/x, _converter.Convert([x, y], typeof(double), "y/x", new CultureInfo("de")));
+        Assert.AreEqual(y/y*x%y, _converter.Convert([x, y], typeof(double), "y/yx%y", new CultureInfo("de")));
 #pragma warning restore format
     }
     [TestMethod]
@@ -392,10 +392,10 @@ public class MathConverterTests
         const double y = 3;
 
 #pragma warning disable format
-        Assert.AreEqual(x+x+y, (double)_converter.Convert([x, y], typeof(double), "x+x+y", new CultureInfo("de")));
-        Assert.AreEqual(x+x-y, (double)_converter.Convert([x, y], typeof(double), "x+x-y", new CultureInfo("de")));
-        Assert.AreEqual(x-x-y, (double)_converter.Convert([x, y], typeof(double), "x-x-y", new CultureInfo("de")));
-        Assert.AreEqual(x-x+y, (double)_converter.Convert([x, y], typeof(double), "x-x+y", new CultureInfo("de")));
+        Assert.AreEqual(x+x+y, _converter.Convert([x, y], typeof(double), "x+x+y", new CultureInfo("de")));
+        Assert.AreEqual(x+x-y, _converter.Convert([x, y], typeof(double), "x+x-y", new CultureInfo("de")));
+        Assert.AreEqual(x-x-y, _converter.Convert([x, y], typeof(double), "x-x-y", new CultureInfo("de")));
+        Assert.AreEqual(x-x+y, _converter.Convert([x, y], typeof(double), "x-x+y", new CultureInfo("de")));
 #pragma warning restore format
     }
     [TestMethod]
@@ -405,18 +405,18 @@ public class MathConverterTests
         const double y = 3;
 
 #pragma warning disable format
-        Assert.AreEqual(x< x, (bool)_converter.Convert([x, y], typeof(bool), "x<x", new CultureInfo("de")));
-        Assert.AreEqual(x<=x, (bool)_converter.Convert([x, y], typeof(bool), "x<=x", new CultureInfo("de")));
-        Assert.AreEqual(x>x, (bool)_converter.Convert([x, y], typeof(bool), "x>x", new CultureInfo("de")));
-        Assert.AreEqual(x>=x, (bool)_converter.Convert([x, y], typeof(bool), "x>=x", new CultureInfo("de")));
-        Assert.AreEqual(x<y, (bool)_converter.Convert([x, y], typeof(bool), "x<y", new CultureInfo("de")));
-        Assert.AreEqual(x<=y, (bool)_converter.Convert([x, y], typeof(bool), "x<=y", new CultureInfo("de")));
-        Assert.AreEqual(x>y, (bool)_converter.Convert([x, y], typeof(bool), "x>y", new CultureInfo("de")));
-        Assert.AreEqual(x>=y, (bool)_converter.Convert([x, y], typeof(bool), "x>=y", new CultureInfo("de")));
-        Assert.AreEqual(y<y, (bool)_converter.Convert([x, y], typeof(bool), "y<y", new CultureInfo("de")));
-        Assert.AreEqual(y<=y, (bool)_converter.Convert([x, y], typeof(bool), "y<=y", new CultureInfo("de")));
-        Assert.AreEqual(y>y, (bool)_converter.Convert([x, y], typeof(bool), "y>y", new CultureInfo("de")));
-        Assert.AreEqual(y>=y, (bool)_converter.Convert([x, y], typeof(bool), "y>=y", new CultureInfo("de")));
+        Assert.AreEqual(x< x, _converter.Convert([x, y], typeof(bool), "x<x", new CultureInfo("de")));
+        Assert.AreEqual(x<=x, _converter.Convert([x, y], typeof(bool), "x<=x", new CultureInfo("de")));
+        Assert.AreEqual(x>x, _converter.Convert([x, y], typeof(bool), "x>x", new CultureInfo("de")));
+        Assert.AreEqual(x>=x, _converter.Convert([x, y], typeof(bool), "x>=x", new CultureInfo("de")));
+        Assert.AreEqual(x<y, _converter.Convert([x, y], typeof(bool), "x<y", new CultureInfo("de")));
+        Assert.AreEqual(x<=y, _converter.Convert([x, y], typeof(bool), "x<=y", new CultureInfo("de")));
+        Assert.AreEqual(x>y, _converter.Convert([x, y], typeof(bool), "x>y", new CultureInfo("de")));
+        Assert.AreEqual(x>=y, _converter.Convert([x, y], typeof(bool), "x>=y", new CultureInfo("de")));
+        Assert.AreEqual(y<y, _converter.Convert([x, y], typeof(bool), "y<y", new CultureInfo("de")));
+        Assert.AreEqual(y<=y, _converter.Convert([x, y], typeof(bool), "y<=y", new CultureInfo("de")));
+        Assert.AreEqual(y>y, _converter.Convert([x, y], typeof(bool), "y>y", new CultureInfo("de")));
+        Assert.AreEqual(y>=y, _converter.Convert([x, y], typeof(bool), "y>=y", new CultureInfo("de")));
 #pragma warning restore format
     }
     [TestMethod]
@@ -426,22 +426,22 @@ public class MathConverterTests
         object y = 3;
 
 #pragma warning disable format
-        Assert.AreEqual(x==x, (bool)_converter.Convert([x, y], typeof(bool), "x==x", new CultureInfo("de")));
-        Assert.AreEqual(x!=x, (bool)_converter.Convert([x, y], typeof(bool), "x!=x", new CultureInfo("de")));
-        Assert.AreEqual(x==y, (bool)_converter.Convert([x, y], typeof(bool), "x==y", new CultureInfo("de")));
-        Assert.AreEqual(x!=y, (bool)_converter.Convert([x, y], typeof(bool), "x!=y", new CultureInfo("de")));
-        Assert.AreEqual(y==y, (bool)_converter.Convert([x, y], typeof(bool), "y==y", new CultureInfo("de")));
-        Assert.AreEqual(y!=y, (bool)_converter.Convert([x, y], typeof(bool), "y!=y", new CultureInfo("de")));
+        Assert.AreEqual(x==x, _converter.Convert([x, y], typeof(bool), "x==x", new CultureInfo("de")));
+        Assert.AreEqual(x!=x, _converter.Convert([x, y], typeof(bool), "x!=x", new CultureInfo("de")));
+        Assert.AreEqual(x==y, _converter.Convert([x, y], typeof(bool), "x==y", new CultureInfo("de")));
+        Assert.AreEqual(x!=y, _converter.Convert([x, y], typeof(bool), "x!=y", new CultureInfo("de")));
+        Assert.AreEqual(y==y, _converter.Convert([x, y], typeof(bool), "y==y", new CultureInfo("de")));
+        Assert.AreEqual(y!=y, _converter.Convert([x, y], typeof(bool), "y!=y", new CultureInfo("de")));
 
         x = "x";
         y = "y";
 
-        Assert.AreEqual(x==x, (bool)_converter.Convert([x, y], typeof(bool), "x==x", new CultureInfo("de")));
-        Assert.AreEqual(x!=x, (bool)_converter.Convert([x, y], typeof(bool), "x!=x", new CultureInfo("de")));
-        Assert.AreEqual(x==y, (bool)_converter.Convert([x, y], typeof(bool), "x==y", new CultureInfo("de")));
-        Assert.AreEqual(x!=y, (bool)_converter.Convert([x, y], typeof(bool), "x!=y", new CultureInfo("de")));
-        Assert.AreEqual(y==y, (bool)_converter.Convert([x, y], typeof(bool), "y==y", new CultureInfo("de")));
-        Assert.AreEqual(y!=y, (bool)_converter.Convert([x, y], typeof(bool), "y!=y", new CultureInfo("de")));
+        Assert.AreEqual(x==x, _converter.Convert([x, y], typeof(bool), "x==x", new CultureInfo("de")));
+        Assert.AreEqual(x!=x, _converter.Convert([x, y], typeof(bool), "x!=x", new CultureInfo("de")));
+        Assert.AreEqual(x==y, _converter.Convert([x, y], typeof(bool), "x==y", new CultureInfo("de")));
+        Assert.AreEqual(x!=y, _converter.Convert([x, y], typeof(bool), "x!=y", new CultureInfo("de")));
+        Assert.AreEqual(y==y, _converter.Convert([x, y], typeof(bool), "y==y", new CultureInfo("de")));
+        Assert.AreEqual(y!=y, _converter.Convert([x, y], typeof(bool), "y!=y", new CultureInfo("de")));
 #pragma warning restore format
     }
     [TestMethod]
@@ -451,9 +451,9 @@ public class MathConverterTests
         var y = false;
 
 #pragma warning disable format
-        Assert.AreEqual(x&&x, (bool)_converter.Convert([x, y], typeof(bool), "x&&x", new CultureInfo("de")));
-        Assert.AreEqual(x&&y, (bool)_converter.Convert([x, y], typeof(bool), "x&&y", new CultureInfo("de")));
-        Assert.AreEqual(y&&y, (bool)_converter.Convert([x, y], typeof(bool), "y&&y", new CultureInfo("de")));
+        Assert.AreEqual(x&&x, _converter.Convert([x, y], typeof(bool), "x&&x", new CultureInfo("de")));
+        Assert.AreEqual(x&&y, _converter.Convert([x, y], typeof(bool), "x&&y", new CultureInfo("de")));
+        Assert.AreEqual(y&&y, _converter.Convert([x, y], typeof(bool), "y&&y", new CultureInfo("de")));
 #pragma warning restore format
     }
     [TestMethod]
@@ -463,9 +463,9 @@ public class MathConverterTests
         var y = false;
 
 #pragma warning disable format
-        Assert.AreEqual(x || x, (bool)_converter.Convert([x, y], typeof(bool), "x||x", new CultureInfo("de")));
-        Assert.AreEqual(x||y, (bool)_converter.Convert([x, y], typeof(bool), "x||y", new CultureInfo("de")));
-        Assert.AreEqual(y||y, (bool)_converter.Convert([x, y], typeof(bool), "y||y", new CultureInfo("de")));
+        Assert.AreEqual(x || x, _converter.Convert([x, y], typeof(bool), "x||x", new CultureInfo("de")));
+        Assert.AreEqual(x||y, _converter.Convert([x, y], typeof(bool), "x||y", new CultureInfo("de")));
+        Assert.AreEqual(y||y, _converter.Convert([x, y], typeof(bool), "y||y", new CultureInfo("de")));
 #pragma warning restore format
     }
     [TestMethod]
@@ -474,11 +474,11 @@ public class MathConverterTests
         int? x = null;
         var y = 3;
 
-        Assert.AreEqual(x ?? x, (int?)_converter.Convert([x, y], typeof(int?), "x??x", new CultureInfo("de")));
-        Assert.AreEqual(x ?? y, (int?)_converter.Convert([x, y], typeof(int?), "x??y", new CultureInfo("de")));
-        Assert.AreEqual(y, (int?)_converter.Convert([x, y], typeof(int?), "y??x", new CultureInfo("de")));
-        Assert.AreEqual(y, (int?)_converter.Convert([x, y], typeof(int?), "y??y", new CultureInfo("de")));
-        Assert.AreEqual(4, (int?)_converter.Convert([x, y], typeof(int?), "null??4", new CultureInfo("de")));
+        Assert.AreEqual(x ?? x, _converter.Convert([x, y], typeof(int?), "x??x", new CultureInfo("de")));
+        Assert.AreEqual(x ?? y, _converter.Convert([x, y], typeof(int?), "x??y", new CultureInfo("de")));
+        Assert.AreEqual(y, _converter.Convert([x, y], typeof(int?), "y??x", new CultureInfo("de")));
+        Assert.AreEqual(y, _converter.Convert([x, y], typeof(int?), "y??y", new CultureInfo("de")));
+        Assert.AreEqual(4, _converter.Convert([x, y], typeof(int?), "null??4", new CultureInfo("de")));
     }
     [TestMethod]
     public void TestTernary()
@@ -487,10 +487,10 @@ public class MathConverterTests
         var y = 3;
 
         Assert.AreEqual(true ? true ? 1.0 : 0 : 0, _converter.Convert([], typeof(object), "true ? true?1:0 : 0", new CultureInfo("de")));
-        Assert.AreEqual(true ? x : y, (int?)_converter.Convert([x, y], typeof(int?), "true ? x : y", new CultureInfo("de")));
-        Assert.AreEqual(false ? x : y, (int?)_converter.Convert([x, y], typeof(int?), "false ? x : y", new CultureInfo("de")));
-        Assert.AreEqual(true ? y : x, (int?)_converter.Convert([x, y], typeof(int?), "true ? y : x", new CultureInfo("de")));
-        Assert.AreEqual(false ? y : x, (int?)_converter.Convert([x, y], typeof(int?), "false ? y : x", new CultureInfo("de")));
+        Assert.AreEqual(true ? x : y, _converter.Convert([x, y], typeof(int?), "true ? x : y", new CultureInfo("de")));
+        Assert.AreEqual(false ? x : y, _converter.Convert([x, y], typeof(int?), "false ? x : y", new CultureInfo("de")));
+        Assert.AreEqual(true ? y : x, _converter.Convert([x, y], typeof(int?), "true ? y : x", new CultureInfo("de")));
+        Assert.AreEqual(false ? y : x, _converter.Convert([x, y], typeof(int?), "false ? y : x", new CultureInfo("de")));
 
         try
         {
@@ -504,7 +504,7 @@ public class MathConverterTests
 
             Assert.Fail($"This should have thrown an exception. We should evaluate {dependencyPropertyClass}.{nameof(BindableProperty.UnsetValue)} as null, which fails as the first operand of the Ternary operator.");
         }
-        catch (EvaluationException ex) when (ex.Message == $"MathConverter threw an exception while performing a conversion.{Environment.NewLine}{Environment.NewLine}ConverterParameter:{Environment.NewLine}x ? true : false{Environment.NewLine}{Environment.NewLine}BindingValues:{Environment.NewLine}[0]: ({BindableProperty.UnsetValue.GetType().FullName}):  {BindableProperty.UnsetValue}" && ex.InnerException.Message == $"A System.InvalidOperationException was thrown while evaluating the TernaryNode:{Environment.NewLine}(x ? True : False)" && ex.InnerException.InnerException.Message == "Cannot apply operator '?:' when the first operand is null") { }
+        catch (EvaluationException ex) when (ex.Message == $"MathConverter threw an exception while performing a conversion.{Environment.NewLine}{Environment.NewLine}ConverterParameter:{Environment.NewLine}x ? true : false{Environment.NewLine}{Environment.NewLine}BindingValues:{Environment.NewLine}[0]: ({BindableProperty.UnsetValue.GetType().FullName}):  {BindableProperty.UnsetValue}" && ex.InnerException?.Message == $"A System.InvalidOperationException was thrown while evaluating the TernaryNode:{Environment.NewLine}(x ? True : False)" && ex.InnerException?.InnerException?.Message == "Cannot apply operator '?:' when the first operand is null") { }
     }
     [TestMethod]
     public void TestNullTargetType()
@@ -555,18 +555,18 @@ public class MathConverterTests
             // The idea here is to test equations that would either have different values or would throw an exception if the operators were applied in the wrong order.
             // And we test to make sure they're evaluated the same way as C#.
 
-            object[] args = [x, y, z];
+            object?[] args = [x, y, z];
 
             object zero = 0.0;
 
             // ?? applied before ?:
             Assert.AreEqual(x.Value ? y ?? x : z ?? (object)3.0, _converter.Convert(args, typeof(object), "x ? y ?? x : z ?? 3.0", new CultureInfo("de")));
-            Assert.AreEqual(y.Value ? y ?? x : z ?? (object)3.0, _converter.Convert(args, typeof(object), "y ? y ?? x : z ?? 3.0", new CultureInfo("de")));
+            Assert.AreEqual(y!.Value ? y ?? x : z ?? (object)3.0, _converter.Convert(args, typeof(object), "y ? y ?? x : z ?? 3.0", new CultureInfo("de")));
             Assert.AreEqual(y ?? x.Value ? true : false, _converter.Convert(args, typeof(object), "y ?? x ? true : false", new CultureInfo("de")));
             // || applied before ?:
-            Assert.AreEqual(x.Value || y.Value ? 1.0 : 0.0, _converter.Convert(args, typeof(object), "x || y ? 1.0 : 0.0", new CultureInfo("de")));
+            Assert.AreEqual(x.Value || y!.Value ? 1.0 : 0.0, _converter.Convert(args, typeof(object), "x || y ? 1.0 : 0.0", new CultureInfo("de")));
             // && applied before ?:
-            Assert.AreEqual(y.Value && x.Value ? 1.0 : 0.0, _converter.Convert(args, typeof(object), "y && x ? 1.0 : 0.0", new CultureInfo("de")));
+            Assert.AreEqual(y!.Value && x.Value ? 1.0 : 0.0, _converter.Convert(args, typeof(object), "y && x ? 1.0 : 0.0", new CultureInfo("de")));
             // ==,!= applied before ?:
             Assert.AreEqual(x != y ? 1.0 : 0.0, _converter.Convert(args, typeof(object), "x != y ? 1.0 : 0.0", new CultureInfo("de")));
             Assert.AreEqual(y == y ? 1.0 : 0.0, _converter.Convert(args, typeof(object), "y == y ? 1.0 : 0.0", new CultureInfo("de")));
@@ -590,16 +590,16 @@ public class MathConverterTests
             Assert.AreEqual(z ?? (bool?)(x == z) ?? x, _converter.Convert(args, typeof(object), "z ?? x == z ?? x", new CultureInfo("de")));
             Assert.AreEqual(z ?? (bool?)(x != z) ?? x, _converter.Convert(args, typeof(object), "z ?? x != z ?? x", new CultureInfo("de")));
             // <,<=,>,>= applied before ??
-            Assert.AreEqual((bool?)(1 > (int?)(object)z) ?? (object)4, _converter.Convert(args, typeof(object), "1 > z ?? 4", new CultureInfo("de")));
-            Assert.AreEqual((bool?)(1 < (int?)(object)z) ?? (object)4, _converter.Convert(args, typeof(object), "1 < z ?? 4", new CultureInfo("de")));
-            Assert.AreEqual((bool?)(1 >= (int?)(object)z) ?? (object)4, _converter.Convert(args, typeof(object), "1 >= z ?? 4", new CultureInfo("de")));
-            Assert.AreEqual((bool?)(1 <= (int?)(object)z) ?? (object)4, _converter.Convert(args, typeof(object), "1 <= z ?? 4", new CultureInfo("de")));
+            Assert.AreEqual((bool?)(1 > (int?)(object?)z) ?? (object)4, _converter.Convert(args, typeof(object), "1 > z ?? 4", new CultureInfo("de")));
+            Assert.AreEqual((bool?)(1 < (int?)(object?)z) ?? (object)4, _converter.Convert(args, typeof(object), "1 < z ?? 4", new CultureInfo("de")));
+            Assert.AreEqual((bool?)(1 >= (int?)(object?)z) ?? (object)4, _converter.Convert(args, typeof(object), "1 >= z ?? 4", new CultureInfo("de")));
+            Assert.AreEqual((bool?)(1 <= (int?)(object?)z) ?? (object)4, _converter.Convert(args, typeof(object), "1 <= z ?? 4", new CultureInfo("de")));
             // +,- applied before ??
-            Assert.AreEqual(1 + (int?)(object)z ?? 2.0, _converter.Convert(args, typeof(object), "1 + z ?? 2.0", new CultureInfo("de")));
-            Assert.AreEqual(1 - (int?)(object)z ?? 2.0, _converter.Convert(args, typeof(object), "1 - z ?? 2.0", new CultureInfo("de")));
+            Assert.AreEqual(1 + (int?)(object?)z ?? 2.0, _converter.Convert(args, typeof(object), "1 + z ?? 2.0", new CultureInfo("de")));
+            Assert.AreEqual(1 - (int?)(object?)z ?? 2.0, _converter.Convert(args, typeof(object), "1 - z ?? 2.0", new CultureInfo("de")));
             // *,/ applied before ??
-            Assert.AreEqual(2 * (int?)(object)z ?? 4.0, _converter.Convert(args, typeof(object), "2 * z ?? 4.0", new CultureInfo("de")));
-            Assert.AreEqual(2 / (int?)(object)z ?? 4.0, _converter.Convert(args, typeof(object), "2 / z ?? 4.0", new CultureInfo("de")));
+            Assert.AreEqual(2 * (int?)(object?)z ?? 4.0, _converter.Convert(args, typeof(object), "2 * z ?? 4.0", new CultureInfo("de")));
+            Assert.AreEqual(2 / (int?)(object?)z ?? 4.0, _converter.Convert(args, typeof(object), "2 / z ?? 4.0", new CultureInfo("de")));
 
 
             // && applied before ||
@@ -607,19 +607,19 @@ public class MathConverterTests
             Assert.AreEqual(x.Value || y.Value && x.Value, _converter.Convert(args, typeof(object), "x || y && x", new CultureInfo("de")));
             // ==,!= applied before ||
             Assert.AreEqual(z == z || y.Value, _converter.Convert(args, typeof(object), "z == z || y", new CultureInfo("de")));
-            Assert.AreEqual(3 != (int?)(object)z || y.Value, _converter.Convert(args, typeof(object), "3 != z || y", new CultureInfo("de")));
+            Assert.AreEqual(3 != (int?)(object?)z || y.Value, _converter.Convert(args, typeof(object), "3 != z || y", new CultureInfo("de")));
             // <,<=,>,>= applied before ||
             Assert.AreEqual(1 > 2 || y.Value, _converter.Convert(args, typeof(object), "1 > 2 || y", new CultureInfo("de")));
             Assert.AreEqual(1 < 2 || y.Value, _converter.Convert(args, typeof(object), "1 < 2 || y", new CultureInfo("de")));
             Assert.AreEqual(1 >= 2 || y.Value, _converter.Convert(args, typeof(object), "1 >= 2 || y", new CultureInfo("de")));
             Assert.AreEqual(1 <= 2 || y.Value, _converter.Convert(args, typeof(object), "1 <= 2 || y", new CultureInfo("de")));
             // +,- applied before ||
-            try { _converter.Convert(args, typeof(object), "y || y + \"a\"", new CultureInfo("de")); Assert.Fail("|| is applied before +"); } catch (Exception ex) when (ex.InnerException.InnerException.Message == "Cannot apply operator '||' to operands of type 'System.Boolean' and 'System.String'") { }
-            try { _converter.Convert(args, typeof(object), "y - 3 || y", new CultureInfo("de")); Assert.Fail("|| is applied before -"); } catch (Exception ex) when (ex.InnerException.InnerException.Message == "Cannot apply operator '-' to operands of type 'System.Boolean' and 'System.Double'") { }
+            try { _converter.Convert(args, typeof(object), "y || y + \"a\"", new CultureInfo("de")); Assert.Fail("|| is applied before +"); } catch (Exception ex) when (ex.InnerException?.InnerException?.Message == "Cannot apply operator '||' to operands of type 'System.Boolean' and 'System.String'") { }
+            try { _converter.Convert(args, typeof(object), "y - 3 || y", new CultureInfo("de")); Assert.Fail("|| is applied before -"); } catch (Exception ex) when (ex.InnerException?.InnerException?.Message == "Cannot apply operator '-' to operands of type 'System.Boolean' and 'System.Double'") { }
 
             // *,/ applied before ||
-            try { _converter.Convert(args, typeof(object), "y * 3 || y", new CultureInfo("de")); Assert.Fail("|| is applied before *"); } catch (Exception ex) when (ex.InnerException.InnerException.Message == "Cannot apply operator '*' to operands of type 'System.Boolean' and 'System.Double'") { }
-            try { _converter.Convert(args, typeof(object), "y / 3 || y", new CultureInfo("de")); Assert.Fail("|| is applied before /"); } catch (Exception ex) when (ex.InnerException.InnerException.Message == "Cannot apply operator '/' to operands of type 'System.Boolean' and 'System.Double'") { }
+            try { _converter.Convert(args, typeof(object), "y * 3 || y", new CultureInfo("de")); Assert.Fail("|| is applied before *"); } catch (Exception ex) when (ex.InnerException?.InnerException?.Message == "Cannot apply operator '*' to operands of type 'System.Boolean' and 'System.Double'") { }
+            try { _converter.Convert(args, typeof(object), "y / 3 || y", new CultureInfo("de")); Assert.Fail("|| is applied before /"); } catch (Exception ex) when (ex.InnerException?.InnerException?.Message == "Cannot apply operator '/' to operands of type 'System.Boolean' and 'System.Double'") { }
 
             // ==,!= applied before &&
             Assert.AreEqual(z == z && x.Value, _converter.Convert(args, typeof(object), "z == z && x", new CultureInfo("de")));
@@ -630,13 +630,13 @@ public class MathConverterTests
             Assert.AreEqual(1 >= 2 && y.Value, _converter.Convert(args, typeof(object), "1 >= 2 && y", new CultureInfo("de")));
             Assert.AreEqual(1 <= 2 && y.Value, _converter.Convert(args, typeof(object), "1 <= 2 && y", new CultureInfo("de")));
             // +,- applied before &&
-            try { _converter.Convert(args, typeof(object), "x && x + \"a\"", new CultureInfo("de")); Assert.Fail("&& is applied before +"); } catch (Exception ex) when (ex.InnerException.InnerException.Message == "Cannot apply operator '&&' to operands of type 'System.Boolean' and 'System.String'") { }
-            try { _converter.Convert(args, typeof(object), "x - 3 && x", new CultureInfo("de")); Assert.Fail("&& is applied before -"); } catch (Exception ex) when (ex.InnerException.InnerException.Message == "Cannot apply operator '-' to operands of type 'System.Boolean' and 'System.Double'") { }
+            try { _converter.Convert(args, typeof(object), "x && x + \"a\"", new CultureInfo("de")); Assert.Fail("&& is applied before +"); } catch (Exception ex) when (ex.InnerException?.InnerException?.Message == "Cannot apply operator '&&' to operands of type 'System.Boolean' and 'System.String'") { }
+            try { _converter.Convert(args, typeof(object), "x - 3 && x", new CultureInfo("de")); Assert.Fail("&& is applied before -"); } catch (Exception ex) when (ex.InnerException?.InnerException?.Message == "Cannot apply operator '-' to operands of type 'System.Boolean' and 'System.Double'") { }
 
             // *,/ applied before &&
-            try { _converter.Convert(args, typeof(object), "y * 3 && y", new CultureInfo("de")); Assert.Fail("&& is applied before *"); } catch (Exception ex) when (ex.InnerException.InnerException.Message == "Cannot apply operator '*' to operands of type 'System.Boolean' and 'System.Double'") { }
+            try { _converter.Convert(args, typeof(object), "y * 3 && y", new CultureInfo("de")); Assert.Fail("&& is applied before *"); } catch (Exception ex) when (ex.InnerException?.InnerException?.Message == "Cannot apply operator '*' to operands of type 'System.Boolean' and 'System.Double'") { }
 
-            try { _converter.Convert(args, typeof(object), "y / 3 && y", new CultureInfo("de")); Assert.Fail("&& is applied before /"); } catch (Exception ex) when (ex.InnerException.InnerException.Message == "Cannot apply operator '/' to operands of type 'System.Boolean' and 'System.Double'") { }
+            try { _converter.Convert(args, typeof(object), "y / 3 && y", new CultureInfo("de")); Assert.Fail("&& is applied before /"); } catch (Exception ex) when (ex.InnerException?.InnerException?.Message == "Cannot apply operator '/' to operands of type 'System.Boolean' and 'System.Double'") { }
 
             // <,<=,>,>= applied before ==,!=
             Assert.AreEqual(1 < 2 == true, _converter.Convert(args, typeof(object), "1 < 2 == true", new CultureInfo("de")));
@@ -690,7 +690,7 @@ public class MathConverterTests
             double x2 = x * x;
             double y = 2.0;
             bool? z = true;
-            object[] args = [x, y, z];
+            object?[] args = [x, y, z];
             // ^ applied before ?:
             Assert.AreEqual(true ? 0.0 : x2, _converter.Convert(args, typeof(object), "true ? 0.0 : x2", new CultureInfo("de")));
             Assert.AreEqual(true ? 0.0 : x2, _converter.Convert(args, typeof(object), "true ? 0.0 : x^2", new CultureInfo("de")));
@@ -698,10 +698,10 @@ public class MathConverterTests
             Assert.AreEqual(null ?? (double?)x2, _converter.Convert(args, typeof(object), "null??x2", new CultureInfo("de")));
             Assert.AreEqual(null ?? (double?)x2, _converter.Convert(args, typeof(object), "null??x^2", new CultureInfo("de")));
             // ^ applied before ||
-            Assert.IsTrue((bool)_converter.Convert(args, typeof(object), "z||x2", new CultureInfo("de")));
-            Assert.IsTrue((bool)_converter.Convert(args, typeof(object), "z||x^2", new CultureInfo("de")));
+            Assert.IsTrue((bool)_converter.Convert(args, typeof(object), "z||x2", new CultureInfo("de"))!);
+            Assert.IsTrue((bool)_converter.Convert(args, typeof(object), "z||x^2", new CultureInfo("de"))!);
             // ^ applied before &&:
-            try { _converter.Convert(args, typeof(object), "x ^ true && true ? x : 0", new CultureInfo("de")); Assert.Fail("3 ^ true should return null, which cannot be AND-ed"); } catch (Exception ex) when (ex.InnerException.InnerException.Message == "Cannot apply operator '^' to operands of type 'System.Double' and 'System.Boolean'") { }
+            try { _converter.Convert(args, typeof(object), "x ^ true && true ? x : 0", new CultureInfo("de")); Assert.Fail("3 ^ true should return null, which cannot be AND-ed"); } catch (Exception ex) when (ex.InnerException?.InnerException?.Message == "Cannot apply operator '^' to operands of type 'System.Double' and 'System.Boolean'") { }
             Assert.AreEqual(Math.Pow(x, true && true ? x : 0), _converter.Convert(args, typeof(object), "x ^ (true && true ? x : 0)", new CultureInfo("de")));
             // ^ applied before ==,!=
             Assert.AreEqual(9==x2, _converter.Convert(args, typeof(object), "9==x2", new CultureInfo("de")));
@@ -868,12 +868,12 @@ public class MathConverterTests
         const int allowWithinMillis = 4;
 
         // Assert that the now function returns within 4ms of DateTime.Now (100ms is the time between evaluating the AbstractSyntaxTree [The NowFunction] and getting the DateTime.Now property).
-        var now = (DateTime)_converter.Convert(null, typeof(object), "Now()", new CultureInfo("de"));
+        var now = (DateTime)_converter.Convert((object?)null, typeof(object), "Now()", new CultureInfo("de"))!;
         Assert.AreEqual(0, (now - DateTime.Now).TotalMilliseconds, allowWithinMillis);
         Thread.Sleep(allowWithinMillis * 2);
 
         // We evaluate this again 8ms later, knowing that the same [cached] AbstractSyntaxTree [NowFunction] gave a different value 8ms later when it was evaluated a second time.
-        now = (DateTime)_converter.Convert(null, typeof(object), "Now()", new CultureInfo("de"));
+        now = (DateTime)_converter.Convert((object?)null, typeof(object), "Now()", new CultureInfo("de"))!;
         Assert.AreEqual(0, (now - DateTime.Now).TotalMilliseconds, allowWithinMillis);
 
         Assert.AreEqual(3, _converter.Convert([null, 3, 5], typeof(object), "IsNull(x,y)", new CultureInfo("de")));
@@ -891,12 +891,12 @@ public class MathConverterTests
         Assert.AreEqual(3, _converter.Convert([null, 3, 5], typeof(object), "Min(null,y;z;100)", new CultureInfo("de")));
         Assert.AreEqual(null, _converter.Convert([null, 3, 5], typeof(object), "Min(null,x)", new CultureInfo("de")));
         Assert.AreEqual(4.0, _converter.Convert([null, 3, 5], typeof(object), "Avg(y;z)", new CultureInfo("de")));
-        Assert.AreEqual(4.666666666666, (double)_converter.Convert([null, 3, 5], typeof(object), "Avg(y;z;6)", new CultureInfo("de")), 0.00000001);
+        Assert.AreEqual(4.666666666666, (double)_converter.Convert([null, 3, 5], typeof(object), "Avg(y;z;6)", new CultureInfo("de"))!, 0.00000001);
         Assert.AreEqual(4.0, _converter.Convert([null, 3, 5], typeof(object), "Avg(x;y;z)", new CultureInfo("de")));
         Assert.AreEqual("35", _converter.Convert([null, 3, 5], typeof(object), "Concat(x;y;z)", new CultureInfo("de")));
         Assert.AreEqual("3x5", _converter.Convert([null, 3, 5], typeof(object), "Concat(x;y;\"x\";z)", new CultureInfo("de")));
         Assert.AreEqual("Hello, World!, ", _converter.Convert(["Hello", "World!"], typeof(object), "Join(', ', x, y, null)", new CultureInfo("de")));
-        Assert.AreEqual("Hello, World!, ", _converter.Convert([new object[] { "Hello", "World!", null }], typeof(object), "Join(', ', x)", new CultureInfo("de")));
+        Assert.AreEqual("Hello, World!, ", _converter.Convert([new object?[] { "Hello", "World!", null }], typeof(object), "Join(', ', x)", new CultureInfo("de")));
         Assert.AreEqual(true, _converter.Convert(["Hello world", "Hello"], typeof(object), "Contains(\"Hello world\", `Hello`)", new CultureInfo("de")));
         Assert.AreEqual(true, _converter.Convert(["Hello world", "Hello"], typeof(object), "Contains(\"Hello world\", y)", new CultureInfo("de")));
         Assert.AreEqual(true, _converter.Convert(["Hello world", "Hello"], typeof(object), "Contains(x, `Hello`)", new CultureInfo("de")));
@@ -915,7 +915,7 @@ public class MathConverterTests
         Assert.AreEqual(true, _converter.Convert(["ψñíçθдë têsт", "ΨÑÍÇΘДË TÊSТ"], typeof(object), "ToLower(x) == x", new CultureInfo("de")));
         Assert.AreEqual(true, _converter.Convert(["ψñíçθдë têsт", "ΨÑÍÇΘДË TÊSТ"], typeof(object), "ToUpper(y) != ToLower(y)", new CultureInfo("de")));
         Assert.AreEqual(true, _converter.Convert(["ψñíçθдë têsт", "ΨÑÍÇΘДË TÊSТ"], typeof(object), "ToUpper(x) != ToLower(x)", new CultureInfo("de")));
-        object[] possibleArgs = [new ArithmeticOperatorTester(2), new ArithmeticOperatorTester(0), false, true, null];
+        object?[] possibleArgs = [new ArithmeticOperatorTester(2), new ArithmeticOperatorTester(0), false, true, null];
 
         foreach (var x in new bool[] { true, false })
         {
@@ -933,40 +933,40 @@ public class MathConverterTests
 
             // We evaluate each spelling of cos, sin, and tan. To avoid divide-by-zero errors, we do not evaluate 0.
             // But because we're using doubles, we actually evalute -1.0269562977782698E-15, not 0
-            Assert.AreEqual(Math.Cos(x), (double)_converter.Convert([x], typeof(object), $"Cos(x) / Cos(x) * Cos(x)", new CultureInfo("de")), 0.00000001);
-            Assert.AreEqual(Math.Sin(x), (double)_converter.Convert([x], typeof(object), $"Sin(x) / Sin(x) * Sin(x)", new CultureInfo("de")), 0.00000001);
-            Assert.AreEqual(Math.Tan(x), (double)_converter.Convert([x], typeof(object), $"Tan(x) / Tan(x) * Tan(x)", new CultureInfo("de")), 0.00000001);
-            Assert.AreEqual(Math.Abs(x), (double)_converter.Convert([x], typeof(object), $"Abs(x) / Abs(x) * Abs(x)", new CultureInfo("de")), 0.00000001);
-            Assert.AreEqual(Math.Atan(x), (double)_converter.Convert([x], typeof(object), $"Atan(x) / Atan(x) * Atan(x)", new CultureInfo("de")), 0.00000001);
-            Assert.AreEqual(Math.Ceiling(x), (double)_converter.Convert([x], typeof(object), $"Ceil(x)", new CultureInfo("de")), 0.00000001);
-            Assert.AreEqual(Math.Ceiling(x), (double)_converter.Convert([x], typeof(object), $"Ceiling(x)", new CultureInfo("de")), 0.00000001);
-            Assert.AreEqual(Math.Floor(x), (double)_converter.Convert([x], typeof(object), $"Floor(x)", new CultureInfo("de")), 0.00000001);
-            Assert.AreEqual(x / Math.PI * 180, (double)_converter.Convert([x], typeof(object), $"Deg(x) / Degrees(x) * Deg(x)", new CultureInfo("de")), 0.00000001);
-            Assert.AreEqual(Math.Round(x), (double)_converter.Convert([x], typeof(object), $"Round(x)", new CultureInfo("de")), 0.00000001);
-            Assert.AreEqual(Math.Round(x, 1), (double)_converter.Convert([x], typeof(object), $"Round(x,1)", new CultureInfo("de")), 0.00000001);
+            Assert.AreEqual(Math.Cos(x), (double)_converter.Convert([x], typeof(object), $"Cos(x) / Cos(x) * Cos(x)", new CultureInfo("de"))!, 0.00000001);
+            Assert.AreEqual(Math.Sin(x), (double)_converter.Convert([x], typeof(object), $"Sin(x) / Sin(x) * Sin(x)", new CultureInfo("de"))!, 0.00000001);
+            Assert.AreEqual(Math.Tan(x), (double)_converter.Convert([x], typeof(object), $"Tan(x) / Tan(x) * Tan(x)", new CultureInfo("de"))!, 0.00000001);
+            Assert.AreEqual(Math.Abs(x), (double)_converter.Convert([x], typeof(object), $"Abs(x) / Abs(x) * Abs(x)", new CultureInfo("de"))!, 0.00000001);
+            Assert.AreEqual(Math.Atan(x), (double)_converter.Convert([x], typeof(object), $"Atan(x) / Atan(x) * Atan(x)", new CultureInfo("de"))!, 0.00000001);
+            Assert.AreEqual(Math.Ceiling(x), (double)_converter.Convert([x], typeof(object), $"Ceil(x)", new CultureInfo("de"))!, 0.00000001);
+            Assert.AreEqual(Math.Ceiling(x), (double)_converter.Convert([x], typeof(object), $"Ceiling(x)", new CultureInfo("de"))!, 0.00000001);
+            Assert.AreEqual(Math.Floor(x), (double)_converter.Convert([x], typeof(object), $"Floor(x)", new CultureInfo("de"))!, 0.00000001);
+            Assert.AreEqual(x / Math.PI * 180, (double)_converter.Convert([x], typeof(object), $"Deg(x) / Degrees(x) * Deg(x)", new CultureInfo("de"))!, 0.00000001);
+            Assert.AreEqual(Math.Round(x), (double)_converter.Convert([x], typeof(object), $"Round(x)", new CultureInfo("de"))!, 0.00000001);
+            Assert.AreEqual(Math.Round(x, 1), (double)_converter.Convert([x], typeof(object), $"Round(x,1)", new CultureInfo("de"))!, 0.00000001);
 
             if (Math.Abs(x) <= 1)
             {
-                Assert.AreEqual(Math.Acos(x), (double)_converter.Convert([x], typeof(object), $"Acos(x) / Acos(x) * Acos(x)", new CultureInfo("de")), 0.00000001);
-                Assert.AreEqual(Math.Asin(x), (double)_converter.Convert([x], typeof(object), $"Asin(x) / Asin(x) * Asin(x)", new CultureInfo("de")), 0.00000001);
+                Assert.AreEqual(Math.Acos(x), (double)_converter.Convert([x], typeof(object), $"Acos(x) / Acos(x) * Acos(x)", new CultureInfo("de"))!, 0.00000001);
+                Assert.AreEqual(Math.Asin(x), (double)_converter.Convert([x], typeof(object), $"Asin(x) / Asin(x) * Asin(x)", new CultureInfo("de"))!, 0.00000001);
             }
 
             if (x >= 0)
             {
-                Assert.AreEqual(Math.Sqrt(x), (double)_converter.Convert([x], typeof(object), $"Sqrt(x) / Sqrt(x) * Sqrt(x)", new CultureInfo("de")), 0.00000001);
+                Assert.AreEqual(Math.Sqrt(x), (double)_converter.Convert([x], typeof(object), $"Sqrt(x) / Sqrt(x) * Sqrt(x)", new CultureInfo("de"))!, 0.00000001);
             }
 
             for (double y = -5; y < 5; y += 0.1)
             {
-                Assert.AreEqual(Math.Atan2(x, y), (double)_converter.Convert([x, y], typeof(object), $"Atan2(x,y) / ArcTan2(x,y) * Atan2(x;y)", new CultureInfo("de")));
-                Assert.AreEqual(Math.Log(x, y), (double)_converter.Convert([x, y], typeof(object), $"Log(x,y) / Log(x,y) * Log(x;y)", new CultureInfo("de")));
+                Assert.AreEqual(Math.Atan2(x, y), _converter.Convert([x, y], typeof(object), $"Atan2(x,y) / ArcTan2(x,y) * Atan2(x;y)", new CultureInfo("de")));
+                Assert.AreEqual(Math.Log(x, y), _converter.Convert([x, y], typeof(object), $"Log(x,y) / Log(x,y) * Log(x;y)", new CultureInfo("de")));
             }
 
             foreach (var function in new string[] { "Contains", "StartsWith", "EndsWith" })
             {
                 foreach (var args in new object[][] { ["a", "a"], ["123", 123] })
                 {
-                    Assert.IsTrue((bool)_converter.Convert(args, typeof(object), $"{function}(x,y)", new CultureInfo("de")));
+                    Assert.IsTrue((bool)_converter.Convert(args, typeof(object), $"{function}(x,y)", new CultureInfo("de"))!);
                 }
             }
 
@@ -974,7 +974,7 @@ public class MathConverterTests
             {
                 foreach (var args in new object[][] { ["abc", "ab"], ["123", 12] })
                 {
-                    Assert.IsTrue((bool)_converter.Convert(args, typeof(object), $"{function}(x,y)", new CultureInfo("de")));
+                    Assert.IsTrue((bool)_converter.Convert(args, typeof(object), $"{function}(x,y)", new CultureInfo("de"))!);
                 }
             }
 
@@ -982,7 +982,7 @@ public class MathConverterTests
             {
                 foreach (var args in new object[][] { ["abc", "bc"], ["123", 23] })
                 {
-                    Assert.IsTrue((bool)_converter.Convert(args, typeof(object), $"{function}(x,y)", new CultureInfo("de")));
+                    Assert.IsTrue((bool)_converter.Convert(args, typeof(object), $"{function}(x,y)", new CultureInfo("de"))!);
                 }
             }
 
@@ -991,7 +991,7 @@ public class MathConverterTests
             Assert.AreEqual(Visibility.Visible, _converter.Convert([true], typeof(object), "VisibleOrHidden(x)", new CultureInfo("de")));
             Assert.AreEqual(Visibility.Visible, _converter.Convert([true], typeof(object), "VisibleOrCollapsed(x)", new CultureInfo("de")));
 
-            foreach (var arg in new object[] { false, null, "true", "false", "Hello World" })
+            foreach (var arg in new object?[] { false, null, "true", "false", "Hello World" })
             {
                 Assert.AreEqual(Visibility.Hidden, _converter.Convert([arg], typeof(object), "VisibleOrHidden(x)", new CultureInfo("de")));
                 Assert.AreEqual(Visibility.Collapsed, _converter.Convert([arg], typeof(object), "VisibleOrCollapsed(x)", new CultureInfo("de")));
@@ -1005,9 +1005,9 @@ public class MathConverterTests
             Assert.AreEqual(null, _converter.Convert([null, 3, 5], typeof(object), "TryParseDouble(`INVALID!`)", new CultureInfo("de")));
             Assert.AreEqual(null, _converter.Convert([TimeSpan.FromDays(3)], typeof(object), "TryParseDouble(x)", new CultureInfo("de")));
 
-            Assert.AreEqual(BindableProperty.UnsetValue, _converter.Convert(null, typeof(string), "UnsetValue()", new CultureInfo("de")));
+            Assert.AreEqual(BindableProperty.UnsetValue, _converter.Convert((object?)null, typeof(string), "UnsetValue()", new CultureInfo("de")));
 
-            Assert.AreEqual(Binding.DoNothing, _converter.Convert(null, typeof(string), "DoNothing()", new CultureInfo("de")));
+            Assert.AreEqual(Binding.DoNothing, _converter.Convert((object?)null, typeof(string), "DoNothing()", new CultureInfo("de")));
         }
 
         Assert.AreEqual(null, _converter.Convert([null, 3, 5.0, "Hello"], typeof(object), "GetType(x)", new CultureInfo("de")));
@@ -1076,7 +1076,7 @@ public class MathConverterTests
     public void TestCustomFunctions()
     {
         _converter.CustomFunctions.Add(CustomFunctionDefinition.Create<ConstantValueFunction>("ConstValue"));
-        Assert.IsTrue(ReferenceEquals(ConstantValueFunction.Value, _converter.Convert(null, typeof(object), "ConstValue()", CultureInfo.InvariantCulture)));
+        Assert.IsTrue(ReferenceEquals(ConstantValueFunction.Value, _converter.Convert((object?)null, typeof(object), "ConstValue()", CultureInfo.InvariantCulture)));
 
         _converter.CustomFunctions.Add(CustomFunctionDefinition.Create<ThreeArgFunction>("ThreeArg"));
         _converter.CustomFunctions.Add(CustomFunctionDefinition.Create<ThreeArgFunction>("threearg"));
@@ -1138,11 +1138,11 @@ public class MathConverterTests
             Assert.AreEqual((Flags)flags, MathConverter.ConvertType(flags, typeof(Flags?)));
 
 #if NET9_0_OR_GREATER
-            Assert.AreEqual(Enum.Parse<Flags>(flags.ToString()), MathConverter.ConvertType(flags.ToString(), typeof(Flags)));
-            Assert.AreEqual(Enum.Parse<Flags>(flags.ToString()), MathConverter.ConvertType(flags.ToString(), typeof(Flags?)));
+            Assert.AreEqual(Enum.Parse<Flags>($"{flags}"), MathConverter.ConvertType(flags.ToString(), typeof(Flags)));
+            Assert.AreEqual(Enum.Parse<Flags>($"{flags}"), MathConverter.ConvertType(flags.ToString(), typeof(Flags?)));
 #else
-            Assert.AreEqual(Enum.Parse(typeof(Flags), flags.ToString()), MathConverter.ConvertType(flags.ToString(), typeof(Flags)));
-            Assert.AreEqual(Enum.Parse(typeof(Flags), flags.ToString()), MathConverter.ConvertType(flags.ToString(), typeof(Flags?)));
+            Assert.AreEqual(Enum.Parse(typeof(Flags), $"{flags}"), MathConverter.ConvertType(flags.ToString(), typeof(Flags)));
+            Assert.AreEqual(Enum.Parse(typeof(Flags), $"{flags}"), MathConverter.ConvertType(flags.ToString(), typeof(Flags?)));
 #endif
         }
 
@@ -1168,15 +1168,15 @@ public class MathConverterTests
         Assert.IsNull(_converter.Convert(BindableProperty.UnsetValue, typeof(object), "x", new CultureInfo("de")));
         Assert.IsNull(_converter.Convert(BindableProperty.UnsetValue, typeof(string), "x", new CultureInfo("de")));
         Assert.IsNull(_converter.Convert(BindableProperty.UnsetValue, typeof(GridLength), "x", new CultureInfo("de")));
-        Assert.IsFalse((bool)_converter.Convert(BindableProperty.UnsetValue, typeof(object), "x == UnsetValue()", new CultureInfo("de")));
-        Assert.IsTrue((bool)_converter.Convert(BindableProperty.UnsetValue, typeof(object), "x == null", new CultureInfo("de")));
+        Assert.IsFalse((bool)_converter.Convert(BindableProperty.UnsetValue, typeof(object), "x == UnsetValue()", new CultureInfo("de"))!);
+        Assert.IsTrue((bool)_converter.Convert(BindableProperty.UnsetValue, typeof(object), "x == null", new CultureInfo("de"))!);
 
         _converter.AllowUnsetValue = true;
         Assert.AreEqual(BindableProperty.UnsetValue, _converter.Convert(BindableProperty.UnsetValue, typeof(object), "x", new CultureInfo("de")));
         Assert.AreEqual(BindableProperty.UnsetValue, _converter.Convert(BindableProperty.UnsetValue, typeof(string), "x", new CultureInfo("de")));
         Assert.AreEqual(BindableProperty.UnsetValue, _converter.Convert(BindableProperty.UnsetValue, typeof(GridLength), "x", new CultureInfo("de")));
-        Assert.IsTrue((bool)_converter.Convert(BindableProperty.UnsetValue, typeof(object), "x == UnsetValue()", new CultureInfo("de")));
-        Assert.IsFalse((bool)_converter.Convert(BindableProperty.UnsetValue, typeof(object), "x == null", new CultureInfo("de")));
+        Assert.IsTrue((bool)_converter.Convert(BindableProperty.UnsetValue, typeof(object), "x == UnsetValue()", new CultureInfo("de"))!);
+        Assert.IsFalse((bool)_converter.Convert(BindableProperty.UnsetValue, typeof(object), "x == null", new CultureInfo("de"))!);
 
         _converter.AllowUnsetValue = false;
     }
@@ -1193,9 +1193,9 @@ public class MathConverterTests
             Assert.AreEqual(str, convert._binding.ConverterParameter);
         }
 
-        foreach (var obj in new object[] { "Hello", null, 4 })
+        foreach (var obj in new object?[] { "Hello", null, 4 })
         {
-            convert.FallbackValue = convert.TargetNullValue = obj;
+            convert.FallbackValue = convert.TargetNullValue = obj!;
             Assert.AreEqual(obj, convert._binding.FallbackValue);
             Assert.AreEqual(obj, convert._binding.TargetNullValue);
         }
@@ -1224,7 +1224,7 @@ public class MathConverterTests
 
 #if !WPF
                 // WPF makes this complicated.
-                Assert.AreEqual(BindableProperty.UnsetValue, binding.Source);
+                Assert.AreEqual(BindableProperty.UnsetValue, binding!.Source);
 #endif
             }
 
@@ -1237,7 +1237,7 @@ public class MathConverterTests
 
 #if !WPF
         // WPF makes this complicated.
-        Assert.AreEqual(convert._binding, convert.ProvideValue(null));
+        Assert.AreEqual(convert._binding, convert.ProvideValue(null!));
         Assert.AreEqual(convert._binding, ((IMarkupExtension)convert).ProvideValue(null));
 #endif
     }
@@ -1253,7 +1253,7 @@ public class MathConverterTests
 
     public class ThreeArgFunction : CustomFunction
     {
-        public override object DoEvaluate(CultureInfo cultureInfo, object[] bindingValues)
+        public override object? DoEvaluate(CultureInfo cultureInfo, object?[] bindingValues)
         {
             return EvaluateParameter(0, cultureInfo, bindingValues);
         }
@@ -1286,11 +1286,11 @@ public class OperatorTests
 
         Assert.AreEqual(january1 + oneDay, Operator.Addition.Evaluate(january1, oneDay));
         Assert.AreEqual(twoDays + oneDay, Operator.Addition.Evaluate(twoDays, oneDay));
-        Assert.AreEqual((new ArithmeticOperatorTester(1) + new ArithmeticOperatorTester(2)).Value, (Operator.Addition.Evaluate(new ArithmeticOperatorTester(1), new ArithmeticOperatorTester(2)) as ArithmeticOperatorTester).Value);
-        Assert.AreEqual((new ArithmeticOperatorTesterSubClass1(1) + new ArithmeticOperatorTester(2)).Value, (Operator.Addition.Evaluate(new ArithmeticOperatorTesterSubClass1(1), new ArithmeticOperatorTester(2)) as ArithmeticOperatorTester).Value);
-        Assert.AreEqual((new ArithmeticOperatorTesterSubClass1(1) + new ArithmeticOperatorTesterSubClass2(2)).Value, (Operator.Addition.Evaluate(new ArithmeticOperatorTesterSubClass1(1), new ArithmeticOperatorTesterSubClass2(2)) as ArithmeticOperatorTester).Value);
-        Assert.AreEqual((new ArithmeticOperatorTesterSubClass2(1) + new ArithmeticOperatorTesterSubClass2(2)).Value, (Operator.Addition.Evaluate(new ArithmeticOperatorTesterSubClass2(1), new ArithmeticOperatorTesterSubClass2(2)) as ArithmeticOperatorTester).Value);
-        Assert.AreEqual((new ArithmeticOperatorTesterSubClass2(1) + new HaveValueClass1(2)).Value, (Operator.Addition.Evaluate(new ArithmeticOperatorTesterSubClass2(1), new HaveValueClass1(2)) as ArithmeticOperatorTester).Value);
+        Assert.AreEqual((new ArithmeticOperatorTester(1) + new ArithmeticOperatorTester(2)).Value, (Operator.Addition.Evaluate(new ArithmeticOperatorTester(1), new ArithmeticOperatorTester(2)) as ArithmeticOperatorTester)!.Value);
+        Assert.AreEqual((new ArithmeticOperatorTesterSubClass1(1) + new ArithmeticOperatorTester(2)).Value, (Operator.Addition.Evaluate(new ArithmeticOperatorTesterSubClass1(1), new ArithmeticOperatorTester(2)) as ArithmeticOperatorTester)!.Value);
+        Assert.AreEqual((new ArithmeticOperatorTesterSubClass1(1) + new ArithmeticOperatorTesterSubClass2(2)).Value, (Operator.Addition.Evaluate(new ArithmeticOperatorTesterSubClass1(1), new ArithmeticOperatorTesterSubClass2(2)) as ArithmeticOperatorTester)!.Value);
+        Assert.AreEqual((new ArithmeticOperatorTesterSubClass2(1) + new ArithmeticOperatorTesterSubClass2(2)).Value, (Operator.Addition.Evaluate(new ArithmeticOperatorTesterSubClass2(1), new ArithmeticOperatorTesterSubClass2(2)) as ArithmeticOperatorTester)!.Value);
+        Assert.AreEqual((new ArithmeticOperatorTesterSubClass2(1) + new HaveValueClass1(2)).Value, (Operator.Addition.Evaluate(new ArithmeticOperatorTesterSubClass2(1), new HaveValueClass1(2)) as ArithmeticOperatorTester)!.Value);
         Assert.AreEqual(3.0 + new HaveValueClass1(2), Operator.Addition.Evaluate(3, new HaveValueClass1(2)));
 
         try
@@ -1349,11 +1349,11 @@ public class OperatorTests
 
         Assert.AreEqual(january1 - oneDay, Operator.Subtraction.Evaluate(january1, oneDay));
         Assert.AreEqual(twoDays - oneDay, Operator.Subtraction.Evaluate(twoDays, oneDay));
-        Assert.AreEqual((new ArithmeticOperatorTester(1) - new ArithmeticOperatorTester(2)).Value, (Operator.Subtraction.Evaluate(new ArithmeticOperatorTester(1), new ArithmeticOperatorTester(2)) as ArithmeticOperatorTester).Value);
-        Assert.AreEqual((new ArithmeticOperatorTesterSubClass1(1) - new ArithmeticOperatorTester(2)).Value, (Operator.Subtraction.Evaluate(new ArithmeticOperatorTesterSubClass1(1), new ArithmeticOperatorTester(2)) as ArithmeticOperatorTester).Value);
-        Assert.AreEqual((new ArithmeticOperatorTesterSubClass1(1) - new ArithmeticOperatorTesterSubClass2(2)).Value, (Operator.Subtraction.Evaluate(new ArithmeticOperatorTesterSubClass1(1), new ArithmeticOperatorTesterSubClass2(2)) as ArithmeticOperatorTester).Value);
-        Assert.AreEqual((new ArithmeticOperatorTesterSubClass2(1) - new ArithmeticOperatorTesterSubClass2(2)).Value, (Operator.Subtraction.Evaluate(new ArithmeticOperatorTesterSubClass2(1), new ArithmeticOperatorTesterSubClass2(2)) as ArithmeticOperatorTester).Value);
-        Assert.AreEqual((new ArithmeticOperatorTesterSubClass2(1) - new HaveValueClass1(2)).Value, (Operator.Subtraction.Evaluate(new ArithmeticOperatorTesterSubClass2(1), new HaveValueClass1(2)) as ArithmeticOperatorTester).Value);
+        Assert.AreEqual((new ArithmeticOperatorTester(1) - new ArithmeticOperatorTester(2)).Value, (Operator.Subtraction.Evaluate(new ArithmeticOperatorTester(1), new ArithmeticOperatorTester(2)) as ArithmeticOperatorTester)!.Value);
+        Assert.AreEqual((new ArithmeticOperatorTesterSubClass1(1) - new ArithmeticOperatorTester(2)).Value, (Operator.Subtraction.Evaluate(new ArithmeticOperatorTesterSubClass1(1), new ArithmeticOperatorTester(2)) as ArithmeticOperatorTester)!.Value);
+        Assert.AreEqual((new ArithmeticOperatorTesterSubClass1(1) - new ArithmeticOperatorTesterSubClass2(2)).Value, (Operator.Subtraction.Evaluate(new ArithmeticOperatorTesterSubClass1(1), new ArithmeticOperatorTesterSubClass2(2)) as ArithmeticOperatorTester)!.Value);
+        Assert.AreEqual((new ArithmeticOperatorTesterSubClass2(1) - new ArithmeticOperatorTesterSubClass2(2)).Value, (Operator.Subtraction.Evaluate(new ArithmeticOperatorTesterSubClass2(1), new ArithmeticOperatorTesterSubClass2(2)) as ArithmeticOperatorTester)!.Value);
+        Assert.AreEqual((new ArithmeticOperatorTesterSubClass2(1) - new HaveValueClass1(2)).Value, (Operator.Subtraction.Evaluate(new ArithmeticOperatorTesterSubClass2(1), new HaveValueClass1(2)) as ArithmeticOperatorTester)!.Value);
         Assert.AreEqual(3.0 - new HaveValueClass1(2), Operator.Subtraction.Evaluate(3, new HaveValueClass1(2)));
 
         try
@@ -1423,11 +1423,11 @@ public class OperatorTests
         var oneDay = TimeSpan.FromDays(1);
         var twoDays = TimeSpan.FromDays(2);
 
-        Assert.AreEqual((new ArithmeticOperatorTester(1) * new ArithmeticOperatorTester(2)).Value, (Operator.Multiply.Evaluate(new ArithmeticOperatorTester(1), new ArithmeticOperatorTester(2)) as ArithmeticOperatorTester).Value);
-        Assert.AreEqual((new ArithmeticOperatorTesterSubClass1(1) * new ArithmeticOperatorTester(2)).Value, (Operator.Multiply.Evaluate(new ArithmeticOperatorTesterSubClass1(1), new ArithmeticOperatorTester(2)) as ArithmeticOperatorTester).Value);
-        Assert.AreEqual((new ArithmeticOperatorTesterSubClass1(1) * new ArithmeticOperatorTesterSubClass2(2)).Value, (Operator.Multiply.Evaluate(new ArithmeticOperatorTesterSubClass1(1), new ArithmeticOperatorTesterSubClass2(2)) as ArithmeticOperatorTester).Value);
-        Assert.AreEqual((new ArithmeticOperatorTesterSubClass2(1) * new ArithmeticOperatorTesterSubClass2(2)).Value, (Operator.Multiply.Evaluate(new ArithmeticOperatorTesterSubClass2(1), new ArithmeticOperatorTesterSubClass2(2)) as ArithmeticOperatorTester).Value);
-        Assert.AreEqual((new ArithmeticOperatorTesterSubClass2(1) * new HaveValueClass1(2)).Value, (Operator.Multiply.Evaluate(new ArithmeticOperatorTesterSubClass2(1), new HaveValueClass1(2)) as ArithmeticOperatorTester).Value);
+        Assert.AreEqual((new ArithmeticOperatorTester(1) * new ArithmeticOperatorTester(2)).Value, (Operator.Multiply.Evaluate(new ArithmeticOperatorTester(1), new ArithmeticOperatorTester(2)) as ArithmeticOperatorTester)!.Value);
+        Assert.AreEqual((new ArithmeticOperatorTesterSubClass1(1) * new ArithmeticOperatorTester(2)).Value, (Operator.Multiply.Evaluate(new ArithmeticOperatorTesterSubClass1(1), new ArithmeticOperatorTester(2)) as ArithmeticOperatorTester)!.Value);
+        Assert.AreEqual((new ArithmeticOperatorTesterSubClass1(1) * new ArithmeticOperatorTesterSubClass2(2)).Value, (Operator.Multiply.Evaluate(new ArithmeticOperatorTesterSubClass1(1), new ArithmeticOperatorTesterSubClass2(2)) as ArithmeticOperatorTester)!.Value);
+        Assert.AreEqual((new ArithmeticOperatorTesterSubClass2(1) * new ArithmeticOperatorTesterSubClass2(2)).Value, (Operator.Multiply.Evaluate(new ArithmeticOperatorTesterSubClass2(1), new ArithmeticOperatorTesterSubClass2(2)) as ArithmeticOperatorTester)!.Value);
+        Assert.AreEqual((new ArithmeticOperatorTesterSubClass2(1) * new HaveValueClass1(2)).Value, (Operator.Multiply.Evaluate(new ArithmeticOperatorTesterSubClass2(1), new HaveValueClass1(2)) as ArithmeticOperatorTester)!.Value);
         Assert.AreEqual(3.0 * new HaveValueClass1(2), Operator.Multiply.Evaluate(3, new HaveValueClass1(2)));
 
         try
@@ -1510,11 +1510,11 @@ public class OperatorTests
         var oneDay = TimeSpan.FromDays(1);
         var twoDays = TimeSpan.FromDays(2);
 
-        Assert.AreEqual((new ArithmeticOperatorTester(1) / new ArithmeticOperatorTester(2)).Value, (Operator.Division.Evaluate(new ArithmeticOperatorTester(1), new ArithmeticOperatorTester(2)) as ArithmeticOperatorTester).Value);
-        Assert.AreEqual((new ArithmeticOperatorTesterSubClass1(1) / new ArithmeticOperatorTester(2)).Value, (Operator.Division.Evaluate(new ArithmeticOperatorTesterSubClass1(1), new ArithmeticOperatorTester(2)) as ArithmeticOperatorTester).Value);
-        Assert.AreEqual((new ArithmeticOperatorTesterSubClass1(1) / new ArithmeticOperatorTesterSubClass2(2)).Value, (Operator.Division.Evaluate(new ArithmeticOperatorTesterSubClass1(1), new ArithmeticOperatorTesterSubClass2(2)) as ArithmeticOperatorTester).Value);
-        Assert.AreEqual((new ArithmeticOperatorTesterSubClass2(1) / new ArithmeticOperatorTesterSubClass2(2)).Value, (Operator.Division.Evaluate(new ArithmeticOperatorTesterSubClass2(1), new ArithmeticOperatorTesterSubClass2(2)) as ArithmeticOperatorTester).Value);
-        Assert.AreEqual((new ArithmeticOperatorTesterSubClass2(1) / new HaveValueClass1(2)).Value, (Operator.Division.Evaluate(new ArithmeticOperatorTesterSubClass2(1), new HaveValueClass1(2)) as ArithmeticOperatorTester).Value);
+        Assert.AreEqual((new ArithmeticOperatorTester(1) / new ArithmeticOperatorTester(2)).Value, (Operator.Division.Evaluate(new ArithmeticOperatorTester(1), new ArithmeticOperatorTester(2)) as ArithmeticOperatorTester)!.Value);
+        Assert.AreEqual((new ArithmeticOperatorTesterSubClass1(1) / new ArithmeticOperatorTester(2)).Value, (Operator.Division.Evaluate(new ArithmeticOperatorTesterSubClass1(1), new ArithmeticOperatorTester(2)) as ArithmeticOperatorTester)!.Value);
+        Assert.AreEqual((new ArithmeticOperatorTesterSubClass1(1) / new ArithmeticOperatorTesterSubClass2(2)).Value, (Operator.Division.Evaluate(new ArithmeticOperatorTesterSubClass1(1), new ArithmeticOperatorTesterSubClass2(2)) as ArithmeticOperatorTester)!.Value);
+        Assert.AreEqual((new ArithmeticOperatorTesterSubClass2(1) / new ArithmeticOperatorTesterSubClass2(2)).Value, (Operator.Division.Evaluate(new ArithmeticOperatorTesterSubClass2(1), new ArithmeticOperatorTesterSubClass2(2)) as ArithmeticOperatorTester)!.Value);
+        Assert.AreEqual((new ArithmeticOperatorTesterSubClass2(1) / new HaveValueClass1(2)).Value, (Operator.Division.Evaluate(new ArithmeticOperatorTesterSubClass2(1), new HaveValueClass1(2)) as ArithmeticOperatorTester)!.Value);
         Assert.AreEqual(3.0 / new HaveValueClass1(2), Operator.Division.Evaluate(3, new HaveValueClass1(2)));
 
         try
@@ -1602,11 +1602,11 @@ public class OperatorTests
         var oneDay = TimeSpan.FromDays(1);
         var twoDays = TimeSpan.FromDays(2);
 
-        Assert.AreEqual((new ArithmeticOperatorTester(1) % new ArithmeticOperatorTester(2)).Value, (Operator.Remainder.Evaluate(new ArithmeticOperatorTester(1), new ArithmeticOperatorTester(2)) as ArithmeticOperatorTester).Value);
-        Assert.AreEqual((new ArithmeticOperatorTesterSubClass1(1) % new ArithmeticOperatorTester(2)).Value, (Operator.Remainder.Evaluate(new ArithmeticOperatorTesterSubClass1(1), new ArithmeticOperatorTester(2)) as ArithmeticOperatorTester).Value);
-        Assert.AreEqual((new ArithmeticOperatorTesterSubClass1(1) % new ArithmeticOperatorTesterSubClass2(2)).Value, (Operator.Remainder.Evaluate(new ArithmeticOperatorTesterSubClass1(1), new ArithmeticOperatorTesterSubClass2(2)) as ArithmeticOperatorTester).Value);
-        Assert.AreEqual((new ArithmeticOperatorTesterSubClass2(1) % new ArithmeticOperatorTesterSubClass2(2)).Value, (Operator.Remainder.Evaluate(new ArithmeticOperatorTesterSubClass2(1), new ArithmeticOperatorTesterSubClass2(2)) as ArithmeticOperatorTester).Value);
-        Assert.AreEqual((new ArithmeticOperatorTesterSubClass2(1) % new HaveValueClass1(2)).Value, (Operator.Remainder.Evaluate(new ArithmeticOperatorTesterSubClass2(1), new HaveValueClass1(2)) as ArithmeticOperatorTester).Value);
+        Assert.AreEqual((new ArithmeticOperatorTester(1) % new ArithmeticOperatorTester(2)).Value, (Operator.Remainder.Evaluate(new ArithmeticOperatorTester(1), new ArithmeticOperatorTester(2)) as ArithmeticOperatorTester)!.Value);
+        Assert.AreEqual((new ArithmeticOperatorTesterSubClass1(1) % new ArithmeticOperatorTester(2)).Value, (Operator.Remainder.Evaluate(new ArithmeticOperatorTesterSubClass1(1), new ArithmeticOperatorTester(2)) as ArithmeticOperatorTester)!.Value);
+        Assert.AreEqual((new ArithmeticOperatorTesterSubClass1(1) % new ArithmeticOperatorTesterSubClass2(2)).Value, (Operator.Remainder.Evaluate(new ArithmeticOperatorTesterSubClass1(1), new ArithmeticOperatorTesterSubClass2(2)) as ArithmeticOperatorTester)!.Value);
+        Assert.AreEqual((new ArithmeticOperatorTesterSubClass2(1) % new ArithmeticOperatorTesterSubClass2(2)).Value, (Operator.Remainder.Evaluate(new ArithmeticOperatorTesterSubClass2(1), new ArithmeticOperatorTesterSubClass2(2)) as ArithmeticOperatorTester)!.Value);
+        Assert.AreEqual((new ArithmeticOperatorTesterSubClass2(1) % new HaveValueClass1(2)).Value, (Operator.Remainder.Evaluate(new ArithmeticOperatorTesterSubClass2(1), new HaveValueClass1(2)) as ArithmeticOperatorTester)!.Value);
         Assert.AreEqual(3.0 % new HaveValueClass1(2), Operator.Remainder.Evaluate(3, new HaveValueClass1(2)));
 
         try
@@ -1861,7 +1861,7 @@ public class OperatorTests
     [TestMethod]
     public void TestAndOrOperators()
     {
-        object[] possibleArgs = [new ArithmeticOperatorTester(2), new ArithmeticOperatorTester(0), false, true, null];
+        object?[] possibleArgs = [new ArithmeticOperatorTester(2), new ArithmeticOperatorTester(0), false, true, null];
         foreach (var x in possibleArgs)
         {
             foreach (var y in possibleArgs)
@@ -1871,9 +1871,9 @@ public class OperatorTests
                     {
                         (null, null) => (null, null),
                         (null, bool z) => ((bool?)x & z, (bool?)x | z),
-                        (null, ArithmeticOperatorTester z) => ((ArithmeticOperatorTester)x && z, (ArithmeticOperatorTester)x || z),
+                        (null, ArithmeticOperatorTester z) => ((ArithmeticOperatorTester?)x && z, (ArithmeticOperatorTester?)x || z),
                         (bool z, null) => (z & (bool?)y, z | (bool?)y),
-                        (ArithmeticOperatorTester z, null) => (z && (ArithmeticOperatorTester)y, z || (ArithmeticOperatorTester)y),
+                        (ArithmeticOperatorTester z, null) => (z && (ArithmeticOperatorTester?)y, z || (ArithmeticOperatorTester?)y),
                         (bool z, bool w) => (z && w, z || w),
                         (bool z, ArithmeticOperatorTester w) => (z && w, z || w),
 
@@ -2311,24 +2311,24 @@ public class OperatorTests
     {
         // We can convert directly from ArithmeticOperatorTester to bool.
         var convertToBool = Operator.GetImplicitOperatorPath("op_Implicit", typeof(ArithmeticOperatorTester), typeof(bool));
-        Assert.AreEqual(1, convertToBool.Count);
-        Assert.AreEqual(typeof(bool), convertToBool[0].ReturnType);
+        Assert.AreEqual(1, convertToBool?.Count);
+        Assert.AreEqual(typeof(bool), convertToBool?[0].ReturnType);
 
         // We can convert directly from ArithmeticOperatorTester to HaveValueClass1.
         var convertToHaveValueClass1 = Operator.GetImplicitOperatorPath("op_Implicit", typeof(ArithmeticOperatorTester), typeof(HaveValueClass1));
-        Assert.AreEqual(1, convertToHaveValueClass1.Count);
-        Assert.AreEqual(typeof(HaveValueClass1), convertToHaveValueClass1[0].ReturnType);
+        Assert.AreEqual(1, convertToHaveValueClass1?.Count);
+        Assert.AreEqual(typeof(HaveValueClass1), convertToHaveValueClass1?[0].ReturnType);
 
         // We can convert directly from ArithmeticOperatorTester to HaveValueClass1, which implements IHaveValue.
         var convertToIHaveValue = Operator.GetImplicitOperatorPath("op_Implicit", typeof(ArithmeticOperatorTester), typeof(IHaveValue));
-        Assert.AreEqual(1, convertToIHaveValue.Count);
-        Assert.AreEqual(typeof(HaveValueClass1), convertToIHaveValue[0].ReturnType);
+        Assert.AreEqual(1, convertToIHaveValue?.Count);
+        Assert.AreEqual(typeof(HaveValueClass1), convertToIHaveValue?[0].ReturnType);
 
         // We can convert to int, but we have to go through HaveValueClass1 to get there.
         var convertToInt = Operator.GetImplicitOperatorPath("op_Implicit", typeof(ArithmeticOperatorTester), typeof(int));
-        Assert.AreEqual(2, convertToInt.Count);
-        Assert.AreEqual(typeof(HaveValueClass1), convertToInt[0].ReturnType);
-        Assert.AreEqual(typeof(int), convertToInt[1].ReturnType);
+        Assert.AreEqual(2, convertToInt?.Count);
+        Assert.AreEqual(typeof(HaveValueClass1), convertToInt?[0].ReturnType);
+        Assert.AreEqual(typeof(int), convertToInt?[1].ReturnType);
 
         // We can't implicitly convert to string.
         Assert.IsNull(Operator.GetImplicitOperatorPath("op_Implicit", typeof(ArithmeticOperatorTester), typeof(string)));
@@ -2364,15 +2364,15 @@ public class OperatorTests
 
 internal static class UnitTestCompatibilityExtensions
 {
-    internal static object EvaluateThrowException(this BinaryOperator @operator, object x, string errorMessage) =>
+    internal static object? EvaluateThrowException(this BinaryOperator @operator, object x, string errorMessage) =>
         @operator.Evaluate(new ValueNode(x), new ThrowFunction() { FunctionName = "Throw", Parameters = [new StringNode(errorMessage)] }, CultureInfo.InvariantCulture, [x]);
-    internal static object TernaryEvaluate(object condition, object positive, object negative) =>
+    internal static object? TernaryEvaluate(object? condition, object? positive, object? negative) =>
         TernaryOperator.Evaluate(new ValueNode(condition), new ValueNode(positive), new ValueNode(negative), CultureInfo.InvariantCulture, []);
 }
 
 internal class ArithmeticOperatorTester(int value)
 {
-    public int Value { get; } = value;
+    public int Value => value;
     public static ArithmeticOperatorTester operator +(ArithmeticOperatorTester x, ArithmeticOperatorTester y) => new(x.Value + y.Value);
     public static ArithmeticOperatorTester operator +(ArithmeticOperatorTester x, IHaveValue y) => new(x.Value + y.Value);
     public static ArithmeticOperatorTester operator +(ArithmeticOperatorTester x, IHaveValue<int> y) => new(x.Value + y.Value);
@@ -2409,7 +2409,7 @@ internal class ArithmeticOperatorTester(int value)
     public static bool operator <=(ArithmeticOperatorTester x, IHaveValue y) => x.Value <= y.Value;
     public static bool operator <=(ArithmeticOperatorTester x, IHaveValue<int> y) => x.Value <= y.Value;
 
-    public static ArithmeticOperatorTester operator &(ArithmeticOperatorTester x, ArithmeticOperatorTester y) =>
+    public static ArithmeticOperatorTester? operator &(ArithmeticOperatorTester? x, ArithmeticOperatorTester? y) =>
         (x, y) switch
         {
             (null, _) => y ? null : y,
@@ -2418,7 +2418,7 @@ internal class ArithmeticOperatorTester(int value)
             _ => new ArithmeticOperatorTester(0)
         };
 
-    public static ArithmeticOperatorTester operator |(ArithmeticOperatorTester x, ArithmeticOperatorTester y) =>
+    public static ArithmeticOperatorTester? operator |(ArithmeticOperatorTester? x, ArithmeticOperatorTester? y) =>
         (x, y) switch
         {
             (null, _) => y ? y : null,
@@ -2428,8 +2428,8 @@ internal class ArithmeticOperatorTester(int value)
         };
 
 
-    public static bool operator true(ArithmeticOperatorTester x) => x is { Value: not 0 };
-    public static bool operator false(ArithmeticOperatorTester x) => x is { Value: 0 };
+    public static bool operator true(ArithmeticOperatorTester? x) => x is { Value: not 0 };
+    public static bool operator false(ArithmeticOperatorTester? x) => x is { Value: 0 };
 
     public static bool operator ==(ArithmeticOperatorTester x, ArithmeticOperatorTester y) => x is null ? y is null : y is not null && x.Value == y.Value;
     public static bool operator ==(ArithmeticOperatorTester x, IHaveValue y) => x is null ? y is null : y is not null && x.Value == y.Value;
@@ -2438,13 +2438,13 @@ internal class ArithmeticOperatorTester(int value)
     public static bool operator !=(ArithmeticOperatorTester x, IHaveValue y) => !(x == y);
     public static bool operator !=(ArithmeticOperatorTester x, IHaveValue<int> y) => !(x == y);
 
-    public static implicit operator bool(ArithmeticOperatorTester x) => x is { Value: not 0 };
+    public static implicit operator bool(ArithmeticOperatorTester? x) => x is { Value: not 0 };
     public static implicit operator HaveValueClass1(ArithmeticOperatorTester x) => new(x.Value);
 
-    public static ArithmeticOperatorTester operator -(ArithmeticOperatorTester x) => new(-x.Value);
-    public static ArithmeticOperatorTester operator !(ArithmeticOperatorTester x) => x is null ? null : new(x.Value == 0 ? 1 : 0);
+    public static ArithmeticOperatorTester? operator -(ArithmeticOperatorTester x) => new(-x.Value);
+    public static ArithmeticOperatorTester? operator !(ArithmeticOperatorTester? x) => x is null ? null : new(x.Value == 0 ? 1 : 0);
 
-    public override bool Equals(object other) => other is ArithmeticOperatorTester o && this == o;
+    public override bool Equals(object? other) => other is ArithmeticOperatorTester o && this == o;
     public override int GetHashCode() => Value.GetHashCode();
 
     public override string ToString() => $"{GetType().Name}: {Value}";
@@ -2495,7 +2495,7 @@ internal class ArithmeticOperatorTesterSubClass1(int value) : ArithmeticOperator
     public static bool operator !=(ArithmeticOperatorTester x, ArithmeticOperatorTesterSubClass1 y) => !(x == y);
     public static bool operator !=(ArithmeticOperatorTesterSubClass1 x, ArithmeticOperatorTesterSubClass1 y) => !(x == y);
 
-    public override bool Equals(object other) => other is ArithmeticOperatorTesterSubClass1 o && this == o;
+    public override bool Equals(object? other) => other is ArithmeticOperatorTesterSubClass1 o && this == o;
     public override int GetHashCode() => Value.GetHashCode();
 }
 internal sealed class ArithmeticOperatorTesterSubClass2(int value) : ArithmeticOperatorTesterSubClass1(value), IHaveValue, IHaveValue<int>
@@ -2503,10 +2503,10 @@ internal sealed class ArithmeticOperatorTesterSubClass2(int value) : ArithmeticO
 }
 internal sealed class HaveValueClass1(int value) : IHaveValue
 {
-    public int Value { get; } = value;
+    public int Value => value;
     public override string ToString() => $"{GetType().Name}: {Value}";
 
-    public static HaveValueClass1 operator &(HaveValueClass1 x, HaveValueClass1 y) =>
+    public static HaveValueClass1? operator &(HaveValueClass1? x, HaveValueClass1? y) =>
         (x, y) switch
         {
             (null, _) => y ? null : y,
@@ -2515,7 +2515,7 @@ internal sealed class HaveValueClass1(int value) : IHaveValue
             _ => new(0)
         };
 
-    public static HaveValueClass1 operator |(HaveValueClass1 x, HaveValueClass1 y) =>
+    public static HaveValueClass1? operator |(HaveValueClass1? x, HaveValueClass1? y) =>
         (x, y) switch
         {
             (null, _) => y ? y : null,
@@ -2524,15 +2524,15 @@ internal sealed class HaveValueClass1(int value) : IHaveValue
             _ => new(0)
         };
 
-    public static bool operator true(HaveValueClass1 x) => x is { Value: not 0 };
-    public static bool operator false(HaveValueClass1 x) => x is { Value: 0 };
+    public static bool operator true(HaveValueClass1? x) => x is { Value: not 0 };
+    public static bool operator false(HaveValueClass1? x) => x is { Value: 0 };
 
     public static implicit operator int(HaveValueClass1 value) => value.Value;
     public static implicit operator HaveValueClass1(int value) => new(value);
 }
 internal sealed class HaveValueClass2(int value) : IHaveValue, IHaveValue<int>
 {
-    public int Value { get; } = value;
+    public int Value => value;
     public override string ToString() => $"{GetType().Name}: {Value}";
 }
 internal interface IHaveValue

@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace HexInnovation
@@ -107,7 +108,7 @@ namespace HexInnovation
         public bool Remove(string functionName) => _functions.Remove(functionName);
         IEnumerator IEnumerable.GetEnumerator() => ToIEnumerable().GetEnumerator();
 
-        public bool TryGetFunction(string functionName, out CustomFunction function)
+        public bool TryGetFunction(string functionName, [NotNullWhen(true)] out CustomFunction? function)
         {
             function = _functions.TryGetValue(functionName, out var type) ? Activator.CreateInstance(type) as CustomFunction : null;
 
@@ -120,7 +121,7 @@ namespace HexInnovation
         public bool IsSynchronized => false;
         public bool IsFixedSize => false;
 
-        object IList.this[int index]
+        object? IList.this[int index]
         {
             get => this[index];
             set => throw new NotSupportedException();
@@ -133,20 +134,20 @@ namespace HexInnovation
 
         public void CopyTo(Array array, int index) => Array.Copy(ToIEnumerable().ToArray(), 0, array, index, Count);
 
-        public int Add(object value)
+        public int Add(object? value)
         {
             if (value is not CustomFunctionDefinition x)
-                throw new ArgumentException("You can only add {CustomFunctionDefinition} objects.", nameof(value));
+                throw new ArgumentException($"You can only add {nameof(CustomFunctionDefinition)} objects.", nameof(value));
 
             Add(x);
             return Count - 1;
         }
 
-        public bool Contains(object value) => value is CustomFunctionDefinition x && Contains(x);
-        public int IndexOf(object value) => value is CustomFunctionDefinition x ? IndexOf(x) : -1;
-        public void Insert(int index, object value) => Add(value);
+        public bool Contains(object? value) => value is CustomFunctionDefinition x && Contains(x);
+        public int IndexOf(object? value) => value is CustomFunctionDefinition x ? IndexOf(x) : -1;
+        public void Insert(int index, object? value) => Add(value);
 
-        public void Remove(object value)
+        public void Remove(object? value)
         {
             if (value is CustomFunctionDefinition x)
                 Remove(x);
@@ -162,11 +163,11 @@ namespace HexInnovation
         /// The name of the function. For example, if we choose "MyCustomFunction",
         /// you can invoke the function like "MyCustomFunction(x)"
         /// </summary>
-        public string Name { get; set; }
+        public required string Name { get; set; }
         /// <summary>
         /// The type of the function. This type must extend <see cref="CustomFunction"/>
         /// </summary>
-        public Type Function { get; set; }
+        public required Type Function { get; set; }
 
 
         public static CustomFunctionDefinition Create<T>(string name)
@@ -189,7 +190,7 @@ namespace HexInnovation
             return HashCode.Combine(Name, Function);
 #endif
         }
-        public override bool Equals(object obj) => obj is CustomFunctionDefinition o && Equals(o);
-        public bool Equals(CustomFunctionDefinition other) => Name == other?.Name && Function == other?.Function;
+        public override bool Equals(object? obj) => obj is CustomFunctionDefinition o && Equals(o);
+        public bool Equals(CustomFunctionDefinition? other) => Name == other?.Name && Function == other?.Function;
     }
 }

@@ -60,7 +60,7 @@ public sealed class ConvertExtension
     /// <summary>
     /// A binding to <see cref="BindableProperty.UnsetValue"/> that is used if we skip a value when adding bindings.
     /// </summary>
-    private static readonly Binding unsetValueBinding = new Binding { Source = BindableProperty.UnsetValue };
+    private static readonly Binding unsetValueBinding = new() { Source = BindableProperty.UnsetValue };
 
     /// <summary>
     /// Creates a new ConvertExtension
@@ -107,7 +107,7 @@ public sealed class ConvertExtension
     /// The parameter to pass to converter.
     /// </summary>
     [DefaultValue(null)]
-    public string Expression
+    public string? Expression
     {
 #if WPF
         get => ConverterParameter as string;
@@ -143,7 +143,7 @@ public sealed class ConvertExtension
     }
 #endif
 
-    private void SetBinding(int index, BindingBase binding)
+    private void SetBinding(int index, BindingBase? binding)
     {
         while (Bindings.Count < index)
             Bindings.Add(unsetValueBinding);
@@ -155,13 +155,14 @@ public sealed class ConvertExtension
     }
 
 #if !WPF
-    private IList<BindingBase> Bindings => _binding.Bindings;
+    private IList<BindingBase?> Bindings => _binding.Bindings;
 #endif
 
+#pragma warning disable IDE1006 // Naming Styles: Allow x, y, z as variable names. They are intentionally lower-case to match their usage in the ConverterParameter.
     /// <summary>
     /// The first variable (accessed by [0] or x)
     /// </summary>
-    public BindingBase x
+    public BindingBase? x
     {
         get => Bindings[0];
         set => SetBinding(0, value);
@@ -169,7 +170,7 @@ public sealed class ConvertExtension
     /// <summary>
     /// The second variable (accessed by [1] or y)
     /// </summary>
-    public BindingBase y
+    public BindingBase? y
     {
         get => Bindings[1];
         set => SetBinding(1, value);
@@ -177,15 +178,16 @@ public sealed class ConvertExtension
     /// <summary>
     /// The third variable (accessed by [2] or z)
     /// </summary>
-    public BindingBase z
+    public BindingBase? z
     {
         get => Bindings[2];
         set => SetBinding(2, value);
     }
+#pragma warning restore IDE1006 // Naming Styles
     /// <summary>
     /// The fourth variable (accessed by [3])
     /// </summary>
-    public BindingBase Var3
+    public BindingBase? Var3
     {
         get => Bindings[3];
         set => SetBinding(3, value);
@@ -193,7 +195,7 @@ public sealed class ConvertExtension
     /// <summary>
     /// The fifth variable (accessed by [4])
     /// </summary>
-    public BindingBase Var4
+    public BindingBase? Var4
     {
         get => Bindings[4];
         set => SetBinding(4, value);
@@ -201,7 +203,7 @@ public sealed class ConvertExtension
     /// <summary>
     /// The sixth variable (accessed by [5])
     /// </summary>
-    public BindingBase Var5
+    public BindingBase? Var5
     {
         get => Bindings[5];
         set => SetBinding(5, value);
@@ -209,7 +211,7 @@ public sealed class ConvertExtension
     /// <summary>
     /// The seventh variable (accessed by [6])
     /// </summary>
-    public BindingBase Var6
+    public BindingBase? Var6
     {
         get => Bindings[6];
         set => SetBinding(6, value);
@@ -217,7 +219,7 @@ public sealed class ConvertExtension
     /// <summary>
     /// The eighth variable (accessed by [7])
     /// </summary>
-    public BindingBase Var7
+    public BindingBase? Var7
     {
         get => Bindings[7];
         set => SetBinding(7, value);
@@ -225,7 +227,7 @@ public sealed class ConvertExtension
     /// <summary>
     /// The ninth variable (accessed by [8])
     /// </summary>
-    public BindingBase Var8
+    public BindingBase? Var8
     {
         get => Bindings[8];
         set => SetBinding(8, value);
@@ -233,7 +235,7 @@ public sealed class ConvertExtension
     /// <summary>
     /// The tenth variable (accessed by [9])
     /// </summary>
-    public BindingBase Var9
+    public BindingBase? Var9
     {
         get => Bindings[9];
         set => SetBinding(9, value);

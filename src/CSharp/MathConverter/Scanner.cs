@@ -9,20 +9,20 @@ namespace HexInnovation;
 internal class Scanner : IDisposable
 {
     public Scanner(Parser parser, string expression)
-        : this(parser, new StringReader(expression))
+        : this(parser, new StringReader(expression), expression)
     {
-        Expression = expression;
     }
-    private Scanner(Parser parser, StringReader reader)
+    private Scanner(Parser parser, StringReader reader, string expression)
     {
         _parser = parser;
         _reader = reader;
+        Expression = expression;
     }
 
     private readonly Parser _parser;
     private readonly StringReader _reader;
 
-    private Token _lastToken;
+    private Token? _lastToken;
     private bool _needsToken = true;
     internal string Expression { get; }
     public int Position { get; private set; } = -1;
@@ -48,7 +48,7 @@ internal class Scanner : IDisposable
         else
         {
             _needsToken = true;
-            return _lastToken;
+            return _lastToken!;
         }
     }
     private Token NextToken()

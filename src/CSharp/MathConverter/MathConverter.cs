@@ -46,11 +46,11 @@ namespace HexInnovation
         /// <param name="parameter">The ConverterParameter being used for this conversion. This helps identify the (possibly faulty) binding.</param>
         /// <param name="targetType">The type we're trying to convert to. This helps identify the (possibly faulty) binding.</param>
         /// <returns>The <paramref name="arg"/> passed in, or <code>null</code> if the <paramref name="arg"/> is equal to <see cref="BindableProperty.UnsetValue"/></returns>
-        private object SanitizeBinding(object arg, int argIndex, int totalBinding, object parameter, Type targetType)
+        private object? SanitizeBinding(object? arg, int argIndex, int totalBinding, object? parameter, Type? targetType)
         {
             if (arg == BindableProperty.UnsetValue && !AllowUnsetValue)
             {
-                Debug.WriteLine($"Encountered {nameof(BindableProperty.UnsetValue)} in the {(totalBinding > 1 ? $"{ComputeOrdinal(argIndex + 1)} " : "")}argument while trying to convert to type \"{targetType.FullName}\" using the ConverterParameter {(parameter == null ? "'null'" : $"\"{parameter}\"")}. Double-check that your binding is correct.");
+                Debug.WriteLine($"Encountered {nameof(BindableProperty.UnsetValue)} in the {(totalBinding > 1 ? $"{ComputeOrdinal(argIndex + 1)} " : "")}argument while trying to convert to type \"{targetType?.FullName ?? "<no type>"}\" using the ConverterParameter {(parameter == null ? "'null'" : $"\"{parameter}\"")}. Double-check that your binding is correct.");
                 return null;
             }
 
@@ -105,24 +105,24 @@ namespace HexInnovation
         /// A dictionary which stores a cache of AbstractSyntaxTrees for given ConverterParameter strings.
         /// This eliminates the need to parse the same statement over and over.
         /// </summary>
-        private Dictionary<string, AbstractSyntaxTree[]> _cachedResults = [];
+        private Dictionary<string, AbstractSyntaxTree[]>? _cachedResults = [];
 #if !WPF
-        private static readonly Dictionary<Type, TypeConverter> PlatformTypeConverters = [];
+        private static readonly Dictionary<Type, TypeConverter?> PlatformTypeConverters = [];
 #endif
 
         /// <summary>
         /// The conversion for a single value.
         /// </summary>
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture) => Convert([value], targetType, parameter, culture);
+        public object? Convert(object? value, Type? targetType, object? parameter, CultureInfo culture) => Convert([value], targetType, parameter, culture);
 
         /// <summary>
         /// The actual convert method, for zero or more parameters.
         /// </summary>
-        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        public object? Convert(object?[] values, Type? targetType, object? parameter, CultureInfo culture)
         {
-            object[] sanitizedValues = values?.Select((v, i) => SanitizeBinding(v, i, values.Length, parameter, targetType)).ToArray() ?? [];
+            object?[] sanitizedValues = values?.Select((v, i) => SanitizeBinding(v, i, values.Length, parameter, targetType)).ToArray() ?? [];
 
-            object[] evaluatedValues;
+            object?[] evaluatedValues;
 
             switch (parameter)
             {
@@ -138,7 +138,7 @@ namespace HexInnovation
                     }
                     catch (NodeEvaluationException ex)
                     {
-                        throw new EvaluationException(param, values, ex);
+                        throw new EvaluationException(param, values!, ex);
                     }
                     break;
 
@@ -168,7 +168,7 @@ namespace HexInnovation
         /// </summary>
         /// <param name="value">The value to convert</param>
         /// <param name="targetType">The type to convert to</param>
-        public static object ConvertType(object value, Type targetType)
+        public static object? ConvertType(object? value, Type? targetType)
         {
             // At this point, we have now computed our final answer.
             // However, we might need to do standard type conversion to convert it to a different type.
@@ -237,7 +237,7 @@ namespace HexInnovation
         /// <summary>
         /// Don't call this method, as it is not supported.
         /// </summary>
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        object? IValueConverter.ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
             // WE CAN'T CONVERT BACK
             throw new NotSupportedException();
@@ -245,14 +245,14 @@ namespace HexInnovation
         /// <summary>
         /// Don't call this method, as it is not supported.
         /// </summary>
-        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        object[] IMultiValueConverter.ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
         {
             // WE CAN'T CONVERT BACK
             throw new NotSupportedException();
         }
 
 #if !WPF
-        private static TypeConverter GetPlatformTypeConverter(Type targetType)
+        private static TypeConverter? GetPlatformTypeConverter(Type targetType)
         {
             if (PlatformTypeConverters.TryGetValue(targetType, out var x))
                 return x;
@@ -260,7 +260,7 @@ namespace HexInnovation
             foreach (var attribute in Attribute.GetCustomAttributes(targetType).OfType<TypeConverterAttribute>())
             {
                 if (Type.GetType(attribute.ConverterTypeName, false) is { } converterType)
-                    return PlatformTypeConverters[targetType] = (TypeConverter)Activator.CreateInstance(converterType);
+                    return PlatformTypeConverters[targetType] = Activator.CreateInstance(converterType) as TypeConverter;
             }
 
             return PlatformTypeConverters[targetType] = null;
@@ -275,6 +275,6 @@ namespace HexInnovation
         /// <param name="parameter">The parameter that we're parsing</param>
         /// <returns>A syntax tree that can be evaluated later.</returns>
         internal AbstractSyntaxTree[] ParseParameter(string parameter) =>
-            _cachedResults?.TryGetValue(parameter, out var x) is true ? x : Parser.Parse(CustomFunctions, parameter) is { } y ? _cachedResults is null ? y : _cachedResults[parameter] = y : (_cachedResults?[parameter] = null);
+            _cachedResults?.TryGetValue(parameter, out var x) is true ? x : Parser.Parse(CustomFunctions, parameter) is { } y ? _cachedResults is null ? y : (_cachedResults[parameter] = y) : throw new InvalidOperationException("Unreachable: Parser.Parse cannot return null");
     }
 }
