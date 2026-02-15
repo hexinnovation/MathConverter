@@ -2,40 +2,26 @@
 
 namespace HexInnovation
 {
-    class Token
+    internal class Token(TokenType tokenType)
     {
-        public Token(TokenType tokenType)
-        {
-            TokenType = tokenType;
-        }
-        public TokenType TokenType { get; }
+        public TokenType TokenType => tokenType;
 
         public override string ToString() => $"{TokenType} token";
     }
-    class LexicalToken : Token
+    internal class LexicalToken(TokenType tokenType, string lex) : Token(tokenType)
     {
-        public LexicalToken(TokenType tokenType, string lex)
-            : base(tokenType)
-        {
-            Lex = lex;
-        }
-        public string Lex { get; }
+        public string Lex => lex;
 
         public override string ToString()
         {
             return $"Lexical ({TokenType}) Token (\"{Lex.Replace("\"", "\\\"")}\")";
         }
     }
-    class InterpolatedStringToken : LexicalToken
+    internal class InterpolatedStringToken(string lex, List<AbstractSyntaxTree> arguments) : LexicalToken(TokenType.InterpolatedString, lex)
     {
-        public InterpolatedStringToken(string lex, List<AbstractSyntaxTree> arguments)
-            : base(TokenType.InterpolatedString, lex)
-        {
-            Arguments = arguments;
-        }
-        public List<AbstractSyntaxTree> Arguments { get; }
+        public List<AbstractSyntaxTree> Arguments => arguments;
     }
-    enum TokenType
+    internal enum TokenType
     {
         X,
         Y,
