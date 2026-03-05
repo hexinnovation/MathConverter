@@ -1,0 +1,15 @@
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MathConverter.Demo.Demos.CountClicksPage"
+             xmlns:math="http://hexinnovation.com/math"
+             Title="Interpolated strings allow us to format strings intelligently."
+             Padding="20"
+             BindingContext="{Binding Source={RelativeSource Self}}">
+    <ContentPage.Resources>
+        <math:MathConverter x:Key="Math" />
+    </ContentPage.Resources>
+    <HorizontalStackLayout Margin="20" Spacing="10" VerticalOptions="Start">
+        <Button Text="Click me!" MinimumWidthRequest="100" Clicked="Button_Clicked" />
+        <Label Text="{Binding NumClicks, ConverterParameter='$`You have clicked the button {x} time{(x == 1 ? `` : `s`)}.`', Converter={StaticResource Math}}" VerticalOptions="Center" />
+    </HorizontalStackLayout>
+</ContentPage>

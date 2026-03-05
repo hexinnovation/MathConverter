@@ -1,0 +1,19 @@
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MathConverter.Demo.Demos.BooleanToVisibilityPage"
+             xmlns:math="http://hexinnovation.com/math"
+             Title="Visibility=&quot;{Binding ConverterParameter='x ? `Visible` : `Collapsed`'}&quot;"
+             Padding="20">
+    <Grid RowDefinitions="Auto,Auto,*">
+        <Label Text="This example simply doesn't work, since Maui uses a boolean for Visibility, so a converter is unnecessary." />
+        <HorizontalStackLayout Grid.Row="1">
+            <CheckBox x:Name="CheckBox" IsChecked="True" />
+            <Label x:Name="Label" Text="Show TextBox?" VerticalOptions="Center">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="Label_Tapped" />
+                </Label.GestureRecognizers>
+            </Label>
+        </HorizontalStackLayout>
+        <Editor IsVisible="{Binding IsChecked, Source={x:Reference CheckBox}}" Grid.Row="2" />
+    </Grid>
+</ContentPage>

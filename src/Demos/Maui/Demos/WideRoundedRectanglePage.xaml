@@ -1,0 +1,25 @@
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MathConverter.Demo.Demos.WideRoundedRectanglePage"
+             xmlns:math="http://hexinnovation.com/math"
+             xmlns:shapes="clr-namespace:MathConverter.Demo.Shapes"
+             Title="If CornerRadius = ActualHeight / 2, we get a rounded rectangle"
+             Padding="20">
+    <ContentPage.Resources>
+        <math:MathConverter x:Key="Math" />
+    </ContentPage.Resources>
+    <Grid RowDefinitions="Auto,*" RowSpacing="20">
+        <Label>
+            This example doesn't really work in Maui. All you would have to do is:
+&lt;RoundRectangle CornerRadius="{Binding Height, Source={RelativeSource AncestorType=Border}}" />
+
+RoundRectangle will automatically clamp its CornerRadius to the minimum value of its path's height and width.
+So, in fact, we have to make our own (in many ways, broken) UnclampedRoundRectangle so that we can fix it with MathConverter.
+        </Label>
+        <Border StrokeThickness="1" Stroke="Black" Grid.Row="1">
+            <Border.StrokeShape>
+                <shapes:UnclampedRoundRectangle CornerRadius="{Binding Height, ConverterParameter=x/2, Converter={StaticResource Math}, Source={RelativeSource AncestorType=Border}}" />
+            </Border.StrokeShape>
+        </Border>
+    </Grid>
+</ContentPage>

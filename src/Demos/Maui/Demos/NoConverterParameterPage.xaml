@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:math="http://hexinnovation.com/math"
+             x:Class="MathConverter.Demo.Demos.NoConverterParameterPage"
+             Title="We can convert one, two, or four values to Thickness without specifying a ConverterParameter.">
+    <ContentPage.Resources>
+        <math:MathConverter x:Key="Math" />
+        <x:Double x:Key="BigMargin">100</x:Double>
+        <x:Double x:Key="SmallMargin">20</x:Double>
+    </ContentPage.Resources>
+
+    <!-- Here, we use math:Convert to create a MultiBinding with four bindings -->
+    <Border StrokeThickness="1" Stroke="Black"
+            Margin="{math:Convert x={Binding Source={StaticResource BigMargin}},
+                                  y={Binding Source={StaticResource SmallMargin}},
+                                  z={Binding Source={StaticResource BigMargin}},
+                               Var3={Binding Source={StaticResource BigMargin}}}">
+
+        <!-- This border specifies only two values -->
+        <Border StrokeThickness="1" Stroke="Red">
+            <Border.Margin>
+                <MultiBinding Converter="{StaticResource Math}">
+                    <Binding Source="{StaticResource BigMargin}" />
+                    <Binding Source="{StaticResource SmallMargin}" />
+                </MultiBinding>
+            </Border.Margin>
+
+            <!-- This border specifes only one value -->
+            <Border StrokeThickness="1" Stroke="Green" Margin="{Binding Source={StaticResource SmallMargin}, Converter={StaticResource Math}}" />
+        </Border>
+    </Border>
+</ContentPage>

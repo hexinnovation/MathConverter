@@ -1,0 +1,28 @@
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:math="http://hexinnovation.com/math"
+             x:Class="MathConverter.Demo.Demos.DifferentMarginsPage"
+             Title="Set vertical margin to &quot;0;x&quot;">
+    <ContentPage.Resources>
+        <math:MathConverter x:Key="Math" />
+        <x:Double x:Key="Margin">20</x:Double>
+    </ContentPage.Resources>
+    <VerticalStackLayout Margin="{Binding Source={StaticResource Margin}}">
+        <Label Margin="{Binding Source={StaticResource Margin}, ConverterParameter=0;0;0;x, Converter={StaticResource Math}}">
+            This example is not great in Maui, as this problem can easily be solved by setting Spacing="20" on the VerticalStackLayout.
+But for the sake of copying the WPF example, we'll pretend that solution doesn't exist.
+
+The HeightRequest needs to include the Margin in Maui, so we use MathConverter to set it to 20 plus the margin.
+We set the Margin to "0;x" where x is {StaticResource Margin}. This sets vertical margin on the Rectangle.
+        </Label>
+
+        <Rectangle Fill="Red" HeightRequest="20" />
+
+        <Rectangle Fill="Green"
+                   HeightRequest="{Binding Source={StaticResource Margin}, ConverterParameter='20 + 2x', Converter={StaticResource Math}}"
+                   Margin="{Binding Source={StaticResource Margin}, ConverterParameter=0;x, Converter={StaticResource Math}}" />
+
+        <Rectangle Fill="Blue" HeightRequest="20" />
+
+    </VerticalStackLayout>
+</ContentPage>

@@ -1,0 +1,18 @@
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MathConverter.Demo.Demos.CustomAverageFunctionPage"
+             xmlns:math="http://hexinnovation.com/math"
+             Title="Custom Average Function"
+             Padding="20"
+             BindingContext="{Binding Source={RelativeSource Self}}">
+    <ContentPage.Resources>
+        <!-- Here, we set UseCache="False" to prevent MathConverter from parsing the ConverterParameter as a stock AverageFunction. -->
+        <math:MathConverter x:Key="Math" UseCache="False" />
+    </ContentPage.Resources>
+    <VerticalStackLayout Spacing="10">
+        <RadioButton CheckedChanged="RadioButton_Changed" Content="Use Stock Average Function" IsChecked="True" x:Name="UseStockFunction" />
+        <RadioButton Content="Use Custom Average Function" />
+
+        <Label Text="{Binding RefreshBinding, ConverterParameter='`Average(1, 1.5) returns ` + Average(1, 1.5)', Converter={StaticResource Math}}" x:Name="Label" />
+    </VerticalStackLayout>
+</ContentPage>

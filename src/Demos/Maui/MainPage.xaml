@@ -1,0 +1,45 @@
+﻿<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:sys="clr-namespace:System;assembly=System.Runtime"
+             xmlns:functions="clr-namespace:MathConverter.Demo.CustomFunctions"
+             xmlns:demos="clr-namespace:MathConverter.Demo.Demos"
+             xmlns:math="http://hexinnovation.com/math"
+             Padding="20"
+             x:Class="MathConverter.Demo.MainPage">
+    <ContentPage.Resources>
+        <math:MathConverter x:Key="Math">
+            <math:CustomFunctionDefinition Name="GetPageTitle" Function="{x:Type functions:GetPageTitleFunction}" />
+        </math:MathConverter>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto,*" RowSpacing="20">
+        <Label Text="Maui solves most of these problems for us, so most of these tests have simpler solutions without Maui."/>
+
+        <CollectionView SelectionMode="Single" Grid.Row="1">
+            <CollectionView.ItemsSource>
+                <x:Array Type="{x:Type sys:Type}">
+                    <x:Type TypeName="demos:FlattenedOvalPage" />
+                    <x:Type TypeName="demos:WideRoundedRectanglePage" />
+                    <x:Type TypeName="demos:TrueRoundedRectanglePage" />
+                    <x:Type TypeName="demos:DifferentMarginsPage" />
+                    <x:Type TypeName="demos:NoConverterParameterPage" />
+                    <x:Type TypeName="demos:BooleanToVisibilityPage" />
+                    <x:Type TypeName="demos:CountClicksPage" />
+                    <x:Type TypeName="demos:NowPlusSixHoursPage" />
+                    <x:Type TypeName="demos:CustomAverageFunctionPage" />
+                </x:Array>
+            </CollectionView.ItemsSource>
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="sys:Type">
+                    <Label Text="{Binding ConverterParameter='GetPageTitle(x)', Converter={StaticResource Math}}">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer NumberOfTapsRequired="2" Tapped="Item_Tapped" />
+                        </Label.GestureRecognizers>
+                    </Label>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+
+        </CollectionView>
+    </Grid>
+</ContentPage>

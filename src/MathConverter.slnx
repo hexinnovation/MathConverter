@@ -4,6 +4,7 @@
     <Project Path="Projects/WPF/App/MathConverter.WPF.csproj" />
   </Folder>
   <Folder Name="/Demos/">
+    <Project Path="Demos/Maui/MathConverter.Demo.Maui.csproj" />
     <Project Path="Demos/WPF/MathConverter.Demo.WPF.csproj" />
   </Folder>
   <Folder Name="/Readme/">
