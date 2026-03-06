@@ -6,7 +6,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         mc:Ignorable="d"
-        Title="We can convert one, two, or four values to GridLength without specifying a ConverterParameter." Height="350" Width="580" WindowStyle="ToolWindow">
+        Title="We can convert one, two, or four values to GridLength without specifying a ConverterParameter." SizeToContent="Height" Width="560" WindowStyle="ToolWindow">
   <Window.Resources>
     <math:MathConverter x:Key="Math" />
     <sys:Double x:Key="BigMargin">100</sys:Double>
@@ -14,10 +14,10 @@
   </Window.Resources>
   <!-- Here, we use math:Convert to create a MultiBinding with four bindings -->
   <Border BorderThickness="1" BorderBrush="Black" Grid.Row="2"
-          Margin="{math:Convert x={Binding Source={StaticResource BigMargin}},
+          Margin="{math:Convert x={Binding Source={StaticResource SmallMargin}},
                                 y={Binding Source={StaticResource SmallMargin}},
                                 z={Binding Source={StaticResource BigMargin}},
-                             Var3={Binding Source={StaticResource BigMargin}}}">
+                             Var3={Binding Source={StaticResource SmallMargin}}}">
 
     <!-- This border specifies only two values -->
 
@@ -30,7 +30,7 @@
       </Border.Margin>
 
       <!-- This border specifes only one value -->
-      <Border BorderThickness="1" BorderBrush="Green" Margin="{Binding Source={StaticResource SmallMargin}, Converter={StaticResource Math}}" />
+      <Border BorderThickness="1" BorderBrush="Green" Margin="{Binding Source={StaticResource SmallMargin}, Converter={StaticResource Math}}" MinHeight="20" MinWidth="20" />
     </Border>
   </Border>
 </Window>

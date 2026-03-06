@@ -12,10 +12,10 @@
 
     <!-- Here, we use math:Convert to create a MultiBinding with four bindings -->
     <Border StrokeThickness="1" Stroke="Black"
-            Margin="{math:Convert x={Binding Source={StaticResource BigMargin}},
+            Margin="{math:Convert x={Binding Source={StaticResource SmallMargin}},
                                   y={Binding Source={StaticResource SmallMargin}},
                                   z={Binding Source={StaticResource BigMargin}},
-                               Var3={Binding Source={StaticResource BigMargin}}}">
+                               Var3={Binding Source={StaticResource SmallMargin}}}">
 
         <!-- This border specifies only two values -->
         <Border StrokeThickness="1" Stroke="Red">
