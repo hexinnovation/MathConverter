@@ -7,6 +7,7 @@ using System.Linq;
 
 #if MAUI
 using Microsoft.Maui.Controls;
+using Microsoft.Maui.Controls.Shapes;
 #elif WPF
 using BindableProperty = System.Windows.DependencyProperty;
 using System.Windows.Data;
@@ -107,7 +108,11 @@ namespace HexInnovation
         /// </summary>
         private Dictionary<string, AbstractSyntaxTree[]>? _cachedResults = [];
 #if !WPF
-        private static readonly Dictionary<Type, TypeConverter?> PlatformTypeConverters = [];
+        private static readonly Dictionary<Type, TypeConverter?> PlatformTypeConverters = new()
+        {
+            { typeof(Geometry), new PathGeometryConverter() },
+            { typeof(PathGeometry), new PathGeometryConverter() }
+        };
 #endif
 
         /// <summary>

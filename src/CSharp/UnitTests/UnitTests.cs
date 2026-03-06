@@ -31,6 +31,7 @@ using Microsoft.Maui;
 using Microsoft.Maui.Graphics;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Controls.Xaml;
+using Microsoft.Maui.Controls.Shapes;
 #endif
 
 namespace HexInnovation;
@@ -214,8 +215,12 @@ public class MathConverterTests
         Assert.IsTrue((bool)_converter.Convert([], typeof(bool), "true", new CultureInfo("de"))!);
         Assert.IsFalse((bool)_converter.Convert([], typeof(bool), "false", new CultureInfo("de"))!);
 
-#if WPF
-        Assert.AreEqual(Geometry.Parse("M 0,0 L 100,100 L 100,0 Z").ToString(new CultureInfo("de")), ((Geometry)_converter.Convert([], typeof(Geometry), "`M 0,0 L 100,100 L 100,0 Z`", new CultureInfo("de"))!).ToString(new CultureInfo("de")));
+        const string geometryTest = "M 0,0 L 100,100 L 100,0 Z";
+
+#if MAUI
+        Assert.IsTrue(_converter.Convert([], typeof(Geometry), $"`{geometryTest}`", new CultureInfo("de")) is Geometry);
+#else
+        Assert.AreEqual(Geometry.Parse(geometryTest).ToString(new CultureInfo("de")), ((Geometry)_converter.Convert([], typeof(Geometry), $"`{geometryTest}`", new CultureInfo("de"))!).ToString(new CultureInfo("de")));
 #endif
     }
     [TestMethod]
