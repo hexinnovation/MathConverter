@@ -1,15 +1,8 @@
 ﻿using System.Windows;
 
-namespace MathConverter.Demo.Demos
+namespace MathConverter.Demo.Demos;
+
+public partial class BooleanToVisibility : Window
 {
-    /// <summary>
-    /// Interaction logic for BooleanToVisibility.xaml
-    /// </summary>
-    public partial class BooleanToVisibility : Window
-    {
-        public BooleanToVisibility()
-        {
-            InitializeComponent();
-        }
-    }
+    public BooleanToVisibility() => InitializeComponent();
 }

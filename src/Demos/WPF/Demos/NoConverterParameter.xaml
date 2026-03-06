@@ -6,20 +6,31 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         mc:Ignorable="d"
-        Title="We can convert one, two, or four values to GridLength without specifying a ConverterParameter." Height="150" Width="580" WindowStyle="ToolWindow">
+        Title="We can convert one, two, or four values to GridLength without specifying a ConverterParameter." Height="350" Width="580" WindowStyle="ToolWindow">
   <Window.Resources>
     <math:MathConverter x:Key="Math" />
-    <sys:Double x:Key="Margin">20</sys:Double>
-    <sys:Double x:Key="SmallMargin">10</sys:Double>
+    <sys:Double x:Key="BigMargin">100</sys:Double>
+    <sys:Double x:Key="SmallMargin">20</sys:Double>
   </Window.Resources>
-  <Border BorderThickness="1" BorderBrush="Black" Grid.Row="2" Margin="{Binding Source={StaticResource Margin}, Converter={StaticResource Math}}">
+  <!-- Here, we use math:Convert to create a MultiBinding with four bindings -->
+  <Border BorderThickness="1" BorderBrush="Black" Grid.Row="2"
+          Margin="{math:Convert x={Binding Source={StaticResource BigMargin}},
+                                y={Binding Source={StaticResource SmallMargin}},
+                                z={Binding Source={StaticResource BigMargin}},
+                             Var3={Binding Source={StaticResource BigMargin}}}">
+
+    <!-- This border specifies only two values -->
+
     <Border BorderThickness="1" BorderBrush="Red">
       <Border.Margin>
         <MultiBinding Converter="{StaticResource Math}">
-          <Binding Source="{StaticResource Margin}" />
+          <Binding Source="{StaticResource BigMargin}" />
           <Binding Source="{StaticResource SmallMargin}" />
         </MultiBinding>
       </Border.Margin>
+
+      <!-- This border specifes only one value -->
+      <Border BorderThickness="1" BorderBrush="Green" Margin="{Binding Source={StaticResource SmallMargin}, Converter={StaticResource Math}}" />
     </Border>
   </Border>
 </Window>

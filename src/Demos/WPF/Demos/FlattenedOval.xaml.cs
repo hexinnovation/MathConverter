@@ -1,15 +1,8 @@
 ﻿using System.Windows;
 
-namespace MathConverter.Demo.Demos
+namespace MathConverter.Demo.Demos;
+
+public partial class FlattenedOval : Window
 {
-    /// <summary>
-    /// Interaction logic for FlattenedOval.xaml
-    /// </summary>
-    public partial class FlattenedOval : Window
-    {
-        public FlattenedOval()
-        {
-            InitializeComponent();
-        }
-    }
+    public FlattenedOval() => InitializeComponent();
 }

@@ -7,10 +7,7 @@
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         mc:Ignorable="d"
         Title="Now Plus Six Hours" SizeToContent="WidthAndHeight" ResizeMode="NoResize" WindowStyle="ToolWindow">
-  <Window.Resources>
-    <math:MathConverter x:Key="Math" />
-  </Window.Resources>
   <Border Margin="20">
-    <TextBlock Text="{Binding Source={x:Type sys:TimeSpan}, ConverterParameter='$`Six hours from now, the time will be {Now() + ConvertType(`6:00:00`, x):h\':\'mm\':\'ss tt}`', Converter={StaticResource Math}}" />
+    <TextBlock Text="{math:Convert '$`Six hours from now, the time will be {Now() + ConvertType(`6:00:00`, x):h\':\'mm\':\'ss tt}\\nWe bind to a property that updates every second, in order to update the string.`', x={Binding Source={x:Type sys:TimeSpan}}, y={Binding OneSecondTimer, RelativeSource={RelativeSource AncestorType=Window}}}" />
   </Border>
 </Window>

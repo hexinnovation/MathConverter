@@ -1,15 +1,8 @@
 ﻿using System.Windows;
 
-namespace MathConverter.Demo.Demos
+namespace MathConverter.Demo.Demos;
+
+public partial class TrueRoundedRectangle : Window
 {
-    /// <summary>
-    /// Interaction logic for TrueRoundedRectangle.xaml
-    /// </summary>
-    public partial class TrueRoundedRectangle : Window
-    {
-        public TrueRoundedRectangle()
-        {
-            InitializeComponent();
-        }
-    }
+    public TrueRoundedRectangle() => InitializeComponent();
 }

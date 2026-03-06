@@ -13,6 +13,7 @@
   <StackPanel Margin="20">
     <RadioButton Checked="RadioButton_Changed" Content="Use Stock Average Function" IsChecked="True" x:Name="UseStockFunction" />
     <RadioButton Checked="RadioButton_Changed" Content="Use Custom Average Function" Margin="0,10" />
+
     <TextBlock x:Name="TextBlock" Text="{Binding ConverterParameter='`Average(1, 1.5) returns ` + Average(1, 1.5)', Converter={StaticResource Math}}" />
   </StackPanel>
 </Window>

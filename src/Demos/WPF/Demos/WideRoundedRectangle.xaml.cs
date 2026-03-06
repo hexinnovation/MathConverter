@@ -1,15 +1,8 @@
 ﻿using System.Windows;
 
-namespace MathConverter.Demo.Demos
+namespace MathConverter.Demo.Demos;
+
+public partial class WideRoundedRectangle : Window
 {
-    /// <summary>
-    /// Interaction logic for WideRoundedRectangle.xaml
-    /// </summary>
-    public partial class WideRoundedRectangle : Window
-    {
-        public WideRoundedRectangle()
-        {
-            InitializeComponent();
-        }
-    }
+    public WideRoundedRectangle() => InitializeComponent();
 }
