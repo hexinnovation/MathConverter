@@ -361,11 +361,11 @@ Each time a conversion must be made, MathConverter must parse and evaluate an ex
 <math:MathConverter x:Key="nocache" UseCache="False" />
 ```
 
-Breaking Changes From V1
--------------------------
-There are a few breaking changes from version 1.
+Breaking Changes From Older Versions
+------------------------------------
+There are a few breaking changes from older versions.
 
-* Function names are now case-sensitive.
-* `e`, `pi`, `null`, `true`, and `false` keywords are now required to be lower-case.
-* `VisibleOrCollapsed` and `VisibleOrHidden` functions were deprecated, and will be removed in a future release. You should change your conversions from `VisibleOrCollapsed(x)` to `` x ? `Visible` : `Collapsed` ``
-* There are several small differences in how/when types are converted. For example, we no longer convert from int to double unless it needs to be used as an operand in an operator such as `+`, `*`, etc.
+* Function names were not case-sensitive until V2.
+* `e`, `pi`, `null`, `true`, and `false` keywords are required to be lower-case since V2.
+* `VisibleOrCollapsed` and `VisibleOrHidden` functions were removed in V3. `VisibleOrCollapsed(x)` can be replaced by `` x ? `Visible` : `Collapsed` ``, and `VisibleOrHidden(x)` can be replaced by `` x ? `Visible` : `Hidden` ``
+* There are several small differences in how/when types are converted between V1 and V2. For example, we no longer convert from int to double unless it needs to be used as an operand in an operator such as `+`, `*`, etc.

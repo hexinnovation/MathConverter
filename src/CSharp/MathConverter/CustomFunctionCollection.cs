@@ -68,10 +68,6 @@ namespace HexInnovation
             Add(CustomFunctionDefinition.Create<ToLowerFunction>("LCase"));
             Add(CustomFunctionDefinition.Create<ToUpperFunction>("ToUpper"));
             Add(CustomFunctionDefinition.Create<ToUpperFunction>("UCase"));
-#if WPF
-            Add(CustomFunctionDefinition.Create<VisibleOrCollapsedFunction>("VisibleOrCollapsed"));
-            Add(CustomFunctionDefinition.Create<VisibleOrHiddenFunction>("VisibleOrHidden"));
-#endif
             Add(CustomFunctionDefinition.Create<TryParseDoubleFunction>("TryParseDouble"));
             Add(CustomFunctionDefinition.Create<GetTypeFunction>("GetType"));
             Add(CustomFunctionDefinition.Create<StartsWithFunction>("StartsWith"));

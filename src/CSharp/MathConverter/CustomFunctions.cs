@@ -82,19 +82,6 @@ internal sealed class ToUpperFunction : OneArgFunction
 {
     public override object? Evaluate(CultureInfo cultureInfo, object? argument) => $"{argument}".ToUpper(cultureInfo);
 }
-#if WPF
-internal sealed class VisibleOrCollapsedFunction : OneArgFunction
-{
-    public VisibleOrCollapsedFunction() => Debug.WriteLine($"{nameof(VisibleOrCollapsedFunction)} is deprecated. Use 'x ? `Visible` : `Collapsed` instead.'");
-    public override object? Evaluate(CultureInfo cultureInfo, object? argument) => TryConvert<bool>(argument, out var value) && value ? Visibility.Visible : Visibility.Collapsed;
-}
-internal sealed class VisibleOrHiddenFunction : OneArgFunction
-{
-    public VisibleOrHiddenFunction() => Debug.WriteLine($"{nameof(VisibleOrCollapsedFunction)} is deprecated. Use 'x ? `Visible` : `Hidden` instead.'");
-
-    public override object? Evaluate(CultureInfo cultureInfo, object? argument) => TryConvert<bool>(argument, out var value) && value ? Visibility.Visible : Visibility.Hidden;
-}
-#endif
 internal sealed class TryParseDoubleFunction : OneArgFunction
 {
     public override object? Evaluate(CultureInfo cultureInfo, object? argument) =>

@@ -999,18 +999,6 @@ public class MathConverterTests
                 }
             }
 
-#if WPF
-            // VisibleOrHidden and VisibleOrCollapsed are deprecated!
-            Assert.AreEqual(Visibility.Visible, _converter.Convert([true], typeof(object), "VisibleOrHidden(x)", new CultureInfo("de")));
-            Assert.AreEqual(Visibility.Visible, _converter.Convert([true], typeof(object), "VisibleOrCollapsed(x)", new CultureInfo("de")));
-
-            foreach (var arg in new object?[] { false, null, "true", "false", "Hello World" })
-            {
-                Assert.AreEqual(Visibility.Hidden, _converter.Convert([arg], typeof(object), "VisibleOrHidden(x)", new CultureInfo("de")));
-                Assert.AreEqual(Visibility.Collapsed, _converter.Convert([arg], typeof(object), "VisibleOrCollapsed(x)", new CultureInfo("de")));
-            }
-#endif
-
             Assert.AreEqual(null, _converter.Convert([null, 3, 5], typeof(object), "TryParseDouble(null)", new CultureInfo("de")));
             Assert.AreEqual(null, _converter.Convert([null, 3, 5], typeof(object), "TryParseDouble(` `)", new CultureInfo("de")));
             Assert.AreEqual(3.425, _converter.Convert([null, 3, 5], typeof(object), "TryParseDouble(`3,425`)", new CultureInfo("de")));
