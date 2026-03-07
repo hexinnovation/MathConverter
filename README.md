@@ -369,3 +369,4 @@ There are a few breaking changes from older versions.
 * `e`, `pi`, `null`, `true`, and `false` keywords are required to be lower-case since V2.
 * `VisibleOrCollapsed` and `VisibleOrHidden` functions were removed in V3. `VisibleOrCollapsed(x)` can be replaced by `` x ? `Visible` : `Collapsed` ``, and `VisibleOrHidden(x)` can be replaced by `` x ? `Visible` : `Hidden` ``
 * There are several small differences in how/when types are converted between V1 and V2. For example, we no longer convert from int to double unless it needs to be used as an operand in an operator such as `+`, `*`, etc.
+* Version 3.0 dropped support for `Xamarin.Forms`

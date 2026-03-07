@@ -4,8 +4,8 @@
     <Company>Hex Innovation</Company>
     <Copyright>Copyright © 2015-$([System.DateTime]::Now.ToString(`yyyy`)) $(Company)</Copyright>
     <Product>$(AssemblyName)</Product>
-    <Version>2.2.1</Version>
-    <AssemblyVersion>2.0.0.0</AssemblyVersion>
+    <Version>3.0.0</Version>
+    <AssemblyVersion>3.0.0.0</AssemblyVersion>
     <FileVersion>$(AssemblyVersion)</FileVersion>
     <ApplicationVersion>$(AssemblyVersion)</ApplicationVersion>
     <Authors>$(Company)</Authors>
