@@ -2,13 +2,14 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:math="http://hexinnovation.com/math"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:functions="clr-namespace:MathConverter.Demo.CustomFunctions"
+        xmlns:local="clr-namespace:MathConverter.Demo.CustomFunctions"
         xmlns:demos="clr-namespace:MathConverter.Demo.Demos"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         Title="MathConverter Demo" SizeToContent="WidthAndHeight">
   <Window.Resources>
     <math:MathConverter x:Key="Math">
-      <math:CustomFunctionDefinition Name="GetWindowTitle" Function="functions:GetWindowTitleFunction" />
+      <!-- "GetWindowTitle" in the parameter will invoke the `GetWindowTitleFunction` function. -->
+      <math:CustomFunctionDefinition Name="GetWindowTitle" Function="local:GetWindowTitleFunction" />
     </math:MathConverter>
   </Window.Resources>
   <StackPanel Margin="20">

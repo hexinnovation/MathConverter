@@ -7,15 +7,13 @@ Installation:
 
 | Nuget Package                                                                          | UI Framework                                                             | Target Frameworks                                                                                                                                                            |
 |----------------------------------------------------------------------------------------|--------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [MathConverter](https://www.nuget.org/packages/MathConverter)                          | [WPF](https://learn.microsoft.com/dotnet/desktop/wpf/overview)           | <ul><li>.NET Framework 3.5+</li><li>.NET Core 3.0+</li><li>.NET 5.0 - 8.0</li></ul>                                                                                          |
-| [MathConverter.XamarinForms](https://www.nuget.org/packages/MathConverter.XamarinForms)| [Xamarin.Forms](https://dotnet.microsoft.com/apps/xamarin/xamarin-forms) | <ul><li>.NET Standard 1.0+</li><li>.NET Core 3.0+</li><li>.NET 5.0 - 8.0</li><li>Xamarin.iOS 10+</li><li>MonoAndroid 10+</li><li>UAP 10.0</li><li>Xamarin.Mac 2.0+</li></ul> |
-| [MathConverter.Maui](https://www.nuget.org/packages/MathConverter.Maui)                | [.NET MAUI](https://learn.microsoft.com/en-us/dotnet/maui/what-is-maui)  | <ul><li>.NET 7.0 - 8.0</li><li>Windows</li><li>MacCatalyst</li><li>iOS</li><li>Android</li></ul>                                                                             |
+| [MathConverter](https://www.nuget.org/packages/MathConverter)                          | [WPF](https://learn.microsoft.com/dotnet/desktop/wpf/overview)           | <ul><li>.NET Framework 3.5+</li><li>.NET Core 3.0+</li><li>.NET 5.0 - 10.0</li></ul>                                                                                          |
+| [MathConverter.Maui](https://www.nuget.org/packages/MathConverter.Maui)                | [.NET MAUI](https://learn.microsoft.com/en-us/dotnet/maui/what-is-maui)  | <ul><li>.NET 8.0</li><li>.NET 10.0</li></ul>                                                                             |
 
 To install MathConverter, run the one of the following commands in the [Package Manager Console](https://docs.microsoft.com/en-us/nuget/tools/package-manager-console):
 
 ```
 PM> Install-Package MathConverter
-PM> Install-Package MathConverter.XamarinForms
 PM> Install-Package MathConverter.Maui
 ```
 
@@ -41,20 +39,18 @@ It's as easy as 1-2-3.
 </Application.Resources>
 ```
 
-The `math` namespace is defined as follows<b>*</b>:
+The `math` namespace is defined as follows:
 
 ```xaml
 xmlns:math="http://hexinnovation.com/math"
 ```
 
-**3)** Do Math. Now, you can use `MathConverter` on any `Binding`. Specify a `ConverterParameter` to specify the rules of the conversion.
-
-> <b>*Note:</b> In some targets (e.g. .NET Standard 1.0), you might have to define the `math` namespace as `xmlns:math="clr-namespace:HexInnovation;assembly=MathConverter.XamarinForms"`
+**3)** Do Math. Now, you can use `MathConverter` on any `Binding`. Specify a `ConverterParameter` to perform arbitrary conversions.
 
 Example: Rounded Rectangle
 --------------------------
 
-Suppose we want to make a rounded rectangle. If we create a `Border` and bind bind its `CornerRadius` to its own `ActualHeight`, we end up with a flattened oval ([Full XAML file](src/Demos/WPF/Demos/FlattenedOval.xaml)):
+Suppose we want to make a rounded rectangle. In WPF, if we create a `Border` and bind bind its `CornerRadius` to its own `ActualHeight`, we end up with a flattened oval ([Full XAML file](src/Demos/WPF/Demos/FlattenedOval.xaml)):
 
 ```xaml
 <Border CornerRadius={Binding ActualHeight}" … />
@@ -87,7 +83,7 @@ Alternatively, we can use the `math:Convert` MarkupExtension, which is more eleg
 CornerRadius="{math:Convert 'Min(x,y)/2', x={Binding ActualHeight}, y={Binding ActualWidth}}"
 ```
 
-![If CornerRadius = ActualHeight / 2, we get a rounded rectangle](ReadmeAssets/True%20Rounded%20Rectangle.png)
+![If CornerRadius = Min(ActualHeight, ActualWidth) / 2, we get a rounded rectangle](ReadmeAssets/True%20Rounded%20Rectangle.png)
 
 > **Note:** Instead of using the `Min` function, we could also use the ternary operator: `ConverterParameter = "(x > y ? y : x) / 2"`, but that's a little cumbersome to add to XAML.
 >
@@ -119,24 +115,24 @@ Example: No Parameter at all
 
 The `ConverterParameter` is optional. When it is omitted, MathConverter will attempt to convert all of the binding values string-joined with a comma.
 
-In this example, we create two different GridLength (margin) values: one by specifying `Margin` for all four sides, and the other by specifying `Margin` for horizontal margins, and `SmallMargin` for vertical margins ([Full XAML file](src/Demos/WPF/Demos/NoConverterParameter.xaml)).
+In this example, we create three different GridLength (margin) values: the first specifies four `Margin` values (one for each side), the second specifies two values: `BigMargin` for horizontal margins, and `SmallMargin` for vertical margins, and the third uses `SmallMargin` for all four sides ([Full XAML file](src/Demos/WPF/Demos/NoConverterParameter.xaml)).
 
-The first essentially converts as `Margin="20"`. The second converts as `Margin="20,10"`.
+The first converts the four bindings to the string `"20,20,100,20"`. The second converts to the string `"100,20"`, and the last converts to `"20"`. Finally, the strings are converted to `Thickness` values.
 
 ```xaml
-<Border BorderThickness="1" BorderBrush="Black" Grid.Row="2" Margin="{Binding Source={StaticResource Margin}, Converter={StaticResource Math}}">
-    <Border BorderThickness="1" BorderBrush="Red">
-        <Border.Margin>
-            <MultiBinding Converter="{StaticResource Math}">
-                <Binding Source="{StaticResource Margin}" />
-                <Binding Source="{StaticResource SmallMargin}" />
-            </MultiBinding>
-        </Border.Margin>
-    </Border>
+<Border BorderThickness="1" BorderBrush="Red">
+    <Border.Margin>
+        <MultiBinding Converter="{StaticResource Math}">
+            <Binding Source="{StaticResource BigMargin}" />
+            <Binding Source="{StaticResource SmallMargin}" />
+        </MultiBinding>
+    </Border.Margin>
+
+    <!-- Green Border -->
 </Border>
 ```
 
-Alternatively, we could use the `Convert` MarkupExtension, which creates a `MultiBinding` for us:
+This `MultiBinding` could instead be created by the `Convert` MarkupExtension:
 
 ```xaml
 <Border … Margin="{math:Convert x={Binding Margin}, y={Binding SmallMargin}}" />
@@ -159,11 +155,11 @@ There's a lot going on in this conversion, so let's take this one slowly.
 
 The conversion parameter is `` x ? `Visible` : `Collapsed` ``. MathConverter allows us to input strings very similarly to C#. To more easily facilitate adding strings to XAML, we can use `"` (double quote), `'` (single quote), or `` ` `` (grave) characters to start and end a string.
 
-Suppose that `x` evaluates to true (`CheckBox.IsChecked` is `true`). Then, `` x ? `Visible` : `Collapsed` `` would evaluate to a `System.String` of `"Visible"`. Since we're binding to a property of `Visibility`, MathConverter later converts this value to `Visibility.Visible` for us.
+Suppose that `x` evaluates to true (`CheckBox.IsChecked` is `true`). Then, `` x ? `Visible` : `Collapsed` `` would evaluate to a `System.String` of `"Visible"`. Since we're binding to a property of Type `Visibility`, MathConverter later converts `"Visibile"` to `Visibility.Visible` for us.
 
 > **Note:** You can backslash-escape characters such as `\t` and `\n` in strings, just like C#. Additionally, you can backslash-escape double quotes, single quotes, and grave characters.
 >
-> **Note:** All strings must start and end with the same character. So a ConverterParameter of `'Hello, world"` would throw an exception because `'` and `"` do not match, whereas ConverterParameters of `` `Hello, world` ``, `"Hello, world"`, and `'Hello, world'` are equivalent.
+> **Note:** All strings must start and end with the same character. So a ConverterParameter of `'Hello, world"` would throw an exception because `'` and `"` do not match, whereas ConverterParameters of `` `Hello, world` ``, `"Hello, world"`, and `'Hello, world'` are equivalent. Similarly, `'I\'m hungry'`, `"I'm hungry"`, and `` `I'm hungry` `` are equivalent.
 
 Example: Interpolated Strings
 -----------------------------
@@ -200,7 +196,7 @@ Functions include:
 * `EndsWith(x, y)` behaves the same way as `StartsWith` except it detects if `x` _ends_ with `y`.
 * `Contains(x, y)` is a bit different. `x` can be an `IEnumerable`, in which case we check to see if it contains `y`, or if `x` is a string, the function checks if `x` contains `$"{y}"`. If `$"{y}".Length` is zero (but notably, not if `y == ""`), then the function returns `null` instead.
 * `IsNull()`/`IfNull()`/`Coalesce()` accept two or more arguments. It evaluates them sequentially, returning the first parameter that is not `null`. Subsequent arguments are not evaulated. If all arguments are `null`, the function returns `null`.
-* `And()`, `Or()`, and `Nor()` each accept an arbitrary number of functions. They use reflection to call the logical operators UnaryNot (`Nor(x, y)` evaluates as `!Or(x, y)`), BitwiseAnd, and BitwiseOr. This means that we can accept and return non-boolean values, provided that their types would compile with `&&`, `||`, and `!` in C#. We only evaluate as many parameters as we need to. For example, `And(…)` will evaulate parameters only until it encounters a false value, in which case it will return the false value.
+* `And()`, `Or()`, and `Nor()` each accept an arbitrary number of parameters. They use reflection to call the logical operators UnaryNot (`Nor(x, y)` evaluates as `!Or(x, y)`), BitwiseAnd, and BitwiseOr. This means that we can accept and return non-boolean values, provided that their types would compile with `&&`, `||`, and `!` in C#. We only evaluate as many parameters as we need to. For example, `And(…)` will evaulate parameters only until it encounters a false value, in which case it will return the false value.
 * `Max()`, `Min()`, and `Avg()`/`Average()` ignore values that can't be converted to double, and return `null` if no they do not encounter any numeric values.
 * `Format()` simply returns [`string.Format`](https://learn.microsoft.com/dotnet/api/system.string.format)
 * `Concat()` simply returns [`string.Concat`](https://learn.microsoft.com/dotnet/api/system.string.concat).
@@ -214,12 +210,12 @@ Functions include:
 Using these operators, you can do very powerful things. One such example ([Full XAML file](src/Demos/WPF/Demos/NowPlusSixHours.xaml)):
 
 ```xaml
-<TextBlock Text="{Binding Source={x:Type sys:TimeSpan}, ConverterParameter='$`Six hours from now, the time will be {Now() + ConvertType(`6:00:00`, x):h\':\'mm\':\'ss tt}`', Converter={StaticResource Math}}" />
+<TextBlock Text="{math:Convert '$`Six hours from now, the time will be {Now() + ConvertType(`6:00:00`, x):h\':\'mm\':\'ss tt}\\nWe bind to a property that updates every second, in order to update the string.`', x={Binding Source={x:Type sys:TimeSpan}}, y={Binding OneSecondTimer, RelativeSource={RelativeSource AncestorType=Window}}}" />
 ```
 
 We use `ConvertType` to convert `"6:00:00"` from string to `TimeSpan`, then add that `TimeSpan` to the current time, and format it with the format string `"h:mm:ss tt"`.
 
-![Six hours from now, the time will be 12:35:09 AM](ReadmeAssets/Now%20Plus%20Six%20Hours.png)
+![Six hours from now, the time will be 6:51:25 PM](ReadmeAssets/Now%20Plus%20Six%20Hours.png)
 
 
 Custom Functions
@@ -247,7 +243,11 @@ We have a ListBox with Types added.
 The `ListBox` uses a `DataTemplate` to show a `TextBox` for each item. We use the custom function `GetWindowTitle()` to convert the `Type`s to a display value.
 
 ```xaml
-<TextBlock Text="{Binding ConverterParameter='GetWindowTitle(x)', Converter={StaticResource Math}}" />
+<ListBox.ItemTemplate>
+    <DataTemplate DataType="sys:Type">
+        <TextBlock Text="{Binding ConverterParameter='GetWindowTitle(x)', Converter={StaticResource Math}}" />
+    </DataTemplate>
+</ListBox.ItemTemplate>
 ```
 
 The `GetWindowTitle` function is added to MathConverter as follows:
@@ -256,7 +256,7 @@ The `GetWindowTitle` function is added to MathConverter as follows:
 <Window.Resources>
     <math:MathConverter x:Key="Math">
         <!-- "GetWindowTitle" in the parameter will invoke the `GetWindowTitleFunction` function. -->
-        <math:CustomFunctionDefinition Name="GetWindowTitle" Function="functions:GetWindowTitleFunction" />
+        <math:CustomFunctionDefinition Name="GetWindowTitle" Function="local:GetWindowTitleFunction" />
     </math:MathConverter>
 </Window.Resources>
 ```
@@ -266,14 +266,14 @@ The `GetWindowTitle` function is added to MathConverter as follows:
 ```c#
 public class GetWindowTitleFunction : OneArgFunction
 {
-    public override object Evaluate(CultureInfo cultureInfo, object argument)
+    public override object? Evaluate(CultureInfo cultureInfo, object? argument)
     {
-        return argument is Type t && t.IsAssignableTo(typeof(Window)) ? ((Window)Activator.CreateInstance(t)).Title : null;
+        return argument is Type t && t.IsAssignableTo(typeof(Window)) ? ((Window)Activator.CreateInstance(t)!).Title : null;
     }
 }
 ```
 
- So, our `GetWindowTitleFunction` instantiates the `Type` and get the `Title` property of the resulting `Window`.
+So, our `GetWindowTitleFunction` instantiates the `Type` and gets the `Title` property of the resulting `Window`. This only works because each `Type` we added to `ListBox.Items` is a subclass of `Window`.
 
 ![The GetWindowTitle function converts the Types to display names for us](ReadmeAssets/Custom%20Function.png)
 
@@ -333,13 +333,13 @@ Syntax
 MathConverter's `ConverterParameter` syntax is very similar to C#, so you can generally expect it to behave just like C#. We follow [the standard C# rules regarding operator ordering](https://learn.microsoft.com/dotnet/csharp/language-reference/operators/#operator-precedence), except as noted below:
 
 * Since `MathConverter` is specifically designed to perform math calculations, the caret (`^`) operator does not perform the `XOR` operation. Rather, it is an exponent symbol. It uses [`System.Math.Pow`](https://learn.microsoft.com/dotnet/api/system.math.pow) to evaluate expressions, and its precedence is just above multiplicative operations (`*`, `/`, and `%`).
-* The multiplication operator can often be safely ommitted. A `ConverterParameter` value of `xyz` will evaluate to `x*y*z`. The parameter `x2y` will evaluate to `x^2*y` (or equivalently, `xxy` or `x*x*y`). Similarly, `2x3` is equivalent to `2*x^3` or `2*x*x*x`. Note that `x(2)` is equivalent to `x*(2)`, in the same way that `x(y+z)` is equivalent to `x*(y+z)`. Note that `1/xy` will evaluate to `1/x*y`, not to `1/(x*y)`, as you might expect.
+* The multiplication operator can often be safely omitted. A `ConverterParameter` value of `xyz` will evaluate to `x*y*z`. The parameter `x2y` will evaluate to `x^2*y` (or equivalently, `xxy` or `x*x*y`). Similarly, `2x3` is equivalent to `2*x^3` or `2*x*x*x`. Note that `x(2)` is equivalent to `x*(2)`, in the same way that `x(y+z)` is equivalent to `x*(y+z)`. Note that `1/xy` will evaluate to `1/x*y`, not to `1/(x*y)`, as you might expect.
 * `MathConverter` doesn't support all of the operations that C# does. The following operators are examples of those not supported:
     * Assignment operators (`=`, `+=`, `&&=`, etc)
     * Logical operators (`|`, `&`, and `^` as `XOR`)
          - Note that `||` and `&&` are supported operators.
     * `switch` and `with` expressions are not supported.
-    * `is` and `as` (since Types are not supported)
+    * `is` and `as` (since Types are mostly unsupported)
     * Bitwise operations (`<<`, `>>`, `~`) are not supported.
     * The unary operators `++` and `--` are not supported, since they change the values of the inputs.
     * Primary operators (`x.y`, `f(x)`, `a[i]`, `new`, `typeof`, `checked`, `unchecked`, `default`, `nameof`, `sizeof`) are not supported.
@@ -348,14 +348,14 @@ MathConverter uses reflection to evaluate operator calls, so you can use custom 
 
 Numeric Types
 -------------
-Generally, MathConverter will favor using `double` values over other numeric types. When evaluating which operator to call, `MathConverter` will convert any operands to `double`, if possible, before calling the operator. If an input is of type `char`, it will convert to `int` then convert to `double`. Where a path to implicitly convert an operand to `double` exists, MathConverter will convert for you in order to apply an operator that takes numeric inputs.
+Generally, MathConverter will favor using `double` values over other numeric types. When determining which operator to call, `MathConverter` will convert any operands to `double`, if possible, before evaluating the operator. If an input is of type `char`, it will convert to `int` then convert to `double`. Where a path to implicitly convert an operand to `double` exists, MathConverter will convert for you in order to apply an operator that takes numeric inputs.
 
-Hence, supposing `x = 1` (an integer), C# would evaluate that `1 + x/2 = 1`, since `(int)1 / 2 = 0`. MathConverter will implicitly converter all variables to doubles. So, the expression `1 + x/2` is evaluated as `1.0 + (double)x/2.0`, so MathConverter will return `1.5`.
+Hence, supposing `x = 1` (an integer), C# would evaluate that `1 + x/2 = 1`, since `(int)1 / 2 = 0`. MathConverter will implicitly convert all variables to doubles. The expression `1 + x/2` is evaluated as `1.0 + (double)x/2.0`, so MathConverter will return `1.5`.
 
 Parser
 ------
 
-Each time a conversion must be made, MathConverter must parse and evaluate an expression. When it parses an expression, it reads through the string one character at a time, and returns a syntax tree. The parsing is done in the `Parser` class. The `Parser` returns an `AbstractSyntaxTree` for each comma-separated (or semicolon-separated) value. In an effort to improve efficiency, `MathConverter` uses a cache to save the `AbstractSyntaxTree`s for each string it evaluates. Therefore, if you have a lot of conversion strings, it is discouraged to use the same `MathConverter` instance across your entire application. It is a better idea to use a different `MathConverter` object for each `UserControl`, `Page`, or `Window`. You can turn off caching on a per-instance basis:
+Each time a conversion must be made, MathConverter must parse and evaluate an expression. When it parses an expression, it reads through the string one character at a time, and returns a syntax tree. The parsing is done in the `Parser` class. The `Parser` returns an `AbstractSyntaxTree` for each comma-separated (or semicolon-separated) value. In an effort to improve efficiency, `MathConverter` uses a cache to save the `AbstractSyntaxTree`s for each string it evaluates. Therefore, if you have a lot of conversion strings, it is discouraged to use the same `MathConverter` instance across your entire application. It is a better idea to use a different `MathConverter` object for each `UserControl`, `Page`, or `Window`. If you opt to use a single MathConverter object, it will maintain an in-memory cache of parsed `AbstractSyntaxTree` for every ConverterParameter found throughout your app. Using a per-Page MathConverter will allow the garbage collector to clean up these cached parameters once your Page is no longer needed. You can turn off caching on a per-instance basis:
 
 ```xaml
 <math:MathConverter x:Key="nocache" UseCache="False" />

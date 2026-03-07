@@ -1,14 +1,15 @@
 ﻿<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:sys="clr-namespace:System;assembly=System.Runtime"
-             xmlns:functions="clr-namespace:MathConverter.Demo.CustomFunctions"
+             xmlns:local="clr-namespace:MathConverter.Demo.CustomFunctions"
              xmlns:demos="clr-namespace:MathConverter.Demo.Demos"
              xmlns:math="http://hexinnovation.com/math"
              Padding="20"
              x:Class="MathConverter.Demo.MainPage">
     <ContentPage.Resources>
         <math:MathConverter x:Key="Math">
-            <math:CustomFunctionDefinition Name="GetPageTitle" Function="{x:Type functions:GetPageTitleFunction}" />
+            <!-- "GetWindowTitle" in the parameter will invoke the `GetWindowTitleFunction` function. -->
+            <math:CustomFunctionDefinition Name="GetPageTitle" Function="{x:Type local:GetPageTitleFunction}" />
         </math:MathConverter>
     </ContentPage.Resources>
 
