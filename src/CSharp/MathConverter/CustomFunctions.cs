@@ -177,8 +177,17 @@ internal sealed class EnumEqualsFunction : TwoArgFunction
 }
 internal sealed class IsNullFunction : ArbitraryArgFunction
 {
-    public override object? Evaluate(CultureInfo cultureInfo, Func<object?>[] arguments) => arguments[0]() ?? arguments[1]();
-    public override bool IsValidNumberOfParameters(int numParams) => numParams == 2;
+    public override object? Evaluate(CultureInfo cultureInfo, Func<object?>[] arguments)
+    {
+        for (int i = 0; i < arguments.Length - 1; i++)
+        {
+            if (arguments[i]() is { } v)
+                return v;
+        }
+
+        return arguments[^1]();
+    }
+    public override bool IsValidNumberOfParameters(int numParams) => numParams >= 2;
 }
 internal sealed class RoundFunction : ArbitraryArgFunction
 {

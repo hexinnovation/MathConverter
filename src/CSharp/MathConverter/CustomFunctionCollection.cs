@@ -84,6 +84,7 @@ namespace HexInnovation
             Add(CustomFunctionDefinition.Create<Atan2Function>("ArcTan2"));
             Add(CustomFunctionDefinition.Create<IsNullFunction>("IsNull"));
             Add(CustomFunctionDefinition.Create<IsNullFunction>("IfNull"));
+            Add(CustomFunctionDefinition.Create<IsNullFunction>("Coalesce"));
             Add(CustomFunctionDefinition.Create<RoundFunction>("Round"));
             Add(CustomFunctionDefinition.Create<AndFunction>("And"));
             Add(CustomFunctionDefinition.Create<NorFunction>("Nor"));

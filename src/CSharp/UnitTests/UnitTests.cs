@@ -885,9 +885,17 @@ public class MathConverterTests
         Assert.AreEqual(5, _converter.Convert([null, 3, 5], typeof(object), "IsNull(x,z)", new CultureInfo("de")));
         Assert.AreEqual(5, _converter.Convert([null, 3, 5], typeof(object), "IfNull(x,z)", new CultureInfo("de")));
         Assert.AreEqual(3, _converter.Convert([null, 3, 5], typeof(object), "IfNull(y,z)", new CultureInfo("de")));
+        Assert.AreEqual(3, _converter.Convert([null, 3, 5], typeof(object), "IfNull(y,y,z)", new CultureInfo("de")));
         Assert.IsNull(_converter.Convert([null, 3, 5], typeof(object), "IfNull(x,x)", new CultureInfo("de")));
+        Assert.IsNull(_converter.Convert([null, 3, 5], typeof(object), "IfNull(x,x,x)", new CultureInfo("de")));
         Assert.AreEqual(3, _converter.Convert([null, 3, 5], typeof(object), "IfNull(x,IfNull(x??y,z))", new CultureInfo("de")));
         Assert.AreEqual(3, _converter.Convert([null, 3, 5], typeof(object), "IfNull(y,Throw(`If the first argument is not null, the second should not be evaluated.`))", new CultureInfo("de")));
+        Assert.AreEqual(3, _converter.Convert([null, 3, 5], typeof(object), "IsNull(y,z,Throw(`If the first argument is not null, the second should not be evaluated.`))", new CultureInfo("de")));
+        try
+        {
+            _converter.Convert([null, 3, 5], typeof(object), "Coalesce(x,x,null,Throw(`If the first three arguments are all null, the fourth argument will be evaulated.`), null)", new CultureInfo("de"));
+        }
+        catch (EvaluationException) { }
         Assert.AreEqual(5, _converter.Convert([null, 3, 5], typeof(object), "Max(x;y;x;z)", new CultureInfo("de")));
         Assert.AreEqual(5, _converter.Convert([null, 3, 5], typeof(object), "Max(y;z;z;x;y;y;z)", new CultureInfo("de")));
         Assert.AreEqual(100.0, _converter.Convert([null, 3, 5], typeof(object), "Max(y;z;100)", new CultureInfo("de")));

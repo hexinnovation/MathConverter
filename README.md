@@ -199,7 +199,7 @@ Functions include:
 * `StartsWith(x, y)` will return `true` or `false` if it can cast/convert `x` to string, based on if `x` starts with `y` or `$"{y}"`. If `x` is not a string or `$"{y}".Length` is `0`, the function returns `null` instead.
 * `EndsWith(x, y)` behaves the same way as `StartsWith` except it detects if `x` _ends_ with `y`.
 * `Contains(x, y)` is a bit different. `x` can be an `IEnumerable`, in which case we check to see if it contains `y`, or if `x` is a string, the function checks if `x` contains `$"{y}"`. If `$"{y}".Length` is zero (but notably, not if `y == ""`), then the function returns `null` instead.
-* `IsNull(x, y)`/`IfNull(x, y)` are equivalent to `x ?? y`
+* `IsNull()`/`IfNull()`/`Coalesce()` accept two or more arguments. It evaluates them sequentially, returning the first parameter that is not `null`. Subsequent arguments are not evaulated. If all arguments are `null`, the function returns `null`.
 * `And()`, `Or()`, and `Nor()` each accept an arbitrary number of functions. They use reflection to call the logical operators UnaryNot (`Nor(x, y)` evaluates as `!Or(x, y)`), BitwiseAnd, and BitwiseOr. This means that we can accept and return non-boolean values, provided that their types would compile with `&&`, `||`, and `!` in C#. We only evaluate as many parameters as we need to. For example, `And(…)` will evaulate parameters only until it encounters a false value, in which case it will return the false value.
 * `Max()`, `Min()`, and `Avg()`/`Average()` ignore values that can't be converted to double, and return `null` if no they do not encounter any numeric values.
 * `Format()` simply returns [`string.Format`](https://learn.microsoft.com/dotnet/api/system.string.format)
