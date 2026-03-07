@@ -1,14 +1,19 @@
 ![Math Converter: A XAML Converter that does it all.](ReadmeAssets/Banner.svg)
 
+Community
+---------
+
+Have questions? Need support? [Join us on Discord](https://discord.gg/Ra5ZP8RwCB)
+
 Installation:
 -------------
 
-`MathConverter` is available on Nuget. There are three packages:
+`MathConverter` is available on Nuget. There are two packages:
 
-| Nuget Package                                                                          | UI Framework                                                             | Target Frameworks                                                                                                                                                            |
-|----------------------------------------------------------------------------------------|--------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [MathConverter](https://www.nuget.org/packages/MathConverter)                          | [WPF](https://learn.microsoft.com/dotnet/desktop/wpf/overview)           | <ul><li>.NET Framework 3.5+</li><li>.NET Core 3.0+</li><li>.NET 5.0 - 10.0</li></ul>                                                                                          |
-| [MathConverter.Maui](https://www.nuget.org/packages/MathConverter.Maui)                | [.NET MAUI](https://learn.microsoft.com/en-us/dotnet/maui/what-is-maui)  | <ul><li>.NET 8.0</li><li>.NET 10.0</li></ul>                                                                             |
+| Nuget Package                                                                          | UI Framework                                                             | Target Frameworks                                                                    |
+|----------------------------------------------------------------------------------------|--------------------------------------------------------------------------|--------------------------------------------------------------------------------------|
+| [MathConverter](https://www.nuget.org/packages/MathConverter)                          | [WPF](https://learn.microsoft.com/dotnet/desktop/wpf/overview)           | <ul><li>.NET Framework 3.5+</li><li>.NET Core 3.0+</li><li>.NET 5.0 - 10.0</li></ul> |
+| [MathConverter.Maui](https://www.nuget.org/packages/MathConverter.Maui)                | [.NET MAUI](https://learn.microsoft.com/en-us/dotnet/maui/what-is-maui)  | <ul><li>.NET 8.0</li><li>.NET 10.0</li></ul>                                         |
 
 To install MathConverter, run the one of the following commands in the [Package Manager Console](https://docs.microsoft.com/en-us/nuget/tools/package-manager-console):
 
@@ -46,6 +51,7 @@ xmlns:math="http://hexinnovation.com/math"
 ```
 
 **3)** Do Math. Now, you can use `MathConverter` on any `Binding`. Specify a `ConverterParameter` to perform arbitrary conversions.
+
 
 Example: Rounded Rectangle
 --------------------------
