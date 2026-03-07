@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace MathConverter.Demo.CustomFunctions;
 
-internal sealed class MyCustomAverageFunction : ArbitraryArgFunction
+internal sealed class RoundedAverageFunction : ArbitraryArgFunction
 {
     public override object? Evaluate(CultureInfo cultureInfo, Func<object?>[] arguments)
     {

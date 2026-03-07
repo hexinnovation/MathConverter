@@ -1,8 +1,8 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="MathConverter.Demo.Demos.CustomAverageFunctionPage"
+             x:Class="MathConverter.Demo.Demos.RoundedAverageFunctionPage"
              xmlns:math="http://hexinnovation.com/math"
-             Title="Custom Average Function"
+             Title="Rounded Average Function"
              Padding="20"
              BindingContext="{Binding Source={RelativeSource Self}}">
     <ContentPage.Resources>
@@ -11,7 +11,7 @@
     </ContentPage.Resources>
     <VerticalStackLayout Spacing="10">
         <RadioButton CheckedChanged="RadioButton_Changed" Content="Use Stock Average Function" IsChecked="True" x:Name="UseStockFunction" />
-        <RadioButton Content="Use Custom Average Function" />
+        <RadioButton Content="Use Rounded Average Function" />
 
         <Label Text="{Binding RefreshBinding, ConverterParameter='`Average(1, 1.5) returns ` + Average(1, 1.5)', Converter={StaticResource Math}}" x:Name="Label" />
     </VerticalStackLayout>

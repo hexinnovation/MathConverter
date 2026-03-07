@@ -291,7 +291,7 @@ Overriding Built-In Functions
 
 Suppose you don't like how a function is implemented. You can always override the function with your own custom function.
 
-As a concrete example, we can implement a [`CustomAverageFunction`](src/Demos/WPF/CustomFunctions/CustomAverageFunction.cs) function. This is similar to MathConverter's built-in `AverageFunction`, except that it rounds each input, instead of simply taking the average.
+As a concrete example, we can implement a [`RoundedAverageFunction`](src/Demos/WPF/CustomFunctions/RoundedAverageFunction.cs) function. This is similar to MathConverter's built-in `AverageFunction`, except that it rounds each input before computing the average.
 
 ```xaml
 <TextBlock x:Name="TextBlock" Text="{Binding ConverterParameter='`Average(1, 1.5) returns ` + Average(1, 1.5)', Converter={StaticResource Math}}" />
@@ -299,12 +299,12 @@ As a concrete example, we can implement a [`CustomAverageFunction`](src/Demos/WP
 
 ![The Average function changes each time the RadioButton is changed](ReadmeAssets/Custom%20Function%20Animation.gif)
 
-With [a little bit of code-behind](src/Demos/WPF/Demos/CustomAverageFunction.xaml.cs), we can remove and replace the `Average` function with our `CustomAverageFunction`:
+With [a little bit of code-behind](src/Demos/WPF/Demos/RoundedAverageFunctionWindow.xaml.cs), we can remove and replace the `Average` function with our `RoundedAverageFunction`:
 
 ```c#
 private void RadioButton_Changed(object sender, RoutedEventArgs e)
 {
-    if (!(FindResource("Math") is HexInnovation.MathConverter math))
+    if (FindResource("Math") is not HexInnovation.MathConverter math)
         return;
 
     if (UseStockFunction.IsChecked == true)
@@ -317,7 +317,7 @@ private void RadioButton_Changed(object sender, RoutedEventArgs e)
     {
         // Remove the default Average function and define our own.
         math.CustomFunctions.Remove("Average");
-        math.CustomFunctions.Add(CustomFunctionDefinition.Create<MyCustomAverageFunction>("Average"));
+        math.CustomFunctions.Add(CustomFunctionDefinition.Create<RoundedAverageFunction>("Average"));
     }
 
     // Tell the TextBlock to refresh its binding again.

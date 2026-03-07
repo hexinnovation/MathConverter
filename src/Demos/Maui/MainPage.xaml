@@ -26,7 +26,7 @@
                     <x:Type TypeName="demos:BooleanToVisibilityPage" />
                     <x:Type TypeName="demos:CountClicksPage" />
                     <x:Type TypeName="demos:NowPlusSixHoursPage" />
-                    <x:Type TypeName="demos:CustomAverageFunctionPage" />
+                    <x:Type TypeName="demos:RoundedAverageFunctionPage" />
                 </x:Array>
             </CollectionView.ItemsSource>
 

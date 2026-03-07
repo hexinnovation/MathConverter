@@ -3,9 +3,9 @@ using MathConverter.Demo.CustomFunctions;
 
 namespace MathConverter.Demo.Demos;
 
-public partial class CustomAverageFunctionPage : ContentPage
+public partial class RoundedAverageFunctionPage : ContentPage
 {
-    public CustomAverageFunctionPage() => InitializeComponent();
+    public RoundedAverageFunctionPage() => InitializeComponent();
 
     private void RadioButton_Changed(object? _, CheckedChangedEventArgs e)
     {
@@ -22,7 +22,7 @@ public partial class CustomAverageFunctionPage : ContentPage
         {
             // Remove the default Average function and define our own.
             math.CustomFunctions.Remove("Average");
-            math.CustomFunctions.Add(CustomFunctionDefinition.Create<MyCustomAverageFunction>("Average"));
+            math.CustomFunctions.Add(CustomFunctionDefinition.Create<RoundedAverageFunction>("Average"));
         }
 
         // Tell the Label to refresh its binding again.
@@ -34,5 +34,5 @@ public partial class CustomAverageFunctionPage : ContentPage
         get => (bool)GetValue(RefreshBindingProperty);
         set => SetValue(RefreshBindingProperty, value);
     }
-    public static readonly BindableProperty RefreshBindingProperty = BindableProperty.Create(nameof(RefreshBinding), typeof(bool), typeof(CustomAverageFunctionPage), false);
+    public static readonly BindableProperty RefreshBindingProperty = BindableProperty.Create(nameof(RefreshBinding), typeof(bool), typeof(RoundedAverageFunctionPage), false);
 }

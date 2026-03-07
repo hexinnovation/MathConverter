@@ -5,9 +5,9 @@ using System.Windows.Controls;
 
 namespace MathConverter.Demo.Demos;
 
-public partial class CustomAverageFunction : Window
+public partial class RoundedAverageFunctionWindow : Window
 {
-    public CustomAverageFunction() => InitializeComponent();
+    public RoundedAverageFunctionWindow() => InitializeComponent();
 
     private void RadioButton_Changed(object sender, RoutedEventArgs e)
     {
@@ -24,7 +24,7 @@ public partial class CustomAverageFunction : Window
         {
             // Remove the default Average function and define our own.
             math.CustomFunctions.Remove("Average");
-            math.CustomFunctions.Add(CustomFunctionDefinition.Create<MyCustomAverageFunction>("Average"));
+            math.CustomFunctions.Add(CustomFunctionDefinition.Create<RoundedAverageFunction>("Average"));
         }
 
         // Tell the TextBlock to refresh its binding again.

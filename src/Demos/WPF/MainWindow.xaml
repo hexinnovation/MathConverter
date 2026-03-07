@@ -23,7 +23,7 @@
         <x:Type TypeName="demos:BooleanToVisibility" />
         <x:Type TypeName="demos:CountClicks" />
         <x:Type TypeName="demos:NowPlusSixHours" />
-        <x:Type TypeName="demos:CustomAverageFunction" />
+        <x:Type TypeName="demos:RoundedAverageFunctionWindow" />
       </ListBox.Items>
 
       <ListBox.ItemContainerStyle>
